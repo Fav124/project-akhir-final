@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Santri Health - Admin Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#06f980",
+              "background-light": "#f5f8f7",
+              "background-dark": "#0f2319",
+            },
+            fontFamily: {
+              "display": ["Inter", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+      -webkit-tap-highlight-color: transparent;
+    }.no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+    .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display antialiased text-gray-900 dark:text-gray-100 min-h-screen">
+<div class="relative w-full max-w-md mx-auto min-h-screen flex flex-col bg-background-light dark:bg-background-dark pb-24 shadow-2xl overflow-hidden">
+<div class="absolute top-0 left-0 w-full h-64 bg-gradient-to-b from-primary/10 to-transparent pointer-events-none"></div>
+<div class="relative px-6 pt-12 pb-6 flex items-center justify-between z-10">
+<div class="flex flex-col">
+<h1 class="text-xs font-semibold tracking-wider text-primary uppercase mb-1">Admin Dashboard</h1>
+<div class="flex items-center gap-2">
+<h2 class="text-2xl font-bold text-gray-900 dark:text-white">Santri Health</h2>
+</div>
+</div>
+<div class="relative">
+<button class="h-10 w-10 rounded-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 flex items-center justify-center shadow-sm active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-gray-600 dark:text-gray-300">notifications</span>
+</button>
+<div class="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500 border border-white dark:border-gray-800"></div>
+</div>
+</div>
+<div class="px-6 mb-8 relative z-10">
+<div class="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center gap-4">
+<div class="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-xl ring-2 ring-white dark:ring-gray-700">
+                A
+            </div>
+<div class="flex-1">
+<p class="text-sm text-gray-500 dark:text-gray-400">Assalamu'alaikum,</p>
+<p class="text-base font-bold text-gray-900 dark:text-white">Admin Ustadz</p>
+</div>
+<button class="text-gray-400 dark:text-gray-500">
+<span class="material-symbols-outlined">expand_more</span>
+</button>
+</div>
+</div>
+<div class="px-6 mb-2">
+<h3 class="text-base font-semibold text-gray-900 dark:text-white mb-4">Overview</h3>
+</div>
+<div class="flex gap-4 overflow-x-auto no-scrollbar px-6 pb-6 snap-x">
+<div class="snap-start shrink-0 w-40 bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col justify-between h-32">
+<div class="h-8 w-8 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-400 mb-2">
+<span class="material-symbols-outlined text-lg">sick</span>
+</div>
+<div>
+<span class="text-2xl font-bold text-gray-900 dark:text-white block">12</span>
+<span class="text-xs text-gray-500 dark:text-gray-400 font-medium">Sick Santri Today</span>
+</div>
+</div>
+<div class="snap-start shrink-0 w-40 bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col justify-between h-32">
+<div class="h-8 w-8 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-600 dark:text-orange-400 mb-2">
+<span class="material-symbols-outlined text-lg">vaccines</span>
+</div>
+<div>
+<span class="text-2xl font-bold text-gray-900 dark:text-white block">5</span>
+<span class="text-xs text-gray-500 dark:text-gray-400 font-medium">Low Stock Items</span>
+</div>
+</div>
+<div class="snap-start shrink-0 w-40 bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col justify-between h-32">
+<div class="h-8 w-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 mb-2">
+<span class="material-symbols-outlined text-lg">groups</span>
+</div>
+<div>
+<span class="text-2xl font-bold text-gray-900 dark:text-white block">340</span>
+<span class="text-xs text-gray-500 dark:text-gray-400 font-medium">Total Santri</span>
+</div>
+</div>
+</div>
+<div class="px-6">
+<h3 class="text-base font-semibold text-gray-900 dark:text-white mb-4">Management</h3>
+<div class="grid grid-cols-2 gap-4">
+<button class="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-start gap-3 active:scale-[0.98] transition-all text-left group hover:border-primary/50">
+<div class="h-10 w-10 rounded-full bg-gray-50 dark:bg-gray-700 flex items-center justify-center group-hover:bg-primary group-hover:text-background-dark transition-colors text-gray-600 dark:text-gray-300">
+<span class="material-symbols-outlined">clinical_notes</span>
+</div>
+<div>
+<span class="block text-sm font-bold text-gray-900 dark:text-white">Sick Records</span>
+<span class="block text-xs text-gray-500 dark:text-gray-400">View logs</span>
+</div>
+</button>
+<button class="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-start gap-3 active:scale-[0.98] transition-all text-left group hover:border-primary/50">
+<div class="h-10 w-10 rounded-full bg-gray-50 dark:bg-gray-700 flex items-center justify-center group-hover:bg-primary group-hover:text-background-dark transition-colors text-gray-600 dark:text-gray-300">
+<span class="material-symbols-outlined">medication</span>
+</div>
+<div>
+<span class="block text-sm font-bold text-gray-900 dark:text-white">Medicine</span>
+<span class="block text-xs text-gray-500 dark:text-gray-400">Inventory</span>
+</div>
+</button>
+<button class="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-start gap-3 active:scale-[0.98] transition-all text-left group hover:border-primary/50">
+<div class="h-10 w-10 rounded-full bg-gray-50 dark:bg-gray-700 flex items-center justify-center group-hover:bg-primary group-hover:text-background-dark transition-colors text-gray-600 dark:text-gray-300">
+<span class="material-symbols-outlined">school</span>
+</div>
+<div>
+<span class="block text-sm font-bold text-gray-900 dark:text-white">Santri</span>
+<span class="block text-xs text-gray-500 dark:text-gray-400">Students list</span>
+</div>
+</button>
+<button class="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-start gap-3 active:scale-[0.98] transition-all text-left group hover:border-primary/50">
+<div class="h-10 w-10 rounded-full bg-gray-50 dark:bg-gray-700 flex items-center justify-center group-hover:bg-primary group-hover:text-background-dark transition-colors text-gray-600 dark:text-gray-300">
+<span class="material-symbols-outlined">class</span>
+</div>
+<div>
+<span class="block text-sm font-bold text-gray-900 dark:text-white">Classes</span>
+<span class="block text-xs text-gray-500 dark:text-gray-400">Majors &amp; Rooms</span>
+</div>
+</button>
+<button class="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-start gap-3 active:scale-[0.98] transition-all text-left group hover:border-primary/50">
+<div class="h-10 w-10 rounded-full bg-gray-50 dark:bg-gray-700 flex items-center justify-center group-hover:bg-primary group-hover:text-background-dark transition-colors text-gray-600 dark:text-gray-300">
+<span class="material-symbols-outlined">bar_chart</span>
+</div>
+<div>
+<span class="block text-sm font-bold text-gray-900 dark:text-white">Reports</span>
+<span class="block text-xs text-gray-500 dark:text-gray-400">Analytics</span>
+</div>
+</button>
+<button class="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-start gap-3 active:scale-[0.98] transition-all text-left group hover:border-primary/50">
+<div class="h-10 w-10 rounded-full bg-gray-50 dark:bg-gray-700 flex items-center justify-center group-hover:bg-primary group-hover:text-background-dark transition-colors text-gray-600 dark:text-gray-300">
+<span class="material-symbols-outlined">manage_accounts</span>
+</div>
+<div>
+<span class="block text-sm font-bold text-gray-900 dark:text-white">Users</span>
+<span class="block text-xs text-gray-500 dark:text-gray-400">Admin &amp; Staff</span>
+</div>
+</button>
+</div>
+</div>
+<div class="fixed bottom-0 left-0 w-full z-50">
+<div class="max-w-md mx-auto bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 px-6 py-3 flex justify-between items-center shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+<button class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-[28px]">dashboard</span>
+<span class="text-[10px] font-medium">Home</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+<span class="material-symbols-outlined text-[28px]">add_circle</span>
+<span class="text-[10px] font-medium">New Record</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+<span class="material-symbols-outlined text-[28px]">settings</span>
+<span class="text-[10px] font-medium">Settings</span>
+</button>
+</div>
+</div>
+</div>
+
+</body></html>

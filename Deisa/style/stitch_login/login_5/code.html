@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Santri Health - Daftar Santri</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#06f980",
+              "background-light": "#f5f8f7",
+              "background-dark": "#0f2319",
+            },
+            fontFamily: {
+              "display": ["Inter", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+          min-height: max(884px, 100dvh);
+          -webkit-tap-highlight-color: transparent;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+      </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display antialiased text-gray-900 dark:text-gray-100 min-h-screen">
+<div class="relative w-full max-w-md mx-auto min-h-screen flex flex-col bg-background-light dark:bg-background-dark shadow-2xl overflow-hidden">
+<div class="absolute top-0 left-0 w-full h-48 bg-gradient-to-b from-primary/10 to-transparent pointer-events-none"></div>
+<div class="relative px-6 pt-12 pb-4 flex items-center justify-between z-10">
+<div class="flex items-center gap-3">
+<button class="h-10 w-10 -ml-2 rounded-full flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors active:scale-95">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="text-xl font-bold text-gray-900 dark:text-white">Daftar Santri</h1>
+</div>
+<button class="h-10 w-10 rounded-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 flex items-center justify-center shadow-sm active:scale-95 transition-transform group">
+<span class="material-symbols-outlined text-gray-600 dark:text-gray-300 group-hover:text-primary transition-colors">filter_list</span>
+</button>
+</div>
+<div class="px-6 mb-4 z-10">
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-gray-400 group-focus-within:text-primary transition-colors">search</span>
+</div>
+<input class="block w-full pl-11 pr-4 py-3.5 bg-white dark:bg-gray-800 border-none rounded-2xl text-sm shadow-sm ring-1 ring-gray-100 dark:ring-gray-700 placeholder-gray-400 focus:ring-2 focus:ring-primary focus:bg-white dark:focus:bg-gray-800 transition-all" placeholder="Cari nama, NIS, atau kelas..." type="text"/>
+</div>
+</div>
+<div class="px-6 mb-4 grid grid-cols-2 gap-3 z-10">
+<div class="relative">
+<select class="appearance-none block w-full pl-4 pr-10 py-3 bg-white dark:bg-gray-800 border-none rounded-2xl text-sm font-medium shadow-sm ring-1 ring-gray-100 dark:ring-gray-700 focus:ring-2 focus:ring-primary text-gray-700 dark:text-gray-200 transition-all cursor-pointer">
+<option value="all">Semua</option>
+<option value="sehat">Sehat</option>
+<option value="sakit">Sakit</option>
+</select>
+<div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+<span class="material-symbols-outlined text-gray-400">expand_more</span>
+</div>
+</div>
+<div class="relative">
+<select class="appearance-none block w-full pl-4 pr-10 py-3 bg-white dark:bg-gray-800 border-none rounded-2xl text-sm font-medium shadow-sm ring-1 ring-gray-100 dark:ring-gray-700 focus:ring-2 focus:ring-primary text-gray-700 dark:text-gray-200 transition-all cursor-pointer">
+<option value="all">Semua Kelas</option>
+<option value="10">Kelas 10</option>
+<option value="11">Kelas 11</option>
+<option value="12">Kelas 12</option>
+</select>
+<div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+<span class="material-symbols-outlined text-gray-400">expand_more</span>
+</div>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto px-6 pb-24 space-y-3 no-scrollbar">
+<div class="bg-white dark:bg-gray-800 p-3 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center gap-4 active:scale-[0.99] transition-transform">
+<div class="relative">
+<img alt="Santri" class="w-14 h-14 rounded-full object-cover bg-gray-100 ring-2 ring-white dark:ring-gray-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgKvWP-ZSx7LDIMCDA8ANRwM8wPAP8avCcvsDD34SGHci4vsQPmq3yBxAKiERI0OQn3zuqMPzbCUzoFhZS-Cl-t7nEDTIVDVTYkc3-EQHcqCHLj27jX-T5u_eEgw2ScL4dzG4Y3ztGsxPmy_U5fFAZYyTHXgqAF_yOFADVKlzIwil2Aq53e8qYv285XLfSJ-5N499Qn36jx6h-0w_uPfi1i7mgcZ9jERunxDZsGfshE-EX339GseDRNTlTjo4AN2ZGHyQRIiR9jeGN"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start">
+<h3 class="font-bold text-gray-900 dark:text-white text-base truncate pr-2">Abdullah Fulan</h3>
+</div>
+<p class="text-xs text-gray-500 dark:text-gray-400 mb-1">NIS: 1029384 • Kelas 10A</p>
+<div class="flex items-center gap-1">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400 border border-green-200 dark:border-green-800/50">
+<span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5"></span> Sehat
+                        </span>
+</div>
+</div>
+<button class="text-gray-400 dark:text-gray-500 p-1">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+<div class="bg-white dark:bg-gray-800 p-3 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center gap-4 active:scale-[0.99] transition-transform">
+<div class="relative">
+<img alt="Santri" class="w-14 h-14 rounded-full object-cover bg-gray-100 ring-2 ring-white dark:ring-gray-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBkdV770rZ0xX_OwPC0AAsLpPchBsErc42RnoeZwD52e9STwdw5YdP3EwEwnYWB0eftxVxQLLAyN4q_Z2OJDGQJbG6z3ilkxLLA9RHt3dTwVdz4lOyMJ-yHC_M32T8rfF7RU4UoYS0GkluV2zj29yKigK7mAMmL6fdoi37pTAHbkBRqmDYDSTocojw9mBsPXHBU26SCEdE68Y-KfZjGbxhTdii8dbVCFYrRIpl6duVqgW1wye4MnmqVsXxHX0DrLN1n7EaNs-xx1bok"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start">
+<h3 class="font-bold text-gray-900 dark:text-white text-base truncate pr-2">Muhammad Rizki</h3>
+</div>
+<p class="text-xs text-gray-500 dark:text-gray-400 mb-1">NIS: 1029385 • Kelas 11B</p>
+<div class="flex items-center gap-1">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400 border border-red-200 dark:border-red-800/50">
+<span class="w-1.5 h-1.5 rounded-full bg-red-500 mr-1.5"></span> Sakit
+                        </span>
+</div>
+</div>
+<button class="text-gray-400 dark:text-gray-500 p-1">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+<div class="bg-white dark:bg-gray-800 p-3 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center gap-4 active:scale-[0.99] transition-transform">
+<div class="relative">
+<img alt="Santri" class="w-14 h-14 rounded-full object-cover bg-gray-100 ring-2 ring-white dark:ring-gray-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYmYfiNeMGvWQ1QZsalZptZXCjJbUNvjR-T2usdi4z7MVnek94AqkrHFQwbFRMVZZsXpWW5Lq8CJmuEQ_tv8l9AZjTvoH9Ytm9MOuVoLGuDyMVaxUhyOq0aK_s62NtNoZLEi5srlPQSYVPvjA_02EJuktDYWdktkYFtz4Zb2cEgOgM4FuOsXWm4ogPXegK3cDMg9u706e1W_ogeFV5P7gLzpNWhZw7Ftr_8up_SnWqhEEo365xVXP94MaDE_lisqkFXChsDpcCLa-c"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start">
+<h3 class="font-bold text-gray-900 dark:text-white text-base truncate pr-2">Zaid Haritsah</h3>
+</div>
+<p class="text-xs text-gray-500 dark:text-gray-400 mb-1">NIS: 1029388 • Kelas 12A</p>
+<div class="flex items-center gap-1">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400 border border-green-200 dark:border-green-800/50">
+<span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5"></span> Sehat
+                        </span>
+</div>
+</div>
+<button class="text-gray-400 dark:text-gray-500 p-1">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+<div class="bg-white dark:bg-gray-800 p-3 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center gap-4 active:scale-[0.99] transition-transform">
+<div class="relative h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xl ring-2 ring-white dark:ring-gray-700">
+                    Y
+                </div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start">
+<h3 class="font-bold text-gray-900 dark:text-white text-base truncate pr-2">Yusuf Hamka</h3>
+</div>
+<p class="text-xs text-gray-500 dark:text-gray-400 mb-1">NIS: 1029390 • Kelas 10C</p>
+<div class="flex items-center gap-1">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400 border border-green-200 dark:border-green-800/50">
+<span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5"></span> Sehat
+                        </span>
+</div>
+</div>
+<button class="text-gray-400 dark:text-gray-500 p-1">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+<div class="bg-white dark:bg-gray-800 p-3 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center gap-4 active:scale-[0.99] transition-transform">
+<div class="relative">
+<img alt="Santri" class="w-14 h-14 rounded-full object-cover bg-gray-100 ring-2 ring-white dark:ring-gray-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4NuyCdWx5o1ASg2OwRp-5VKWITTn79Dftw2v6W3gRGclI4JH7CTj2ru13odeHRpX58XcbvVuI4wcC6hohN65NsTn2xq801wIEZ5BFKqrhXpphOuDYA04N1vLCANA7J6728l02W1QWwTTjQ2_SMXHPk1YbmEqT33D6lNelQ0hxCL-K8MBrNaI_6jXX01hWjiaqXNUBDsNa_HcxY3ZjuBhr-Mqa0az0JftLCAi_qU8FqutTNHqXoBeQj70K0PgzSgUvTWi5oqxNRxL_"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start">
+<h3 class="font-bold text-gray-900 dark:text-white text-base truncate pr-2">Ibrahim Al-Fatih</h3>
+</div>
+<p class="text-xs text-gray-500 dark:text-gray-400 mb-1">NIS: 1029392 • Kelas 11A</p>
+<div class="flex items-center gap-1">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400 border border-red-200 dark:border-red-800/50">
+<span class="w-1.5 h-1.5 rounded-full bg-red-500 mr-1.5"></span> Sakit
+                        </span>
+</div>
+</div>
+<button class="text-gray-400 dark:text-gray-500 p-1">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+<div class="bg-white dark:bg-gray-800 p-3 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center gap-4 active:scale-[0.99] transition-transform">
+<div class="relative">
+<img alt="Santri" class="w-14 h-14 rounded-full object-cover bg-gray-100 ring-2 ring-white dark:ring-gray-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbuIuBfAymeK33RJZc-DIZJq3EytyzJu8ZVrBv2jnxDbUzOZvxxermfzw5Op9JlzIRtMyGioR67epva9Xj5fHUEx1ypC50eoAGuLwrbvACgxnccygttPX5sfBscDAK0IwDGYLbDMX6PVWp3JRg7ohDEzrSKk_lCbdcP4Hn-TI5Mv3HcDFE-mMPppiIYktd0d-SvGH9MuujfwfwRGVJ1jKY-YvvviQD7Ohtq02OZyH4nyctuLoMrEGyAiyp0zrB-JZX7boYLUJfLz3g"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start">
+<h3 class="font-bold text-gray-900 dark:text-white text-base truncate pr-2">Umar bin Khattab</h3>
+</div>
+<p class="text-xs text-gray-500 dark:text-gray-400 mb-1">NIS: 1029395 • Kelas 12B</p>
+<div class="flex items-center gap-1">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400 border border-green-200 dark:border-green-800/50">
+<span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5"></span> Sehat
+                        </span>
+</div>
+</div>
+<button class="text-gray-400 dark:text-gray-500 p-1">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+<div class="absolute bottom-6 right-6 z-20">
+<button class="group h-14 w-14 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/40 active:scale-90 transition-all hover:-translate-y-1">
+<span class="material-symbols-outlined text-background-dark text-3xl font-medium">add</span>
+</button>
+</div>
+</div>
+</body></html>

@@ -1,0 +1,226 @@
+:root {
+    --primary-color: #098de0;
+    --primary-dark: #066bb0;
+    --sidebar-bg: #ffffff;
+}
+
+body {
+    background: #f5f7fa;
+}
+
+/* --- ADDITIONAL GLOBAL HELPERS --- */
+/* Small utility to center inline icons/text */
+.align-center { display: inline-flex; align-items: center; gap: .5rem; }
+
+/* Smooth transitions for interactive elements */
+* { transition: all .18s ease; }
+
+/* NAVBAR */
+.top-navbar {
+    height: 60px;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .1);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+
+/* Navbar brand and small helpers */
+.top-navbar h4 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    letter-spacing: .6px;
+}
+
+.top-navbar .btn {
+    box-shadow: 0 2px 6px rgba(9, 141, 224, .12);
+}
+
+/* SIDEBAR */
+.sidebar {
+    width: 240px;
+    height: 100vh;
+    background: var(--sidebar-bg);
+    position: fixed;
+    top: 60px;
+    left: 0;
+    padding: 1.5rem 1rem;
+    box-shadow: 2px 0 6px rgba(0, 0, 0, .1);
+    z-index: 999;
+    transition: .3s ease;
+}
+
+/* Make sidebar look softer */
+.sidebar {
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
+}
+
+/* LIST SEPARATOR */
+.sidebar .nav-item {
+    border-bottom: 1px solid #e6e6e6;
+}
+
+/* SIDEBAR ITEM */
+.sidebar .nav-link {
+    display: block;
+    padding: 12px 14px;
+    border-radius: 6px;
+    color: #444 !important;
+    font-weight: 500;
+    transition: .25s ease;
+}
+
+/* FULL BLOCK HOVER */
+.sidebar .nav-link:hover {
+    background: var(--primary-color);
+    color: white !important;
+    padding-left: 18px;
+}
+
+/* ACTIVE STYLE */
+.sidebar .nav-link.active {
+    background: var(--primary-dark);
+    color: white !important;
+}
+
+/* CONTENT */
+.content {
+    margin-top: 60px;
+    margin-left: 240px;
+    padding: 2rem;
+}
+
+/* Content container tweaks */
+.content .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.content .page-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #222;
+}
+
+/* STANDARD CARD */
+.card.clean {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(28, 63, 84, .06);
+}
+
+/* Buttons improvement */
+.btn-primary {
+    background: linear-gradient(180deg, var(--primary-color), var(--primary-dark));
+    border: none;
+}
+
+.btn-outline-primary {
+    border: 1px solid rgba(9,141,224,.15);
+    color: var(--primary-dark);
+}
+
+/* Tables */
+.table thead th {
+    border-bottom: 2px solid rgba(0,0,0,.06);
+    background: rgba(9,141,224,.04);
+    color: var(--primary-dark);
+}
+
+.table tbody tr:hover {
+    background: rgba(9,141,224,.03);
+}
+
+/* Forms */
+.form-control:focus {
+    box-shadow: 0 6px 18px rgba(9,141,224,.08);
+    border-color: var(--primary-color);
+}
+
+/* Statistic card small improvements */
+.stat-card .stat-value { font-size: 1.35rem; font-weight:700; color:#0b3b61; }
+.stat-card .stat-label { color:#65707a; }
+
+/* Hero tweaks */
+.jumbotron-hero { box-shadow: 0 8px 26px rgba(13,40,62,.06); }
+
+/* Small responsive polish */
+@media (max-width: 992px) {
+    .top-navbar { padding: 0 1rem; }
+    .sidebar { width: 220px; }
+}
+
+/* STATISTIC CARD STYLE */
+.stat-card {
+    border-left: 5px solid var(--primary-color);
+    transition: .25s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, .1);
+}
+
+/* HERO / JUMBOTRON BACKGROUND */
+.jumbotron-hero {
+    position: relative;
+    height: 320px;
+    border-radius: 12px;
+    overflow: hidden;
+    background-image: url('dummy.png');
+    /* ganti dengan gambar kamu */
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+}
+
+/* LAYER DI ATAS GAMBAR */
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    /* gelap tipis */
+    backdrop-filter: blur(3px);
+    /* blur halus */
+}
+
+/* KONTEN DI ATAS LAYER */
+.hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+
+/* RESPONSIVE SIDEBAR */
+@media (max-width: 768px) {
+
+    .sidebar {
+        left: -260px;
+    }
+
+    .sidebar.active {
+        left: 0;
+    }
+
+    .content {
+        margin-left: 0;
+        padding: 1.2rem;
+    }
+
+    .display-5 {
+        font-size: 1.8rem;
+    }
+}
