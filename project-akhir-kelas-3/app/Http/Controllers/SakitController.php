@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\SakitSantri;
 use App\Models\Santri;
 use App\Models\Obat;
+use App\Models\Kelas;
 use App\Models\Diagnosis;
 use Illuminate\Http\Request;
 use App\Traits\InteractsWithDrafts;

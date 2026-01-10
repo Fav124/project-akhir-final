@@ -13,6 +13,9 @@ import kotlinx.coroutines.launch
 class SakitViewModel(application: Application) : AndroidViewModel(application) {
     private val _sakitList = MutableLiveData<List<Sakit>>()
     val sakitList: LiveData<List<Sakit>> = _sakitList
+    
+    private val _sakitDetail = MutableLiveData<Sakit?>()
+    val sakitDetail: LiveData<Sakit?> = _sakitDetail
 
     private val _isLoading = MutableLiveData(false)
     val isLoading: LiveData<Boolean> = _isLoading
@@ -33,6 +36,23 @@ class SakitViewModel(application: Application) : AndroidViewModel(application) {
             finally { _isLoading.value = false }
         }
     }
+    
+    fun getSakitById(id: Int) {
+         _isLoading.value = true
+        viewModelScope.launch {
+            // Check if we have getSakitDetail endpoint, if not filter from list
+             try {
+                val response = RetrofitClient.instance.getSakitDetail(getToken(), id)
+                if (response.isSuccessful) {
+                   _sakitDetail.value = response.body()?.data
+                }
+            } catch (e: Exception) {
+                 // Fallback
+                 _sakitDetail.value = _sakitList.value?.find { it.id == id }
+            } 
+            finally { _isLoading.value = false }
+        }
+    }
 
     fun submitSakit(request: SakitRequest, onSuccess: () -> Unit) {
          viewModelScope.launch {
@@ -42,4 +62,24 @@ class SakitViewModel(application: Application) : AndroidViewModel(application) {
             } catch (e: Exception) { }
         }
     }
+    
+    fun updateSakit(id: Int, request: SakitRequest, onSuccess: () -> Unit) {
+         viewModelScope.launch {
+            try {
+                val response = RetrofitClient.instance.updateSakit(getToken(), id, request)
+                if (response.isSuccessful) onSuccess()
+            } catch (e: Exception) { }
+        }
+    }
+    
+    fun deleteSakit(id: Int) {
+         viewModelScope.launch {
+            try {
+                val response = RetrofitClient.instance.deleteSakit(getToken(), id)
+                if (response.isSuccessful) fetchSakit()
+            } catch (e: Exception) { }
+        }
+    }
+    
+    fun clearDetail() { _sakitDetail.value = null }
 }

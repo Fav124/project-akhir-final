@@ -242,6 +242,12 @@ data class LaporanSummary(
     @SerializedName("by_tingkat") val byTingkat: TingkatBreakdown
 )
 
+data class TingkatBreakdown(
+    @SerializedName("ringan") val ringan: Int = 0,
+    @SerializedName("sedang") val sedang: Int = 0,
+    @SerializedName("berat") val berat: Int = 0
+)
+
 data class KelasRequest(@SerializedName("nama_kelas") val namaKelas: String)
 data class JurusanRequest(@SerializedName("nama_jurusan") val namaJurusan: String)
 data class DiagnosisRequest(@SerializedName("nama_penyakit") val namaPenyakit: String, val deskripsi: String?)

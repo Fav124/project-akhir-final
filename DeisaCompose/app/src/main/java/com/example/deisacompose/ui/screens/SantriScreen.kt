@@ -5,7 +5,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -25,23 +26,24 @@ import com.example.deisacompose.viewmodels.MainViewModel
 fun SantriScreen(
     navController: NavController, 
     viewModel: SantriViewModel = viewModel(),
-    mainViewModel: MainViewModel = viewModel() // To check role
+    mainViewModel: MainViewModel = viewModel()
 ) {
     val santriList by viewModel.santriList.observeAsState(emptyList())
     val isLoading by viewModel.isLoading.observeAsState(false)
     val user by mainViewModel.currentUser.observeAsState()
     
-    // Fetch on enter
     LaunchedEffect(Unit) {
         viewModel.fetchSantri()
         mainViewModel.fetchUser()
     }
+    
+    val isAdmin = user?.isAdmin == true || user?.role == "admin"
 
     Scaffold(
         topBar = { DeisaTopBar("Data Santri") },
         floatingActionButton = {
-            if (user?.isAdmin == true || user?.role == "admin") {
-                DeisaFab(onClick = { /* Navigate to Add Santri */ })
+            if (isAdmin) {
+                DeisaFab(onClick = { navController.navigate("santri_form") })
             }
         }
     ) { padding ->
@@ -53,7 +55,12 @@ fun SantriScreen(
             } else {
                 LazyColumn(modifier = Modifier.padding(16.dp)) {
                     items(santriList) { santri ->
-                        SantriItem(santri, onClick = { /* Navigate to Detail */ })
+                        SantriItem(
+                            santri = santri,
+                            canEdit = isAdmin,
+                            onEdit = { navController.navigate("santri_form?id=${santri.id}") },
+                            onDelete = { viewModel.deleteSantri(santri.id) }
+                        )
                     }
                 }
             }
@@ -62,12 +69,23 @@ fun SantriScreen(
 }
 
 @Composable
-fun SantriItem(santri: Santri, onClick: () -> Unit) {
-    DeisaCard(onClick = onClick) {
-        Column {
-            Text(santri.displayName(), style = MaterialTheme.typography.titleMedium)
-            Text("Kelas: ${santri.displayKelas()}", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
-            Text("NIS: ${santri.nis ?: "-"}", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+fun SantriItem(santri: Santri, canEdit: Boolean, onEdit: () -> Unit, onDelete: () -> Unit) {
+    DeisaCard(onClick = onEdit) { // Click whole card to edit/detail
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(santri.displayName(), style = MaterialTheme.typography.titleMedium)
+                Text("Kelas: ${santri.displayKelas()}", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
+                Text("NIS: ${santri.nis ?: "-"}", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+            }
+            if (canEdit) {
+                 IconButton(onClick = onDelete) {
+                    Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Red)
+                }
+            }
         }
     }
 }

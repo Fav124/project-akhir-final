@@ -14,6 +14,9 @@ class SantriViewModel(application: Application) : AndroidViewModel(application) 
     private val _santriList = MutableLiveData<List<Santri>>()
     val santriList: LiveData<List<Santri>> = _santriList
 
+    private val _santriDetail = MutableLiveData<Santri?>()
+    val santriDetail: LiveData<Santri?> = _santriDetail
+
     private val _isLoading = MutableLiveData(false)
     val isLoading: LiveData<Boolean> = _isLoading
 
@@ -31,13 +34,27 @@ class SantriViewModel(application: Application) : AndroidViewModel(application) 
                     _santriList.value = response.body()?.data ?: emptyList()
                 }
             } catch (e: Exception) {
-                // handle error
             } finally {
                 _isLoading.value = false
             }
         }
     }
     
+    fun fetchSantriById(id: Int) {
+         _isLoading.value = true
+        viewModelScope.launch {
+            try {
+                val response = RetrofitClient.instance.getSantriDetail(getToken(), id)
+                if (response.isSuccessful) {
+                    _santriDetail.value = response.body()?.data
+                }
+            } catch (e: Exception) {
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
     fun createSantri(request: SantriRequest, onSuccess: () -> Unit) {
         viewModelScope.launch {
             try {
@@ -45,5 +62,27 @@ class SantriViewModel(application: Application) : AndroidViewModel(application) 
                 if (response.isSuccessful) onSuccess()
             } catch (e: Exception) { }
         }
+    }
+    
+    fun updateSantri(id: Int, request: SantriRequest, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitClient.instance.updateSantri(getToken(), id, request)
+                if (response.isSuccessful) onSuccess()
+            } catch (e: Exception) { }
+        }
+    }
+    
+    fun deleteSantri(id: Int) {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitClient.instance.deleteSantri(getToken(), id)
+                if (response.isSuccessful) fetchSantri()
+            } catch (e: Exception) { }
+        }
+    }
+    
+    fun clearDetail() {
+        _santriDetail.value = null
     }
 }

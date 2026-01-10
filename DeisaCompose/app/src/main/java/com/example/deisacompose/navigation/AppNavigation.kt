@@ -26,11 +26,23 @@ fun AppNavigation() {
         composable("santri_list") {
             SantriScreen(navController)
         }
+        composable("santri_form?id={id}") { backStackEntry ->
+            val id = backStackEntry.arguments?.getString("id")?.toIntOrNull()
+            SantriFormScreen(navController, santriId = id)
+        }
         composable("sakit_list") {
             SakitScreen(navController)
         }
+        composable("sakit_form?id={id}") { backStackEntry ->
+             val id = backStackEntry.arguments?.getString("id")?.toIntOrNull()
+            SakitFormScreen(navController, sakitId = id)
+        }
         composable("obat_list") {
             ObatScreen(navController)
+        }
+        composable("obat_form?id={id}") { backStackEntry ->
+             val id = backStackEntry.arguments?.getString("id")?.toIntOrNull()
+            ObatFormScreen(navController, obatId = id)
         }
         composable("laporan") {
             LaporanScreen(navController)
