@@ -94,6 +94,24 @@
                         class="flex w-full cursor-pointer items-center justify-center rounded-lg bg-primary hover:bg-green-400 text-[#0d1b14] text-base font-bold h-12 px-6 transition-all active:scale-[0.98]">
                         Log In
                     </button>
+
+                    <div class="relative flex py-2 items-center">
+                        <div class="flex-grow border-t border-gray-200 dark:border-gray-700"></div>
+                        <span class="flex-shrink-0 mx-4 text-text-muted dark:text-gray-500 text-sm">Or continue with</span>
+                        <div class="flex-grow border-t border-gray-200 dark:border-gray-700"></div>
+                    </div>
+
+                    <a href="{{ route('auth.google') }}" 
+                        class="flex w-full cursor-pointer items-center justify-center gap-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-surface-dark hover:bg-gray-50 dark:hover:bg-gray-800 text-text-main dark:text-white text-base font-medium h-12 px-6 transition-all active:scale-[0.98]">
+                        <svg class="h-5 w-5" aria-hidden="true" viewBox="0 0 24 24">
+                            <path d="M12.0003 20.45c4.656 0 8.196-3.212 8.196-8.246 0-.756-.072-1.396-.204-1.92h-7.992v3.636h4.632c-.228 1.152-1.02 2.508-2.928 3.324l-.024.156 4.248 3.288.294.03c2.724-2.508 4.248-6.192 4.092-9.282H12.0003v3.636h4.632c-1.032 4.968-5.352 6.816-8.632 4.632l-1.632.852-2.964-1.62-.336-1.548c1.392 2.76 4.236 4.632 7.428 4.632z" fill="#4285F4"/>
+                            <path d="M5.448 14.964c-.336-.984-.528-2.04-.528-3.144 0-1.008.192-1.968.48-2.88l-.024-.204-4.524-2.328-.228.144A10.66 10.66 0 0 0 .84 11.4c.036 2.376.924 4.548 2.376 6.276l2.064-1.284.168-1.428z" fill="#FBBC05"/>
+                            <path d="M12.0003 4.752c2.436 0 4.14 1.056 5.076 1.944l2.832-2.832C17.916 2.064 15.204.84 12.0003.84 7.548.84 3.612 3.444 1.74 7.212l4.632 3.588c1.176-3.504 4.452-6.048 5.628-6.048z" fill="#EA4335"/>
+                            <path d="M12.0003 19.608c-3.18 0-6.452-1.896-5.628-6.048l-4.632-3.588C4.668 15.6 8.532 19.608 11.964 19.644c3.432-.036 7.26-2.568 8.196-8.246h-8.16v3.636h4.632c-1.032 4.968-5.352 6.816-8.632 4.632z" fill="#34A853"/>
+                        </svg>
+                        Sign in with Google
+                    </a>
+
                 </form>
 
                 <div class="text-center">

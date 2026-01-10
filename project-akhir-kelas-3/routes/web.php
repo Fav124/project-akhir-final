@@ -21,6 +21,13 @@ Route::get('/', fn() => view('welcome'));
 Route::get('login', [LoginController::class, 'showLogin'])->name('login');
 Route::post('login', [LoginController::class, 'authenticate']);
 Route::post('logout', [LoginController::class, 'logout'])->name('logout');
+Route::get('register', [LoginController::class, 'showRegistrationForm'])->name('register');
+Route::post('register', [LoginController::class, 'register'])->name('register.submit');
+
+// Google Auth
+Route::get('auth/google', [LoginController::class, 'redirectToGoogle'])->name('auth.google');
+Route::get('auth/google/callback', [LoginController::class, 'handleGoogleCallback']);
+
 
 // Dashboard
 Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -39,6 +46,17 @@ Route::prefix('users')->name('users.')->middleware(['auth', 'role:admin'])->grou
     Route::put('/{user}', [UserController::class, 'update'])->name('update');
     Route::delete('/{user}', [UserController::class, 'destroy'])->name('destroy');
     Route::post('/{user}/toggle-active', [UserController::class, 'toggleActive'])->name('toggleActive');
+});
+
+/*
+|--------------------------------------------------------------------------
+| REGISTRATION REQUESTS (Admin Only)
+|--------------------------------------------------------------------------
+*/
+Route::prefix('admin/registrations')->name('admin.registrations.')->middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/', [\App\Http\Controllers\Admin\RegistrationController::class, 'index'])->name('index');
+    Route::post('/{id}/approve', [\App\Http\Controllers\Admin\RegistrationController::class, 'approve'])->name('approve');
+    Route::post('/{id}/reject', [\App\Http\Controllers\Admin\RegistrationController::class, 'reject'])->name('reject');
 });
 
 /*

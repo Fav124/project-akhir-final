@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F5F8F7">
@@ -14,27 +15,47 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
             android:padding="24dp"
             android:background="@android:color/white">
 
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="ADMIN DASHBOARD"
-                android:textSize="12sp"
-                android:textColor="#06F980"
-                android:letterSpacing="0.1"
-                android:textStyle="bold"
-                android:textAllCaps="true"/>
+                android:layout_weight="1"
+                android:orientation="vertical">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Santri Health"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:textColor="#0F2319"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ADMIN DASHBOARD"
+                    android:textSize="12sp"
+                    android:textColor="#06F980"
+                    android:letterSpacing="0.1"
+                    android:textStyle="bold"
+                    android:textAllCaps="true"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Santri Health"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:textColor="#0F2319"/>
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/ivAvatar"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_launcher_background"
+                android:background="@drawable/bg_circle_gray"
+                android:padding="8dp"
+                app:tint="#4B5563"
+                android:foreground="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"/>
         </LinearLayout>
 
         <!-- Stats Horizontal Scroll -->
@@ -268,6 +289,143 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Summary"
+                    android:textSize="12sp"
+                    android:textColor="#6B7280"/>
+            </LinearLayout>
+
+            <!-- Card 5: Kelas -->
+            <LinearLayout
+                android:id="@+id/btnKelas"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:background="@drawable/bg_card"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="16dp">
+
+                <FrameLayout
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/bg_circle_gray"
+                    android:layout_marginBottom="12dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🏫" android:layout_gravity="center"/>
+                </FrameLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Kelas"
+                    android:textStyle="bold"
+                    android:textColor="#0F2319"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Manage"
+                    android:textSize="12sp"
+                    android:textColor="#6B7280"/>
+            </LinearLayout>
+
+            <!-- Card 6: Jurusan -->
+            <LinearLayout
+                android:id="@+id/btnJurusan"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:background="@drawable/bg_card"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginBottom="16dp">
+
+                <FrameLayout
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/bg_circle_gray"
+                    android:layout_marginBottom="12dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🎓" android:layout_gravity="center"/>
+                </FrameLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Jurusan"
+                    android:textStyle="bold"
+                    android:textColor="#0F2319"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Manage"
+                    android:textSize="12sp"
+                    android:textColor="#6B7280"/>
+            </LinearLayout>
+
+            <!-- Card 7: Diagnosis -->
+            <LinearLayout
+                android:id="@+id/btnDiagnosis"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:background="@drawable/bg_card"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="16dp">
+
+                <FrameLayout
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/bg_circle_gray"
+                    android:layout_marginBottom="12dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🩺" android:layout_gravity="center"/>
+                </FrameLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Diagnosis"
+                    android:textStyle="bold"
+                    android:textColor="#0F2319"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Manage"
+                    android:textSize="12sp"
+                    android:textColor="#6B7280"/>
+            </LinearLayout>
+
+
+            <!-- Card 8: History -->
+            <LinearLayout
+                android:id="@+id/btnHistory"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:background="@drawable/bg_card"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginBottom="16dp">
+
+                <FrameLayout
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/bg_circle_gray"
+                    android:layout_marginBottom="12dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🕒" android:layout_gravity="center"/>
+                </FrameLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="History"
+                    android:textStyle="bold"
+                    android:textColor="#0F2319"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Logs"
                     android:textSize="12sp"
                     android:textColor="#6B7280"/>
             </LinearLayout>

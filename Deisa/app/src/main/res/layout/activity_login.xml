@@ -89,6 +89,50 @@
         android:textStyle="bold"
         android:textColor="#0F2319"
         android:backgroundTint="#06F980"
+        android:layout_marginBottom="24dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:layout_marginBottom="24dp">
+        
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1"
+            android:background="#D1D5DB"/>
+            
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="or continue with"
+            android:textColor="#6B7280"
+            android:layout_marginHorizontal="16dp"/>
+            
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1"
+            android:background="#D1D5DB"/>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btnGoogleLogin"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="Sign in with Google"
+        android:textAllCaps="false"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="#0F2319"
+        android:backgroundTint="#FFFFFF"
+        android:stateListAnimator="@null"
+        android:elevation="0dp"
+        app:strokeColor="#D1D5DB"
+        app:strokeWidth="1dp" 
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_marginBottom="16dp"/>
 
     <ProgressBar
@@ -96,5 +140,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/tvRegister"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Don't have an account? Request Access"
+        android:textColor="#0F2319"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:layout_marginTop="16dp"/>
 
 </LinearLayout>

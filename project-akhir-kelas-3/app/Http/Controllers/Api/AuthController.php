@@ -18,6 +18,47 @@ class AuthController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
+    public function register(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'nullable|string|min:6', // Nullable for Google Sign In
+            'google_id' => 'nullable|string',
+            'avatar' => 'nullable|string',
+            'device_name' => 'nullable|string'
+        ]);
+
+        // Check if email already exists in registration_requests
+        $existingRequest = \App\Models\RegistrationRequest::where('email', $request->email)->first();
+        if ($existingRequest) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Permintaan registrasi untuk email ini sedang menunggu persetujuan admin.',
+            ], 409);
+        }
+
+        $data = [
+            'name' => $request->name,
+            'email' => $request->email,
+            'google_id' => $request->google_id,
+            'avatar' => $request->avatar,
+            'device_name' => $request->device_name,
+            'status' => 'pending'
+        ];
+
+        if ($request->password) {
+            $data['password'] = Hash::make($request->password);
+        }
+
+        \App\Models\RegistrationRequest::create($data);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Registrasi berhasil dikirim. Mohon tunggu persetujuan dari admin.',
+        ], 201);
+    }
+
     public function login(Request $request)
     {
         $request->validate([
@@ -25,6 +66,15 @@ class AuthController extends Controller
             'password' => 'required|string|min:6',
             'device_name' => 'nullable|string'
         ]);
+
+        // Check pending requests
+        $pendingRequest = \App\Models\RegistrationRequest::where('email', $request->email)->first();
+        if ($pendingRequest) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Akun Anda masih menunggu persetujuan admin.'
+            ], 403);
+        }
 
         $user = User::where('email', $request->email)->first();
 
@@ -35,11 +85,12 @@ class AuthController extends Controller
         }
 
         // Check if user is active
-        if (!$user->active) {
-            throw ValidationException::withMessages([
-                'email' => ['Akun Anda tidak aktif. Hubungi administrator.'],
-            ]);
-        }
+        // Check if user is active - DISABLED (Column does not exist)
+        // if (!$user->active) {
+        //     throw ValidationException::withMessages([
+        //         'email' => ['Akun Anda tidak aktif. Hubungi administrator.'],
+        //     ]);
+        // }
 
         // Create token
         $deviceName = $request->device_name ?? 'android-app';

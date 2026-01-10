@@ -23,6 +23,7 @@ use App\Http\Controllers\Api\LaporanController;
 // PUBLIC ROUTES (No Authentication)
 // =========================================
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
 
 // =========================================
 // PROTECTED ROUTES (Require Sanctum Token)

@@ -25,6 +25,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        
+        <activity android:name=".RegisterActivity" android:exported="false" />
 
         <!-- Main Dashboard -->
         <activity android:name=".MainActivity" android:exported="false" />
@@ -37,6 +39,24 @@
         <!-- Santri Feature -->
         <activity android:name=".SantriListActivity" android:exported="false" />
         <activity android:name=".SantriDetailActivity" android:exported="false" />
+
+        <!-- Kelas Feature -->
+        <activity android:name=".KelasListActivity" android:exported="false" />
+        <activity android:name=".AddEditKelasActivity" android:exported="false" />
+
+        <!-- Jurusan Feature -->
+        <activity android:name=".JurusanListActivity" android:exported="false" />
+        <activity android:name=".AddEditJurusanActivity" android:exported="false" />
+
+        <!-- Diagnosis Feature -->
+        <activity android:name=".DiagnosisListActivity" android:exported="false" />
+        <activity android:name=".AddEditDiagnosisActivity" android:exported="false" />
+        
+        <!-- Profile -->
+        <activity android:name=".ProfileActivity" android:exported="false" />
+        
+        <!-- History -->
+        <activity android:name=".HistoryActivity" android:exported="false" />
 
         <!-- Obat Feature -->
         <activity android:name=".ObatListActivity" android:exported="false" />

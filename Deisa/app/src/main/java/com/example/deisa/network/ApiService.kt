@@ -14,6 +14,9 @@ interface ApiService {
     @POST("logout")
     suspend fun logout(@Header("Authorization") token: String): Response<ApiResponse>
 
+    @POST("register")
+    suspend fun register(@Body registerRequest: RegisterRequest): Response<ApiResponse>
+
     @GET("user")
     suspend fun getUser(@Header("Authorization") token: String): Response<UserResponse>
 
@@ -140,4 +143,99 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Query("year") year: Int? = null
     ): Response<LaporanMonthlyResponse>
+
+    // ==================
+    // KELAS
+    // ==================
+    @GET("kelas")
+    suspend fun getKelas(
+        @Header("Authorization") token: String
+    ): Response<KelasResponse>
+
+    @POST("kelas")
+    @FormUrlEncoded
+    suspend fun storeKelas(
+        @Header("Authorization") token: String,
+        @Field("nama_kelas") namaKelas: String
+    ): Response<ApiResponse>
+
+    @PUT("kelas/{id}")
+    @FormUrlEncoded
+    suspend fun updateKelas(
+        @Header("Authorization") token: String,
+        @Path("id") id: Int,
+        @Field("nama_kelas") namaKelas: String
+    ): Response<ApiResponse>
+
+    @DELETE("kelas/{id}")
+    suspend fun deleteKelas(
+        @Header("Authorization") token: String,
+        @Path("id") id: Int
+    ): Response<ApiResponse>
+
+    // ==================
+    // JURUSAN
+    // ==================
+    @GET("jurusan")
+    suspend fun getJurusan(
+        @Header("Authorization") token: String
+    ): Response<JurusanResponse>
+
+    @POST("jurusan")
+    @FormUrlEncoded
+    suspend fun storeJurusan(
+        @Header("Authorization") token: String,
+        @Field("nama_jurusan") namaJurusan: String
+    ): Response<ApiResponse>
+
+    @PUT("jurusan/{id}")
+    @FormUrlEncoded
+    suspend fun updateJurusan(
+        @Header("Authorization") token: String,
+        @Path("id") id: Int,
+        @Field("nama_jurusan") namaJurusan: String
+    ): Response<ApiResponse>
+
+    @DELETE("jurusan/{id}")
+    suspend fun deleteJurusan(
+        @Header("Authorization") token: String,
+        @Path("id") id: Int
+    ): Response<ApiResponse>
+
+    // ==================
+    // DIAGNOSIS
+    // ==================
+    @GET("diagnosis")
+    suspend fun getDiagnosis(
+        @Header("Authorization") token: String
+    ): Response<DiagnosisResponse>
+
+    @POST("diagnosis")
+    @FormUrlEncoded
+    suspend fun storeDiagnosis(
+        @Header("Authorization") token: String,
+        @Field("nama_penyakit") namaPenyakit: String
+    ): Response<ApiResponse>
+
+    @PUT("diagnosis/{id}")
+    @FormUrlEncoded
+    suspend fun updateDiagnosis(
+        @Header("Authorization") token: String,
+        @Path("id") id: Int,
+        @Field("nama_penyakit") namaPenyakit: String
+    ): Response<ApiResponse>
+
+    @DELETE("diagnosis/{id}")
+    suspend fun deleteDiagnosis(
+        @Header("Authorization") token: String,
+        @Path("id") id: Int
+    ): Response<ApiResponse>
+
+    // ==================
+    // HISTORY
+    // ==================
+    @GET("history")
+    suspend fun getHistory(
+        @Header("Authorization") token: String
+    ): Response<HistoryResponse>
 }

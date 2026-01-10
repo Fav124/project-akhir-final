@@ -11,6 +11,15 @@ data class LoginRequest(
     @SerializedName("device_name") val deviceName: String = "android-app"
 )
 
+data class RegisterRequest(
+    val name: String,
+    val email: String,
+    val password: String,
+    @SerializedName("device_name") val deviceName: String = "android-app",
+    @SerializedName("google_id") val googleId: String? = null,
+    val avatar: String? = null
+)
+
 data class LoginResponse(
     val success: Boolean,
     val message: String,
@@ -97,11 +106,52 @@ data class Kelas(
     @SerializedName("nama_kelas") val namaKelas: String?
 )
 
+data class Jurusan(
+    val id: Int,
+    @SerializedName("nama_jurusan") val namaJurusan: String?
+)
+
+data class JurusanResponse(
+    val success: Boolean,
+    val data: List<Jurusan>
+)
+
+data class Diagnosis(
+    val id: Int,
+    @SerializedName("nama_penyakit") val namaPenyakit: String?,
+    @SerializedName("deskripsi") val deskripsi: String? = null
+)
+
+data class DiagnosisResponse(
+    val success: Boolean,
+    val data: List<Diagnosis>
+)
+
+data class ActivityLog(
+    val id: Int,
+    @SerializedName("description") val description: String?,
+    @SerializedName("action") val action: String?,
+    @SerializedName("created_at") val createdAt: String?,
+    val user: User?
+)
+
+data class HistoryResponse(
+    @SerializedName("data") val data: List<ActivityLog>,
+    @SerializedName("current_page") val currentPage: Int,
+    @SerializedName("last_page") val lastPage: Int
+)
+
 data class PaginationMeta(
     @SerializedName("current_page") val currentPage: Int,
+
     @SerializedName("last_page") val lastPage: Int,
     @SerializedName("per_page") val perPage: Int,
     val total: Int
+)
+
+data class KelasResponse(
+    val success: Boolean,
+    val data: List<Kelas>
 )
 
 // ==================
