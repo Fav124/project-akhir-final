@@ -1,48 +1,41 @@
 package com.example.deisacompose.viewmodels
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.deisacompose.data.models.User
-import com.example.deisacompose.data.network.RetrofitClient
 import kotlinx.coroutines.launch
 
-class MainViewModel(application: Application) : AndroidViewModel(application) {
+class MainViewModel : BaseViewModel() {
 
-    private val _isLoading = MutableLiveData(false)
+    private val _user = MutableLiveData<User?>()
+    val user: LiveData<User?> = _user
+
+    private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
-    
-    private val _error = MutableLiveData<String?>()
-    val error: LiveData<String?> = _error
 
-    private val _currentUser = MutableLiveData<User?>()
-    val currentUser: LiveData<User?> = _currentUser
+    private val _message = MutableLiveData<String?>()
+    val message: LiveData<String?> = _message
 
-    private fun getToken(): String {
-        val prefs = getApplication<Application>().getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE)
-        val token = prefs.getString("token", "") ?: ""
-        return "Bearer $token"
-    }
-
-    fun fetchUser() {
+    fun fetchProfile() {
+        _isLoading.postValue(true)
         viewModelScope.launch {
-             try {
-                val response = RetrofitClient.instance.getUser(getToken())
+            try {
+                val response = apiService.getProfile()
                 if (response.isSuccessful) {
-                    _currentUser.value = response.body()?.data
+                    _user.postValue(response.body()?.data)
+                } else {
+                    _message.postValue("Error: ${response.message()}")
                 }
             } catch (e: Exception) {
-                // Ignore or handle
+                _message.postValue(e.message ?: "An unknown error occurred")
+            } finally {
+                _isLoading.postValue(false)
             }
         }
     }
-    
-    fun logout() {
-        // Clear prefs
-        val prefs = getApplication<Application>().getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE)
-        prefs.edit().clear().apply()
-        _currentUser.value = null
+
+    fun clearMessage() {
+        _message.value = null
     }
 }

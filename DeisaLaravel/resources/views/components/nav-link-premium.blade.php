@@ -1,9 +1,10 @@
 @props(['href', 'active', 'icon'])
 
 @php
-$classes = ($active ?? false)
-            ? 'nav-gradient-active text-emerald-600'
-            : 'text-gray-500 hover:text-emerald-500 hover:bg-emerald-50/50';
+$baseClasses = 'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors';
+$activeClasses = $active 
+    ? 'bg-emerald-50 text-emerald-700' 
+    : 'text-gray-700 hover:bg-gray-100';
 
 $icons = [
     'dashboard' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />',
@@ -20,15 +21,9 @@ $icons = [
 ];
 @endphp
 
-<a href="{{ $href }}" class="flex items-center gap-4 px-4 py-3.5 rounded-2xl font-bold text-sm transition-all duration-300 group {{ $classes }}">
-    <div class="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center border border-gray-100 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-500">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            {!! $icons[$icon] ?? '' !!}
-        </svg>
-    </div>
-    <span class="tracking-tight">{{ $slot }}</span>
-    
-    @if($active)
-        <div class="ml-auto w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-    @endif
+<a href="{{ $href }}" class="{{ $baseClasses }} {{ $activeClasses }}">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        {!! $icons[$icon] ?? '' !!}
+    </svg>
+    <span>{{ $slot }}</span>
 </a>

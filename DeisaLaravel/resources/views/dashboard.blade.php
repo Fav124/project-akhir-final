@@ -1,67 +1,67 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard')
+@section('title', 'Beranda')
+@section('page_title', 'Beranda')
 
 @section('content')
-<div class="header">
-    <h1>Dashboard Utama</h1>
-    <div style="font-size: 0.875rem; color: var(--text-muted);">Selamat datang, {{ Auth::user()->name }}</div>
+<div class="mb-6">
+    <p class="text-gray-600">Selamat datang, {{ Auth::user()->name }}</p>
 </div>
 
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-    <div class="card" style="border-left: 4px solid var(--primary);">
-        <div style="font-size: 0.875rem; color: var(--text-muted); font-weight: 500;">Total Santri</div>
-        <div style="font-size: 1.875rem; font-weight: 700; margin-top: 0.5rem;">{{ $stats['total_santri'] }}</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="bg-white border border-gray-200 rounded-lg p-4">
+        <div class="text-sm text-gray-600 mb-1">Total Santri</div>
+        <div class="text-2xl font-semibold text-gray-900">{{ $stats['total_santri'] }}</div>
     </div>
     
-    <div class="card" style="border-left: 4px solid #f59e0b;">
-        <div style="font-size: 0.875rem; color: var(--text-muted); font-weight: 500;">Sedang Sakit</div>
-        <div style="font-size: 1.875rem; font-weight: 700; margin-top: 0.5rem; color: #d97706;">{{ $stats['total_sakit'] }}</div>
+    <div class="bg-white border border-gray-200 rounded-lg p-4">
+        <div class="text-sm text-gray-600 mb-1">Sedang Sakit</div>
+        <div class="text-2xl font-semibold text-amber-600">{{ $stats['total_sakit'] }}</div>
     </div>
 
-    <div class="card" style="border-left: 4px solid #10b981;">
-        <div style="font-size: 0.875rem; color: var(--text-muted); font-weight: 500;">Sudah Sembuh</div>
-        <div style="font-size: 1.875rem; font-weight: 700; margin-top: 0.5rem; color: #059669;">{{ $stats['total_sembuh'] }}</div>
+    <div class="bg-white border border-gray-200 rounded-lg p-4">
+        <div class="text-sm text-gray-600 mb-1">Sudah Sembuh</div>
+        <div class="text-2xl font-semibold text-emerald-600">{{ $stats['total_sembuh'] }}</div>
     </div>
 
-    <div class="card" style="border-left: 4px solid #ef4444;">
-        <div style="font-size: 0.875rem; color: var(--text-muted); font-weight: 500;">Stok Obat Rendah</div>
-        <div style="font-size: 1.875rem; font-weight: 700; margin-top: 0.5rem; color: #dc2626;">{{ $stats['low_stock'] }}</div>
+    <div class="bg-white border border-gray-200 rounded-lg p-4">
+        <div class="text-sm text-gray-600 mb-1">Stok Obat Rendah</div>
+        <div class="text-2xl font-semibold text-red-600">{{ $stats['low_stock'] }}</div>
     </div>
 </div>
 
-<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
-    <div class="card">
-        <h3 style="margin-bottom: 1rem; font-size: 1rem;">Tren Grafik Sakit (6 Bulan Terakhir)</h3>
-        <canvas id="sakitChart" style="max-height: 300px;"></canvas>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <div class="bg-white border border-gray-200 rounded-lg p-6">
+        <h3 class="text-lg font-semibold mb-4">Tren Grafik Sakit (6 Bulan Terakhir)</h3>
+        <canvas id="sakitChart"></canvas>
     </div>
     
-    <div class="card">
-        <h3 style="margin-bottom: 1rem; font-size: 1rem;">Distribusi Tingkat Kondisi</h3>
-        <canvas id="severityChart" style="max-height: 300px;"></canvas>
+    <div class="bg-white border border-gray-200 rounded-lg p-6">
+        <h3 class="text-lg font-semibold mb-4">Distribusi Tingkat Kondisi</h3>
+        <canvas id="severityChart"></canvas>
     </div>
 </div>
 
-<div class="header" style="margin-top: 2rem;">
-    <h2>Aksi Cepat</h2>
+<div class="mb-4">
+    <h2 class="text-lg font-semibold mb-4">Aksi Cepat</h2>
 </div>
 
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-    <a href="{{ route('web.santri.create') }}" class="card" style="text-decoration: none; text-align: center; color: var(--text-main); transition: 0.2s;">
-        <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">👨‍🎓</div>
-        <div style="font-weight: 600;">Tambah Santri</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <a href="{{ route('web.santri.create') }}" class="bg-white border border-gray-200 rounded-lg p-4 text-center hover:bg-gray-50 transition-colors">
+        <div class="text-2xl mb-2">👨‍🎓</div>
+        <div class="font-medium text-gray-900">Tambah Santri</div>
     </a>
-    <a href="{{ route('web.sakit.create') }}" class="card" style="text-decoration: none; text-align: center; color: var(--text-main); transition: 0.2s;">
-        <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🏥</div>
-        <div style="font-weight: 600;">Catat Sakit</div>
+    <a href="{{ route('web.sakit.create') }}" class="bg-white border border-gray-200 rounded-lg p-4 text-center hover:bg-gray-50 transition-colors">
+        <div class="text-2xl mb-2">🏥</div>
+        <div class="font-medium text-gray-900">Catat Sakit</div>
     </a>
-    <a href="{{ route('web.obat.index') }}" class="card" style="text-decoration: none; text-align: center; color: var(--text-main); transition: 0.2s;">
-        <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">💊</div>
-        <div style="font-weight: 600;">Cek Stok Obat</div>
+    <a href="{{ route('web.obat.index') }}" class="bg-white border border-gray-200 rounded-lg p-4 text-center hover:bg-gray-50 transition-colors">
+        <div class="text-2xl mb-2">💊</div>
+        <div class="font-medium text-gray-900">Cek Stok Obat</div>
     </a>
-    <a href="{{ route('web.admin.registrations') }}" class="card" style="text-decoration: none; text-align: center; color: var(--text-main); transition: 0.2s;">
-        <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">👤</div>
-        <div style="font-weight: 600;">Aproval User</div>
+    <a href="{{ route('web.admin.registrations') }}" class="bg-white border border-gray-200 rounded-lg p-4 text-center hover:bg-gray-50 transition-colors">
+        <div class="text-2xl mb-2">👤</div>
+        <div class="font-medium text-gray-900">Persetujuan Pengguna</div>
     </a>
 </div>
 
@@ -78,15 +78,16 @@
                 data: {!! json_encode(array_values($monthlySakit->toArray())) !!},
                 borderColor: '#10b981',
                 backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                borderWidth: 3,
+                borderWidth: 2,
                 fill: true,
                 tension: 0.4
             }]
         },
         options: {
             responsive: true,
+            maintainAspectRatio: true,
             plugins: { legend: { display: false } },
-            scales: { y: { beginAtZero: true, stepSize: 1 } }
+            scales: { y: { beginAtZero: true } }
         }
     });
 
@@ -104,6 +105,7 @@
         },
         options: {
             responsive: true,
+            maintainAspectRatio: true,
             plugins: { legend: { position: 'bottom' } }
         }
     });
