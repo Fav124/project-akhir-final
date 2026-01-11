@@ -1,55 +1,63 @@
 package com.example.deisacompose.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.deisacompose.ui.screens.*
 
 @Composable
-fun AppNavigation() {
-    val navController = rememberNavController()
-
+fun AppNavigation(navController: NavHostController) {
     NavHost(navController = navController, startDestination = "splash") {
-        composable("splash") {
-            SplashScreen(navController)
+        composable("splash") { SplashScreen(navController) }
+        composable("login") { LoginScreen(navController) }
+        composable("register") { RegisterScreen(navController) }
+        composable("home") { HomeScreen(navController) }
+        
+        // Features
+        composable("santri") { SantriScreen(navController) }
+        composable(
+            "santri_form?id={id}",
+            arguments = listOf(navArgument("id") { type = NavType.IntType; defaultValue = -1 })
+        ) { backStackEntry ->
+            val id = backStackEntry.arguments?.getInt("id")
+            SantriFormScreen(navController, santriId = if (id == -1) null else id)
         }
-        composable("login") {
-            LoginScreen(navController)
+
+        composable("sakit") { SakitScreen(navController) }
+        composable(
+            "sakit_form?id={id}",
+            arguments = listOf(navArgument("id") { type = NavType.IntType; defaultValue = -1 })
+        ) { backStackEntry ->
+            val id = backStackEntry.arguments?.getInt("id")
+            SakitFormScreen(navController, sakitId = if (id == -1) null else id)
         }
-        composable("register") {
-            RegisterScreen(navController)
+
+        composable("obat") { ObatScreen(navController) }
+        composable(
+            "obat_form?id={id}",
+            arguments = listOf(navArgument("id") { type = NavType.IntType; defaultValue = -1 })
+        ) { backStackEntry ->
+            val id = backStackEntry.arguments?.getInt("id")
+            ObatFormScreen(navController, obatId = if (id == -1) null else id)
         }
-        composable("home") {
-            HomeScreen(navController)
+
+        composable("laporan") { LaporanScreen(navController) }
+        
+        // Admin Management
+        composable("management_list") { ManagementListScreen(navController) }
+        composable(
+            "management_detail/{type}",
+            arguments = listOf(navArgument("type") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val type = backStackEntry.arguments?.getString("type") ?: ""
+            ManagementScreen(navController, type = type)
         }
-        composable("santri_list") {
-            SantriScreen(navController)
-        }
-        composable("santri_form?id={id}") { backStackEntry ->
-            val id = backStackEntry.arguments?.getString("id")?.toIntOrNull()
-            SantriFormScreen(navController, santriId = id)
-        }
-        composable("sakit_list") {
-            SakitScreen(navController)
-        }
-        composable("sakit_form?id={id}") { backStackEntry ->
-             val id = backStackEntry.arguments?.getString("id")?.toIntOrNull()
-            SakitFormScreen(navController, sakitId = id)
-        }
-        composable("obat_list") {
-            ObatScreen(navController)
-        }
-        composable("obat_form?id={id}") { backStackEntry ->
-             val id = backStackEntry.arguments?.getString("id")?.toIntOrNull()
-            ObatFormScreen(navController, obatId = id)
-        }
-        composable("laporan") {
-            LaporanScreen(navController)
-        }
-        composable("manage/{type}") { backStackEntry ->
-            val type = backStackEntry.arguments?.getString("type") ?: "kelas"
-            ManagementScreen(navController, type)
-        }
+        
+        // Secondary
+        composable("profile") { ProfileScreen(navController) }
+        composable("about") { AboutScreen(navController) }
     }
 }

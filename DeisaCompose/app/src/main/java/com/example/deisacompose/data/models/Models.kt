@@ -3,6 +3,14 @@ package com.example.deisacompose.data.models
 import com.google.gson.annotations.SerializedName
 
 // ==================
+// GENERIC RESPONSES
+// ==================
+data class DataResponse<T>(val data: T)
+data class MessageResponse(val message: String)
+data class PaginationResponse<T>(val data: List<T>, val meta: PaginationMeta)
+
+
+// ==================
 // AUTH
 // ==================
 data class LoginRequest(
@@ -18,6 +26,13 @@ data class RegisterRequest(
     @SerializedName("device_name") val deviceName: String = "android-app",
     @SerializedName("google_id") val googleId: String? = null,
     val avatar: String? = null
+)
+
+data class RegistrationRequest(
+    val id: Int,
+    val name: String,
+    val email: String,
+    @SerializedName("created_at") val createdAt: String
 )
 
 data class LoginResponse(
@@ -183,13 +198,15 @@ data class ObatDetailResponse(
 data class Obat(
     val id: Int,
     @SerializedName("nama_obat") val namaObat: String,
+    val kategori: String? = null,
     val foto: String? = null,
     val deskripsi: String? = null,
     val stok: Int,
     val satuan: String? = null,
     @SerializedName("stok_minimum") val stokMinimum: Int? = null,
-    @SerializedName("harga_satuan") val hargaSatuan: Double? = null,
-    @SerializedName("tanggal_kadaluarsa") val tanggalKadaluarsa: String? = null
+    @SerializedName("harga_satuan") val harga: Double? = null,
+    @SerializedName("tanggal_kadaluarsa") val tglKadaluarsa: String? = null,
+    @SerializedName("lokasi_penyimpanan") val lokasiPenyimpanan: String? = null
 )
 
 data class ObatDetail(
@@ -213,12 +230,15 @@ data class ObatHistory(
 
 data class ObatRequest(
     @SerializedName("nama_obat") val namaObat: String,
+    val kategori: String,
     val deskripsi: String? = null,
     val stok: Int,
+    @SerializedName("stok_awal") val stokAwal: Int,
     val satuan: String,
     @SerializedName("stok_minimum") val stokMinimum: Int? = null,
-    @SerializedName("harga_satuan") val hargaSatuan: Double? = null,
-    @SerializedName("tanggal_kadaluarsa") val tanggalKadaluarsa: String? = null
+    @SerializedName("harga_satuan") val harga: Double? = null,
+    @SerializedName("tanggal_kadaluarsa") val tglKadaluarsa: String? = null,
+    @SerializedName("lokasi_penyimpanan") val lokasiPenyimpanan: String? = null
 )
 
 // ==================

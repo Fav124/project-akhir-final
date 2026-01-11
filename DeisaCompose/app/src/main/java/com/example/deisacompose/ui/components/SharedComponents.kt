@@ -226,3 +226,23 @@ fun DeisaDialog(
         containerColor = Color.White
     )
 }
+@Composable
+fun DeisaBadge(
+    text: String,
+    containerColor: Color = PrimaryGreen,
+    contentColor: Color = PrimaryDark
+) {
+    Surface(
+        color = containerColor,
+        contentColor = contentColor,
+        shape = RoundedCornerShape(8.dp),
+        modifier = Modifier.padding(vertical = 2.dp, horizontal = 4.dp)
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+        )
+    }
+}

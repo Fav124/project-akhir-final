@@ -46,7 +46,8 @@ class SantriViewModel(application: Application) : AndroidViewModel(application) 
             try {
                 val response = RetrofitClient.instance.getSantriDetail(getToken(), id)
                 if (response.isSuccessful) {
-                    _santriDetail.value = response.body()?.data
+                    // Extract santri from detail wrapper
+                    _santriDetail.value = response.body()?.data?.santri
                 }
             } catch (e: Exception) {
             } finally {

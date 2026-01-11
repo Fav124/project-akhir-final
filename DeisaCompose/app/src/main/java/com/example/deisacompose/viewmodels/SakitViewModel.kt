@@ -40,14 +40,12 @@ class SakitViewModel(application: Application) : AndroidViewModel(application) {
     fun getSakitById(id: Int) {
          _isLoading.value = true
         viewModelScope.launch {
-            // Check if we have getSakitDetail endpoint, if not filter from list
              try {
                 val response = RetrofitClient.instance.getSakitDetail(getToken(), id)
                 if (response.isSuccessful) {
                    _sakitDetail.value = response.body()?.data
                 }
             } catch (e: Exception) {
-                 // Fallback
                  _sakitDetail.value = _sakitList.value?.find { it.id == id }
             } 
             finally { _isLoading.value = false }
@@ -62,12 +60,15 @@ class SakitViewModel(application: Application) : AndroidViewModel(application) {
             } catch (e: Exception) { }
         }
     }
-    
-    fun updateSakit(id: Int, request: SakitRequest, onSuccess: () -> Unit) {
-         viewModelScope.launch {
+
+    fun markSembuh(id: Int, onSuccess: () -> Unit) {
+        viewModelScope.launch {
             try {
-                val response = RetrofitClient.instance.updateSakit(getToken(), id, request)
-                if (response.isSuccessful) onSuccess()
+                val response = RetrofitClient.instance.markSembuh(getToken(), id)
+                if (response.isSuccessful) {
+                    onSuccess()
+                    fetchSakit()
+                }
             } catch (e: Exception) { }
         }
     }

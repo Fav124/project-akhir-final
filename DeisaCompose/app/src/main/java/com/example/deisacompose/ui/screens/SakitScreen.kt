@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -48,7 +49,8 @@ fun SakitScreen(
                         SakitItem(
                             sakit = sakit,
                             onEdit = { navController.navigate("sakit_form?id=${sakit.id}") },
-                            onDelete = { viewModel.deleteSakit(sakit.id) }
+                            onDelete = { viewModel.deleteSakit(sakit.id) },
+                            onMarkSembuh = { viewModel.markSembuh(sakit.id) { } }
                         )
                     }
                 }
@@ -58,44 +60,60 @@ fun SakitScreen(
 }
 
 @Composable
-fun SakitItem(sakit: Sakit, onEdit: () -> Unit, onDelete: () -> Unit) {
+fun SakitItem(sakit: Sakit, onEdit: () -> Unit, onDelete: () -> Unit, onMarkSembuh: () -> Unit) {
+    val statusColor = when (sakit.status) {
+        "Sakit" -> Color(0xFFFFEBEE)
+        "Pulang" -> Color(0xFFE3F2FD)
+        "Sembuh" -> Color(0xFFE8F5E9)
+        else -> Color.LightGray
+    }
+    
+    val statusTextColor = when (sakit.status) {
+        "Sakit" -> Color(0xFFC62828)
+        "Pulang" -> Color(0xFF1565C0)
+        "Sembuh" -> Color(0xFF2E7D32)
+        else -> Color.DarkGray
+    }
+
     DeisaCard(onClick = onEdit) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Top
         ) {
             Column(modifier = Modifier.weight(1f)) {
-               Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(sakit.santri?.displayName() ?: "Unknown Santri", style = MaterialTheme.typography.titleMedium)
-                    Badge(sakit.displayStatus())
+               Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(sakit.santri?.displayName() ?: "Unknown Santri", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f, fill = false))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    DeisaBadge(
+                        text = sakit.status ?: "Unknown",
+                        containerColor = statusColor,
+                        contentColor = statusTextColor
+                    )
                 }
-                Spacer(modifier = Modifier.height(4.dp))
-                Text("Sakit: ${sakit.displayDate()}", style = MaterialTheme.typography.bodyMedium)
+                Text("Tgl Masuk: ${sakit.displayDate()}", style = MaterialTheme.typography.bodyMedium)
                 if (sakit.diagnosis != null) {
                     Text("Diagnosis: ${sakit.diagnosis}", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
                 }
+                
+                if (sakit.status != "Sembuh") {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedButton(
+                        onClick = onMarkSembuh,
+                        modifier = Modifier.height(36.dp),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF2E7D32))
+                    ) {
+                        Icon(Icons.Default.CheckCircle, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Sembuh", style = MaterialTheme.typography.labelLarge)
+                    }
+                }
             }
-             IconButton(onClick = onDelete) {
-                Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Red)
+            
+            IconButton(onClick = onDelete) {
+                Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Red.copy(alpha = 0.6f))
             }
         }
-    }
-}
-
-@Composable
-fun Badge(text: String) {
-    Surface(
-        color = if(text.lowercase() == "berat") Color(0xFFFEE2E2) else Color(0xFFE0F2FE),
-        shape = MaterialTheme.shapes.small
-    ) {
-        Text(
-            text = text,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-            style = MaterialTheme.typography.labelSmall,
-            color = Color.Black
-        )
     }
 }

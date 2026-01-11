@@ -80,22 +80,16 @@ fun HomeScreen(navController: NavController, viewModel: MainViewModel = viewMode
             // Admin Only Features
             if (user?.isAdmin == true || user?.role == "admin") {
                 Spacer(modifier = Modifier.height(16.dp))
-                Text("Admin Area", style = MaterialTheme.typography.titleSmall, color = Color.Gray)
-                Spacer(modifier = Modifier.height(8.dp))
+                Text("Admin Area", style = MaterialTheme.typography.titleMedium)
+                Spacer(modifier = Modifier.height(16.dp))
                 
-                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    ActionCard("Kelas", "Manage", Modifier.weight(1f), onClick = { navController.navigate("manage/kelas") })
-                    ActionCard("Jurusan", "Manage", Modifier.weight(1f), onClick = { navController.navigate("manage/jurusan") })
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    ActionCard("Persetujuan", "Registrasi", Modifier.weight(1f), onClick = { navController.navigate("admin_registrations") })
+                    ActionCard("Petugas", "Kelola Akun", Modifier.weight(1f), onClick = { navController.navigate("admin_users") })
                 }
-                 Spacer(modifier = Modifier.height(16.dp))
-                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    ActionCard("Diagnosis", "Ref Data", Modifier.weight(1f), onClick = { navController.navigate("manage/diagnosis") })
-                    ActionCard("History", "Audit Logs", Modifier.weight(1f), onClick = { navController.navigate("manage/history") })
-                }
-                 Spacer(modifier = Modifier.height(16.dp))
-                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    ActionCard("Users", "Manage", Modifier.weight(1f), onClick = { navController.navigate("manage/users") })
-                    // Empty spacer
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    ActionCard("Manajemen", "Master Data", Modifier.weight(1f), onClick = { navController.navigate("management") })
                     Spacer(modifier = Modifier.weight(1f))
                 }
             }

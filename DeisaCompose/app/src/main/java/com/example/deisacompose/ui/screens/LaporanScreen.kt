@@ -40,19 +40,20 @@ fun LaporanScreen(
                 Column {
                     Text("Filter Periode", style = MaterialTheme.typography.titleSmall)
                     Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(
+                    
+                    DeisaDatePickerField(
                         value = startDate, 
                         onValueChange = { startDate = it },
-                        label = { Text("Start Date (YYYY-MM-DD)") },
-                        modifier = Modifier.fillMaxWidth()
+                        label = "Start Date"
                     )
                     Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(
+                    
+                    DeisaDatePickerField(
                         value = endDate, 
                         onValueChange = { endDate = it },
-                        label = { Text("End Date (YYYY-MM-DD)") },
-                        modifier = Modifier.fillMaxWidth()
+                        label = "End Date"
                     )
+                    
                     Spacer(modifier = Modifier.height(16.dp))
                     DeisaButton(
                         text = "Tampilkan Laporan",
@@ -63,24 +64,30 @@ fun LaporanScreen(
                 }
             }
             
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
             
             if (data != null) {
-                Text("Ringkasan", style = MaterialTheme.typography.titleMedium)
-                Spacer(modifier = Modifier.height(8.dp))
+                Text("Ringkasan Statistik", style = MaterialTheme.typography.titleMedium)
+                Spacer(modifier = Modifier.height(12.dp))
                 
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                     StatsCard("${data!!.summary.totalSakit}", "Total Sakit", Color(0xFFE0F2FE), Modifier.weight(1f))
-                     StatsCard("${data!!.summary.uniqueSantriSakit}", "Santri Unik", Color(0xFFFEE2E2), Modifier.weight(1f))
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                     StatsCard("${data!!.summary.totalSakit}", "Total Sakit", Color(0xFFE8F5E9), Modifier.weight(1f))
+                     StatsCard("${data!!.summary.uniqueSantriSakit}", "Santri Unik", Color(0xFFFFF3E0), Modifier.weight(1f))
                 }
                 
-                Spacer(modifier = Modifier.height(16.dp))
-                Text("Top Santri Sakit", style = MaterialTheme.typography.titleMedium)
+                Spacer(modifier = Modifier.height(24.dp))
+                Text("Santri Paling Sering Sakit", style = MaterialTheme.typography.titleMedium)
+                Spacer(modifier = Modifier.height(8.dp))
+                
                 data!!.topSantri.forEach { santri ->
                     DeisaCard {
                         Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
                             Text(santri.namaLengkap)
-                            Text("${santri.sakitCount} kali", fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+                            DeisaBadge(
+                                text = "${santri.sakitCount}x",
+                                containerColor = Color(0xFFFFEBEE),
+                                contentColor = Color.Red
+                            )
                         }
                     }
                 }

@@ -43,7 +43,7 @@ fun ObatScreen(
             } else if (obatList.isEmpty()) {
                 EmptyState("No Medicine Found")
             } else {
-                LazyColumn(modifier = Modifier.padding(16.dp)) {
+                LazyColumn(modifier = Modifier.padding(HORIZONTAL_PADDING)) {
                     items(obatList) { obat ->
                          ObatItem(
                              obat = obat,
@@ -57,8 +57,12 @@ fun ObatScreen(
     }
 }
 
+private val HORIZONTAL_PADDING = 16.dp
+
 @Composable
 fun ObatItem(obat: Obat, onEdit: () -> Unit, onDelete: () -> Unit) {
+    val isLowStock = obat.stok <= (obat.stokMinimum ?: 10)
+    
     DeisaCard(onClick = onEdit) {
         Row(
             modifier = Modifier.fillMaxWidth(), 
@@ -66,10 +70,24 @@ fun ObatItem(obat: Obat, onEdit: () -> Unit, onDelete: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(obat.namaObat, style = MaterialTheme.typography.titleMedium)
-                Text("${obat.stok} ${obat.satuan ?: ""}", style = MaterialTheme.typography.bodyMedium, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(obat.namaObat, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f, fill = false))
+                    if (obat.kategori != null) {
+                        Spacer(modifier = Modifier.width(8.dp))
+                        DeisaBadge(text = obat.kategori, containerColor = Color.LightGray.copy(alpha = 0.3f), contentColor = Color.DarkGray)
+                    }
+                }
+                
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("${obat.stok} ${obat.satuan ?: ""}", style = MaterialTheme.typography.bodyMedium, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+                    if (isLowStock) {
+                        Spacer(modifier = Modifier.width(8.dp))
+                        DeisaBadge(text = "Low Stock", containerColor = Color(0xFFFFEBEE), contentColor = Color.Red)
+                    }
+                }
+                
                 if (obat.deskripsi != null) {
-                    Text(obat.deskripsi, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+                    Text(obat.deskripsi, style = MaterialTheme.typography.bodySmall, color = Color.Gray, maxLines = 1)
                 }
             }
             IconButton(onClick = onDelete) {

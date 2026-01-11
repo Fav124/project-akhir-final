@@ -3,51 +3,77 @@ package com.example.deisacompose.ui.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.deisacompose.data.models.ObatUsageRequest
 import com.example.deisacompose.data.models.SakitRequest
 import com.example.deisacompose.ui.components.*
-import com.example.deisacompose.viewmodels.SakitViewModel
+import com.example.deisacompose.viewmodels.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SakitFormScreen(
     navController: NavController,
     viewModel: SakitViewModel = viewModel(),
+    santriViewModel: SantriViewModel = viewModel(),
+    obatViewModel: ObatViewModel = viewModel(),
+    mgmtViewModel: ManagementViewModel = viewModel(),
     sakitId: Int? = null
 ) {
-    var santriId by remember { mutableStateOf("") }
-    var tglSakit by remember { mutableStateOf("") }
-    var keluhan by remember { mutableStateOf("") }
-    var diagnosis by remember { mutableStateOf("") }
+    // Selection States
+    var selectedSantriId by remember { mutableStateOf<Int?>(null) }
+    var tglMasuk by remember { mutableStateOf("") }
+    var status by remember { mutableStateOf("Sakit") }
+    var jenisPerawatan by remember { mutableStateOf("UKS") }
+    var tujuanRujukan by remember { mutableStateOf("") }
+    var gejala by remember { mutableStateOf("") }
     var tindakan by remember { mutableStateOf("") }
-    var status by remember { mutableStateOf("Ringan") }
+    var catatan by remember { mutableStateOf("") }
+    
+    // Multi-select for Diagnosis
+    var selectedDiagnosisIds by remember { mutableStateOf(setOf<Int>()) }
+    
+    // Multi-select for Obat
+    var obatUsageList by remember { mutableStateOf(listOf<ObatUsageState>()) }
     
     var isLoading by remember { mutableStateOf(false) }
     
+    val santriList by santriViewModel.santriList.observeAsState(emptyList())
+    val diagnosisList by mgmtViewModel.diagnosisList.observeAsState(emptyList())
+    val obatList by obatViewModel.obatList.observeAsState(emptyList())
     val sakitDetail by viewModel.sakitDetail.observeAsState()
 
+    // Initial Fetch
+    LaunchedEffect(Unit) {
+        santriViewModel.fetchSantri()
+        mgmtViewModel.fetchDiagnosis()
+        obatViewModel.fetchObat()
+    }
+
     LaunchedEffect(sakitId) {
-        if (sakitId != null) {
-            viewModel.getSakitById(sakitId)
-        } else {
-            viewModel.clearDetail()
-        }
+        if (sakitId != null) viewModel.getSakitById(sakitId)
+        else viewModel.clearDetail()
     }
     
     LaunchedEffect(sakitDetail) {
         sakitDetail?.let {
-            santriId = it.santriId.toString()
-            tglSakit = it.tanggalMulaiSakit ?: it.tanggalSakit ?: ""
-            keluhan = it.gejala ?: ""
-            diagnosis = it.diagnosis ?: ""
+            selectedSantriId = it.santriId
+            tglMasuk = it.tanggalMulaiSakit ?: it.tanggalSakit ?: ""
+            status = it.status ?: "Sakit"
+            gejala = it.gejala ?: ""
             tindakan = it.tindakan ?: ""
-            status = it.tingkatKondisi ?: "Ringan"
+            catatan = it.catatan ?: ""
+            // Pivot and medicines would need more logic if editing complex ones
         }
     }
 
@@ -60,57 +86,182 @@ fun SakitFormScreen(
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            DeisaTextField(value = santriId, onValueChange = { santriId = it }, label = "ID Santri (Int)", keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number))
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            DeisaDatePickerField(value = tglSakit, onValueChange = { tglSakit = it }, label = "Tanggal Sakit")
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            DeisaTextField(value = keluhan, onValueChange = { keluhan = it }, label = "Gejala / Keluhan")
-            Spacer(modifier = Modifier.height(8.dp))
-            DeisaTextField(value = diagnosis, onValueChange = { diagnosis = it }, label = "Diagnosis Awal")
-            Spacer(modifier = Modifier.height(8.dp))
-            DeisaTextField(value = tindakan, onValueChange = { tindakan = it }, label = "Tindakan")
-            
-            Spacer(modifier = Modifier.height(8.dp))
+            // Santri Selection
             DeisaDropdown(
-                label = "Tingkat Keparahan",
-                options = listOf("Ringan", "Sedang", "Berat"),
-                selectedOption = status,
-                onOptionSelected = { status = it }
+                label = "Santri",
+                options = santriList.map { it.displayName() },
+                selectedOption = santriList.find { it.id == selectedSantriId }?.displayName() ?: "Pilih Santri",
+                onOptionSelected = { name -> 
+                    selectedSantriId = santriList.find { it.displayName() == name }?.id
+                }
             )
+            
+            Spacer(modifier = Modifier.height(8.dp))
+            DeisaDatePickerField(value = tglMasuk, onValueChange = { tglMasuk = it }, label = "Tanggal Masuk")
+            
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Box(modifier = Modifier.weight(1f)) {
+                    DeisaDropdown(
+                        label = "Status",
+                        options = listOf("Sakit", "Pulang"),
+                        selectedOption = status,
+                        onOptionSelected = { status = it }
+                    )
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Box(modifier = Modifier.weight(1f)) {
+                    DeisaDropdown(
+                        label = "Jenis Perawatan",
+                        options = listOf("UKS", "Rumah Sakit", "Pulang"),
+                        selectedOption = jenisPerawatan,
+                        onOptionSelected = { jenisPerawatan = it }
+                    )
+                }
+            }
+            
+            if (jenisPerawatan == "Rumah Sakit") {
+                Spacer(modifier = Modifier.height(8.dp))
+                DeisaTextField(value = tujuanRujukan, onValueChange = { tujuanRujukan = it }, label = "Tujuan Rujukan (RS/Klinik)")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+            DeisaTextField(value = gejala, onValueChange = { gejala = it }, label = "Gejala (Keluhan)")
+            Spacer(modifier = Modifier.height(8.dp))
+            DeisaTextField(value = tindakan, onValueChange = { tindakan = it }, label = "Tindakan yang diberikan")
+            Spacer(modifier = Modifier.height(8.dp))
+            DeisaTextField(value = catatan, onValueChange = { catatan = it }, label = "Catatan Lainnya")
 
             Spacer(modifier = Modifier.height(24.dp))
+            Text("Diagnosis (Opsional)", style = MaterialTheme.typography.titleMedium)
+            // Chip flow for Diagnosis (Multi-select)
+            FlowRow(modifier = Modifier.fillMaxWidth()) {
+                diagnosisList.forEach { diag -> 
+                    FilterChip(
+                        selected = selectedDiagnosisIds.contains(diag.id),
+                        onClick = { 
+                            selectedDiagnosisIds = if (selectedDiagnosisIds.contains(diag.id)) {
+                                selectedDiagnosisIds - diag.id
+                            } else {
+                                selectedDiagnosisIds + diag.id
+                            }
+                        },
+                        label = { Text(diag.namaPenyakit ?: "Unknown") },
+                        modifier = Modifier.padding(end = 8.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("Pemberian Obat", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                IconButton(onClick = { obatUsageList = obatUsageList + ObatUsageState() }) {
+                    Icon(Icons.Default.Add, contentDescription = "Add Medicine", tint = MaterialTheme.colorScheme.primary)
+                }
+            }
+            
+            obatUsageList.forEachIndexed { index, usage ->
+                Card(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                ) {
+                    Row(
+                        modifier = Modifier.padding(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                             DeisaDropdown(
+                                label = "Pilih Obat",
+                                options = obatList.map { it.namaObat },
+                                selectedOption = obatList.find { it.id == usage.obatId }?.namaObat ?: "Obat",
+                                onOptionSelected = { name -> 
+                                    val obat = obatList.find { it.namaObat == name }
+                                    if (obat != null) {
+                                        obatUsageList = obatUsageList.toMutableList().also {
+                                            it[index] = it[index].copy(obatId = obat.id, name = name)
+                                        }
+                                    }
+                                }
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Box(modifier = Modifier.width(80.dp)) {
+                             DeisaTextField(
+                                value = usage.jumlah,
+                                onValueChange = { qty -> 
+                                    obatUsageList = obatUsageList.toMutableList().also {
+                                        it[index] = it[index].copy(jumlah = qty)
+                                    }
+                                },
+                                label = "Qty",
+                                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number)
+                            )
+                        }
+                        IconButton(onClick = { 
+                            obatUsageList = obatUsageList.toMutableList().also { it.removeAt(index) }
+                        }) {
+                            Icon(Icons.Default.Delete, contentDescription = "Remove", tint = Color.Red)
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
             
             DeisaButton(
                 text = if (sakitId == null) "Simpan Data" else "Update Data",
                 onClick = {
+                    if (selectedSantriId == null) return@DeisaButton
+                    
                     isLoading = true
                     val request = SakitRequest(
-                        santriId = santriId.toIntOrNull() ?: 0,
-                        tanggalMulaiSakit = tglSakit,
-                        gejala = keluhan,
-                        diagnosis = diagnosis,
+                        santriId = selectedSantriId!!,
+                        tglMasuk = tglMasuk,
+                        status = status,
+                        jenisPerawatan = jenisPerawatan,
+                        tujuanRujukan = if(jenisPerawatan == "Rumah Sakit") tujuanRujukan else null,
+                        gejala = gejala,
                         tindakan = tindakan,
-                        tingkatKondisi = status
+                        catatan = catatan,
+                        diagnosisIds = selectedDiagnosisIds.toList(),
+                        obatUsage = obatUsageList.filter { it.obatId != null }.map { 
+                            ObatUsageRequest(it.obatId!!, it.jumlah.toIntOrNull() ?: 0)
+                        }
                     )
                     
-                     if (sakitId == null) {
+                    if (sakitId == null) {
                         viewModel.submitSakit(request) {
-                             isLoading = false
-                             navController.popBackStack()
+                            isLoading = false
+                            navController.popBackStack()
                         }
                     } else {
-                         viewModel.updateSakit(sakitId, request) {
-                             isLoading = false
-                             navController.popBackStack()
+                        viewModel.updateSakit(sakitId, request) {
+                            isLoading = false
+                            navController.popBackStack()
                         }
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
                 isLoading = isLoading
             )
+            Spacer(modifier = Modifier.height(64.dp))
         }
+    }
+}
+
+data class ObatUsageState(
+    val obatId: Int? = null,
+    val name: String = "",
+    val jumlah: String = ""
+)
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun FlowRow(
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    androidx.compose.foundation.layout.FlowRow(modifier = modifier) {
+        content()
     }
 }

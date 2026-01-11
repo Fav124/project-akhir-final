@@ -6,7 +6,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -70,14 +69,38 @@ fun SantriScreen(
 
 @Composable
 fun SantriItem(santri: Santri, canEdit: Boolean, onEdit: () -> Unit, onDelete: () -> Unit) {
-    DeisaCard(onClick = onEdit) { // Click whole card to edit/detail
+    val statusColor = when (santri.statusKesehatan) {
+        "Sehat" -> Color(0xFFE8F5E9)
+        "Sakit" -> Color(0xFFFFEBEE)
+        "Rawat Inap" -> Color(0xFFFFF3E0)
+        "Pulang" -> Color(0xFFE3F2FD)
+        else -> Color.LightGray
+    }
+    
+    val statusTextColor = when (santri.statusKesehatan) {
+        "Sehat" -> Color(0xFF2E7D32)
+        "Sakit" -> Color(0xFFC62828)
+        "Rawat Inap" -> Color(0xFFEF6C00)
+        "Pulang" -> Color(0xFF1565C0)
+        else -> Color.DarkGray
+    }
+
+    DeisaCard(onClick = onEdit) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(santri.displayName(), style = MaterialTheme.typography.titleMedium)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(santri.displayName(), style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f, fill = false))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    DeisaBadge(
+                        text = santri.statusKesehatan ?: "Unknown",
+                        containerColor = statusColor,
+                        contentColor = statusTextColor
+                    )
+                }
                 Text("Kelas: ${santri.displayKelas()}", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
                 Text("NIS: ${santri.nis ?: "-"}", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
             }
