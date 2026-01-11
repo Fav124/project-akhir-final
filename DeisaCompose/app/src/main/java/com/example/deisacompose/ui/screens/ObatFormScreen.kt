@@ -13,6 +13,7 @@ import androidx.navigation.NavController
 import com.example.deisacompose.data.models.ObatRequest
 import com.example.deisacompose.ui.components.*
 import com.example.deisacompose.viewmodels.ObatViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,6 +33,9 @@ fun ObatFormScreen(
     var lokasiPenyimpanan by remember { mutableStateOf("") }
     
     var isLoading by remember { mutableStateOf(false) }
+    
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
     
     val obatDetail by viewModel.obatDetail.observeAsState()
 
@@ -58,7 +62,8 @@ fun ObatFormScreen(
     }
 
     Scaffold(
-        topBar = { DeisaTopBar(if (obatId == null) "Tambah Obat" else "Edit Obat") }
+        topBar = { DeisaTopBar(if (obatId == null) "Tambah Obat" else "Edit Obat") },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -126,15 +131,30 @@ fun ObatFormScreen(
                     )
                     
                      if (obatId == null) {
-                        viewModel.createObat(request) {
-                            isLoading = false
-                            navController.popBackStack()
-                        }
+                        viewModel.createObat(
+                            request = request, 
+                            onSuccess = {
+                                isLoading = false
+                                navController.popBackStack()
+                            },
+                            onError = { error ->
+                                isLoading = false
+                                scope.launch { snackbarHostState.showSnackbar(error) }
+                            }
+                        )
                     } else {
-                        viewModel.updateObat(obatId, request) {
-                            isLoading = false
-                            navController.popBackStack()
-                        }
+                        viewModel.updateObat(
+                            id = obatId, 
+                            request = request, 
+                            onSuccess = {
+                                isLoading = false
+                                navController.popBackStack()
+                            },
+                            onError = { error ->
+                                isLoading = false
+                                scope.launch { snackbarHostState.showSnackbar(error) }
+                            }
+                        )
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),

@@ -27,7 +27,7 @@ fun HomeScreen(navController: NavController, viewModel: MainViewModel = viewMode
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Santri Health Dashboard") },
+                title = { Text("Dashboard Kesehatan Santri") },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.White
                 ),
@@ -39,7 +39,7 @@ fun HomeScreen(navController: NavController, viewModel: MainViewModel = viewMode
                              popUpTo("home") { inclusive = true }
                          }
                      }) {
-                         Text("Logout", color = Color.Red)
+                         Text("Keluar", color = Color.Red)
                      }
                 }
             )
@@ -56,40 +56,40 @@ fun HomeScreen(navController: NavController, viewModel: MainViewModel = viewMode
             
             // Stats Row
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                StatsCard("12", "Sick Today", Color(0xFFFEE2E2), Modifier.weight(1f))
-                StatsCard("5", "Low Stock", Color(0xFFFEF3C7), Modifier.weight(1f))
+                StatsCard("12", "Sakit Hari Ini", Color(0xFFFEE2E2), Modifier.weight(1f))
+                StatsCard("5", "Stok Menipis", Color(0xFFFEF3C7), Modifier.weight(1f))
             }
             
             Spacer(modifier = Modifier.height(24.dp))
             
-            Text("Management", style = MaterialTheme.typography.titleMedium)
+            Text("Manajemen Data", style = MaterialTheme.typography.titleMedium)
             
             Spacer(modifier = Modifier.height(16.dp))
             
             // Core Features (Everyone)
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                ActionCard("Sick Records", "View Logs", Modifier.weight(1f), onClick = { navController.navigate("sakit_list") })
-                ActionCard("Medicine", "Inventory", Modifier.weight(1f), onClick = { navController.navigate("obat_list") })
+                ActionCard("Data Sakit", "Lihat Catatan", Modifier.weight(1f), onClick = { navController.navigate("sakit_list") })
+                ActionCard("Data Obat", "Kelola Stok", Modifier.weight(1f), onClick = { navController.navigate("obat_list") })
             }
              Spacer(modifier = Modifier.height(16.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                ActionCard("Santri", "View All", Modifier.weight(1f), onClick = { navController.navigate("santri_list") })
-                ActionCard("Reports", "Summary", Modifier.weight(1f), onClick = { navController.navigate("laporan") })
+                ActionCard("Data Santri", "Semua Santri", Modifier.weight(1f), onClick = { navController.navigate("santri_list") })
+                ActionCard("Laporan", "Ringkasan", Modifier.weight(1f), onClick = { navController.navigate("laporan") })
             }
             
             // Admin Only Features
             if (user?.isAdmin == true || user?.role == "admin") {
                 Spacer(modifier = Modifier.height(16.dp))
-                Text("Admin Area", style = MaterialTheme.typography.titleMedium)
+                Text("Area Administrator", style = MaterialTheme.typography.titleMedium)
                 Spacer(modifier = Modifier.height(16.dp))
                 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    ActionCard("Persetujuan", "Registrasi", Modifier.weight(1f), onClick = { navController.navigate("admin_registrations") })
-                    ActionCard("Petugas", "Kelola Akun", Modifier.weight(1f), onClick = { navController.navigate("admin_users") })
+                    ActionCard("Persetujuan", "Registrasi Akun", Modifier.weight(1f), onClick = { navController.navigate("admin_registrations") })
+                    ActionCard("Petugas", "Kelola Akses", Modifier.weight(1f), onClick = { navController.navigate("admin_users") })
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    ActionCard("Manajemen", "Master Data", Modifier.weight(1f), onClick = { navController.navigate("management") })
+                    ActionCard("Data Induk", "Master Data", Modifier.weight(1f), onClick = { navController.navigate("management") })
                     Spacer(modifier = Modifier.weight(1f))
                 }
             }

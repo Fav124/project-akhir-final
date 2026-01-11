@@ -1,0 +1,776 @@
+/*==============================================================
+    Health Application - Dashboard & Components Styles
+    Gaya Komponen Khusus untuk Aplikasi Kesehatan
+==============================================================*/
+
+/* ============================================================
+   Health Statistics Cards
+============================================================ */
+.health-stat-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+    border: 2px solid #d1fae5;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    position: relative;
+}
+
+.health-stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, #10b981 0%, #14b8a6 100%);
+}
+
+.health-stat-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(16, 185, 129, 0.2);
+    border-color: #10b981;
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #064e3b;
+    margin: 0.5rem 0;
+}
+
+.stat-label {
+    font-size: 0.95rem;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.stat-change {
+    display: inline-block;
+    margin-top: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    background-color: #dcfce7;
+    color: #166534;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.stat-change.negative {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+/* ============================================================
+   Patient/Santri Cards
+============================================================ */
+.patient-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.patient-card:hover {
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.15);
+    border-color: #10b981;
+    transform: translateY(-2px);
+}
+
+.patient-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 1.25rem;
+    margin-right: 1rem;
+}
+
+.patient-info {
+    flex: 1;
+}
+
+.patient-name {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #064e3b;
+    margin-bottom: 0.25rem;
+}
+
+.patient-detail {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin: 0.25rem 0;
+}
+
+/* ============================================================
+   Health Status Badges
+============================================================ */
+.health-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.health-status.sehat {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.health-status.sakit {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.health-status.darurat {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    animation: pulse-danger 2s infinite;
+}
+
+.health-status.pemulihan {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.health-status.pemeriksaan {
+    background-color: #dbeafe;
+    color: #0c2d6b;
+}
+
+@keyframes pulse-danger {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+    }
+    50% {
+        box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+    }
+}
+
+/* ============================================================
+   Medicine/Obat Cards
+============================================================ */
+.medicine-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 1.25rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.medicine-card:hover {
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.15);
+    border-color: #10b981;
+    transform: scale(1.02);
+}
+
+.medicine-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    margin: 0 auto 0.75rem;
+}
+
+.medicine-name {
+    font-weight: 700;
+    color: #064e3b;
+    margin-bottom: 0.5rem;
+}
+
+.medicine-info {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin-bottom: 0.5rem;
+}
+
+.medicine-stock {
+    display: inline-block;
+    padding: 0.5rem 0.75rem;
+    background-color: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 6px;
+    color: #166534;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.medicine-stock.low {
+    background-color: #fef3c7;
+    border-color: #fcd34d;
+    color: #92400e;
+}
+
+.medicine-stock.critical {
+    background-color: #fee2e2;
+    border-color: #fecaca;
+    color: #991b1b;
+}
+
+/* ============================================================
+   Activity Timeline
+============================================================ */
+.timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.timeline-item {
+    position: relative;
+    padding-bottom: 2rem;
+    border-left: 2px solid #e5e7eb;
+}
+
+.timeline-item.active {
+    border-left-color: #10b981;
+}
+
+.timeline-dot {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #10b981;
+    left: -7px;
+    top: 0;
+    border: 3px solid white;
+    box-shadow: 0 0 0 2px #10b981;
+}
+
+.timeline-content {
+    padding: 1rem;
+    background-color: var(--health-light, #f0fdf4);
+    border-radius: 8px;
+}
+
+.timeline-time {
+    font-size: 0.85rem;
+    color: #6b7280;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.timeline-title {
+    font-weight: 700;
+    color: #064e3b;
+    margin-bottom: 0.25rem;
+}
+
+.timeline-description {
+    font-size: 0.9rem;
+    color: #6b7280;
+}
+
+/* ============================================================
+   Form Elements - Health Theme
+============================================================ */
+.form-group-health {
+    margin-bottom: 1.5rem;
+}
+
+.form-label-health {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #064e3b;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.form-input-health {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #d1d5db;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background-color: white;
+    color: #064e3b;
+}
+
+.form-input-health:focus {
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    outline: none;
+}
+
+.form-input-health::placeholder {
+    color: #9ca3af;
+}
+
+.form-textarea-health {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-select-health {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #d1d5db;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    background-color: white;
+    color: #064e3b;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.form-select-health:focus {
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    outline: none;
+}
+
+.form-check-health {
+    margin-bottom: 1rem;
+}
+
+.form-check-input-health {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #d1d5db;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-right: 0.5rem;
+    accent-color: #10b981;
+}
+
+.form-check-input-health:hover {
+    border-color: #10b981;
+}
+
+.form-check-input-health:checked {
+    background-color: #10b981;
+    border-color: #10b981;
+}
+
+/* ============================================================
+   Chart & Graph Containers
+============================================================ */
+.chart-container {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.chart-container h3 {
+    color: #064e3b;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+}
+
+.chart-title {
+    position: relative;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #10b981;
+    margin-bottom: 1rem;
+}
+
+.chart-title::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(90deg, #10b981 0%, #14b8a6 100%);
+}
+
+/* ============================================================
+   Action Buttons - Health Theme
+============================================================ */
+.btn-health {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+}
+
+.btn-health-primary {
+    background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.btn-health-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+}
+
+.btn-health-primary:active {
+    transform: translateY(0);
+}
+
+.btn-health-secondary {
+    background-color: var(--health-gray-light, #f3f4f6);
+    color: #064e3b;
+    border: 2px solid #d1d5db;
+}
+
+.btn-health-secondary:hover {
+    background-color: #e5e7eb;
+    border-color: #10b981;
+}
+
+.btn-health-danger {
+    background-color: #ef4444;
+    color: white;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.btn-health-danger:hover {
+    background-color: #dc2626;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
+}
+
+.btn-health-success {
+    background-color: #10b981;
+    color: white;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.btn-health-success:hover {
+    background-color: #059669;
+    transform: translateY(-2px);
+}
+
+.btn-health-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+}
+
+.btn-health-lg {
+    padding: 0.85rem 1.75rem;
+    font-size: 1.05rem;
+}
+
+/* ============================================================
+   Notification & Toast Styles
+============================================================ */
+.toast-health {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    padding: 1.25rem 1.5rem;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    animation: slideInRight 0.3s ease;
+    z-index: 1000;
+}
+
+.toast-health.success {
+    background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
+}
+
+.toast-health.error {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.toast-health.warning {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.toast-health.info {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* ============================================================
+   Table Styling - Health Theme
+============================================================ */
+.table-health {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+.table-health thead {
+    background: linear-gradient(90deg, #10b981 0%, #14b8a6 100%);
+}
+
+.table-health thead th {
+    color: white;
+    padding: 1rem;
+    font-weight: 700;
+    text-align: left;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+}
+
+.table-health tbody tr {
+    border-bottom: 1px solid #e5e7eb;
+    transition: all 0.2s ease;
+}
+
+.table-health tbody tr:hover {
+    background-color: var(--health-light, #f0fdf4);
+}
+
+.table-health td {
+    padding: 1rem;
+    color: #111827;
+}
+
+.table-health .action-cell {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* ============================================================
+   Loading & Skeleton Styles
+============================================================ */
+.skeleton {
+    background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+.skeleton-card {
+    height: 200px;
+    border-radius: 12px;
+}
+
+.skeleton-text {
+    height: 1rem;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+}
+
+/* ============================================================
+   Empty State
+============================================================ */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    background: white;
+    border: 2px dashed #d1d5db;
+    border-radius: 12px;
+}
+
+.empty-state-icon {
+    font-size: 3rem;
+    color: #10b981;
+    margin-bottom: 1rem;
+}
+
+.empty-state-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #064e3b;
+    margin-bottom: 0.5rem;
+}
+
+.empty-state-message {
+    color: #6b7280;
+    margin-bottom: 1.5rem;
+}
+
+/* ============================================================
+   Modal Enhancements
+============================================================ */
+.modal-health .modal-content {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+.modal-health .modal-header {
+    background: linear-gradient(90deg, #10b981 0%, #14b8a6 100%);
+    color: white;
+    border: none;
+    border-radius: 12px 12px 0 0;
+    padding: 1.5rem;
+}
+
+.modal-health .modal-header .btn-close {
+    filter: invert(1) brightness(2);
+}
+
+.modal-health .modal-title {
+    font-weight: 700;
+    font-size: 1.25rem;
+}
+
+.modal-health .modal-footer {
+    background-color: var(--health-gray-light, #f3f4f6);
+    border-top: 1px solid #e5e7eb;
+    padding: 1rem 1.5rem;
+}
+
+/* ============================================================
+   Breadcrumb Navigation
+============================================================ */
+.breadcrumb-health {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    margin-bottom: 2rem;
+    font-size: 0.95rem;
+}
+
+.breadcrumb-health a {
+    color: #10b981;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.breadcrumb-health a:hover {
+    color: #059669;
+    text-decoration: underline;
+}
+
+.breadcrumb-health .separator {
+    color: #d1d5db;
+    margin: 0 0.5rem;
+}
+
+.breadcrumb-health .active {
+    color: #6b7280;
+    font-weight: 600;
+}
+
+/* ============================================================
+   Responsive Adjustments
+============================================================ */
+@media (max-width: 768px) {
+    .health-stat-card {
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+    }
+
+    .patient-card {
+        padding: 1rem;
+    }
+
+    .btn-health {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.9rem;
+    }
+
+    .table-health {
+        font-size: 0.85rem;
+    }
+
+    .table-health th,
+    .table-health td {
+        padding: 0.75rem;
+    }
+
+    .action-cell {
+        flex-direction: column;
+    }
+
+    .toast-health {
+        left: 1rem;
+        right: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .health-stat-card {
+        padding: 1rem;
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        font-size: 1.5rem;
+    }
+
+    .stat-value {
+        font-size: 1.25rem;
+    }
+
+    .btn-health {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .modal-health .modal-header {
+        padding: 1rem;
+    }
+
+    .empty-state {
+        padding: 2rem 1rem;
+    }
+}
+
+/*==============================================================
+    End of Health Components Styles
+==============================================================*/

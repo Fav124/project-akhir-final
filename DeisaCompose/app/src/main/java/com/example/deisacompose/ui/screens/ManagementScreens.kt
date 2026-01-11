@@ -16,6 +16,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.deisacompose.ui.components.*
 import com.example.deisacompose.viewmodels.ManagementViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -24,7 +25,17 @@ fun ManagementScreen(
     type: String, // "users", "kelas", "jurusan", "diagnosis", "history"
     viewModel: ManagementViewModel = viewModel()
 ) {
-    val title = type.replaceFirstChar { it.uppercase() }
+    val titleIndo = when(type) {
+        "users" -> "Pengguna"
+        "kelas" -> "Kelas"
+        "jurusan" -> "Jurusan"
+        "diagnosis" -> "Diagnosis"
+        "history" -> "Riwayat"
+        else -> type
+    }
+    
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
     
     // States observing
     val users by viewModel.userList.observeAsState(emptyList())
@@ -35,7 +46,6 @@ fun ManagementScreen(
     
     // Dialog States
     var showDialog by remember { mutableStateOf(false) }
-    var editId by remember { mutableStateOf<Int?>(null) } // Generic ID handling logic is complex here, let's keep it simple: Add only for now or simple prompt
     
     // Inputs
     var inputName by remember { mutableStateOf("") }
@@ -52,7 +62,8 @@ fun ManagementScreen(
     }
 
     Scaffold(
-        topBar = { DeisaTopBar("Manage $title") },
+        topBar = { DeisaTopBar("Kelola $titleIndo") },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
             if (type != "history" && type != "users") { // Users managed via Registration
                 DeisaFab(onClick = { 
@@ -73,8 +84,11 @@ fun ManagementScreen(
                                      Text(user.name, style = MaterialTheme.typography.titleMedium)
                                      Text(user.email, style = MaterialTheme.typography.bodySmall)
                                  }
-                                 IconButton(onClick = { viewModel.deleteUser(user.id) }) {
-                                     Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Red)
+                                 IconButton(onClick = { 
+                                     viewModel.deleteUser(user.id) 
+                                     scope.launch { snackbarHostState.showSnackbar("Pengguna berhasil dihapus") }
+                                 }) {
+                                     Icon(Icons.Default.Delete, contentDescription = "Hapus", tint = Color.Red)
                                  }
                              }
                          }
@@ -83,8 +97,11 @@ fun ManagementScreen(
                          DeisaCard {
                              Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
                                  Text(k.namaKelas ?: "-")
-                                 IconButton(onClick = { viewModel.deleteKelas(k.id) }) {
-                                     Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Red)
+                                 IconButton(onClick = { 
+                                     viewModel.deleteKelas(k.id) 
+                                     scope.launch { snackbarHostState.showSnackbar("Kelas berhasil dihapus") }
+                                 }) {
+                                     Icon(Icons.Default.Delete, contentDescription = "Hapus", tint = Color.Red)
                                  }
                              }
                          }
@@ -93,8 +110,11 @@ fun ManagementScreen(
                          DeisaCard {
                              Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
                                  Text(j.namaJurusan ?: "-")
-                                  IconButton(onClick = { viewModel.deleteJurusan(j.id) }) {
-                                     Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Red)
+                                  IconButton(onClick = { 
+                                      viewModel.deleteJurusan(j.id) 
+                                      scope.launch { snackbarHostState.showSnackbar("Jurusan berhasil dihapus") }
+                                  }) {
+                                     Icon(Icons.Default.Delete, contentDescription = "Hapus", tint = Color.Red)
                                  }
                              }
                          }
@@ -106,7 +126,6 @@ fun ManagementScreen(
                                     Text(d.namaPenyakit ?: "-")
                                     if (!d.deskripsi.isNullOrEmpty()) Text(d.deskripsi, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
                                  }
-                                  // Assuming diagnosis delete API exists, otherwise hide
                              }
                          }
                      }
@@ -123,24 +142,29 @@ fun ManagementScreen(
          
          if (showDialog) {
              DeisaDialog(
-                 title = "Add $title",
+                 title = "Tambah $titleIndo Baru",
                  onDismiss = { showDialog = false }
              ) {
-                 DeisaTextField(value = inputName, onValueChange = { inputName = it }, label = "Name")
+                 DeisaTextField(value = inputName, onValueChange = { inputName = it }, label = "Nama $titleIndo")
                  if (type == "diagnosis") {
                      Spacer(modifier = Modifier.height(8.dp))
-                     DeisaTextField(value = inputDesc, onValueChange = { inputDesc = it }, label = "Description")
+                     DeisaTextField(value = inputDesc, onValueChange = { inputDesc = it }, label = "Deskripsi / Catatan")
                  }
                  Spacer(modifier = Modifier.height(16.dp))
                  DeisaButton(
-                     text = "Save", 
+                     text = "Simpan Data", 
                      onClick = {
+                         if (inputName.isEmpty()) {
+                             scope.launch { snackbarHostState.showSnackbar("Nama wajib diisi") }
+                             return@DeisaButton
+                         }
                          when(type) {
                              "kelas" -> viewModel.addKelas(inputName)
                              "jurusan" -> viewModel.addJurusan(inputName)
                              "diagnosis" -> viewModel.addDiagnosis(inputName, inputDesc)
                          }
                          showDialog = false
+                         scope.launch { snackbarHostState.showSnackbar("$titleIndo berhasil ditambahkan") }
                      },
                      modifier = Modifier.fillMaxWidth()
                  )

@@ -12,8 +12,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.deisacompose.data.models.SantriRequest
 import com.example.deisacompose.ui.components.*
-import com.example.deisacompose.viewmodels.SantriViewModel
 import com.example.deisacompose.viewmodels.ManagementViewModel
+import com.example.deisacompose.viewmodels.SantriViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,14 +34,17 @@ fun SantriFormScreen(
     var tanggalLahir by remember { mutableStateOf("") }
     var alamat by remember { mutableStateOf("") }
     var golonganDarah by remember { mutableStateOf("A") }
-    
+
     // Wali
     var namaWali by remember { mutableStateOf("") }
     var hubunganWali by remember { mutableStateOf("Ayah") }
     var noHpWali by remember { mutableStateOf("") }
-    
+
     var isLoading by remember { mutableStateOf(false) }
-    
+
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
     val santriDetail by viewModel.santriDetail.observeAsState()
     val kelasList by mgmtViewModel.kelasList.observeAsState(emptyList())
     val jurusanList by mgmtViewModel.jurusanList.observeAsState(emptyList())
@@ -59,21 +63,21 @@ fun SantriFormScreen(
             viewModel.clearDetail()
         }
     }
-    
+
     // Populate Fields on Edit
     LaunchedEffect(santriDetail) {
-        santriDetail?.let {
-            nis = it.nis ?: ""
-            nama = it.namaLengkap ?: ""
-            selectedKelasId = it.kelasId
-            selectedJurusanId = it.jurusanId
-            jenisKelamin = it.jenisKelamin ?: "L"
-            tempatLahir = it.tempatLahir ?: ""
-            tanggalLahir = it.tanggalLahir ?: ""
-            alamat = it.alamat ?: ""
-            golonganDarah = it.golonganDarah ?: "A"
-            
-            it.wali?.let { w ->
+        santriDetail?.let { santri ->
+            nis = santri.nis ?: ""
+            nama = santri.namaLengkap ?: ""
+            selectedKelasId = santri.kelasId
+            selectedJurusanId = santri.jurusanId
+            jenisKelamin = santri.jenisKelamin ?: "L"
+            tempatLahir = santri.tempatLahir ?: ""
+            tanggalLahir = santri.tanggalLahir ?: ""
+            alamat = santri.alamat ?: ""
+            golonganDarah = santri.golonganDarah ?: "A"
+
+            santri.wali?.let { w ->
                 namaWali = w.namaWali
                 hubunganWali = w.hubungan
                 noHpWali = w.noHp
@@ -82,7 +86,8 @@ fun SantriFormScreen(
     }
 
     Scaffold(
-        topBar = { DeisaTopBar(if (santriId == null) "Tambah Data Santri" else "Edit Data Santri") }
+        topBar = { DeisaTopBar(if (santriId == null) "Tambah Data Santri" else "Edit Data Santri") },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -94,36 +99,36 @@ fun SantriFormScreen(
             Spacer(modifier = Modifier.height(8.dp))
             DeisaTextField(value = nama, onValueChange = { nama = it }, label = "Nama Lengkap")
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             // Kelas Dropdown
             DeisaDropdown(
                 label = "Kelas",
                 options = kelasList.map { it.namaKelas ?: "Unknown" },
                 selectedOption = kelasList.find { it.id == selectedKelasId }?.namaKelas ?: "Pilih Kelas",
-                onOptionSelected = { name -> 
+                onOptionSelected = { name ->
                     selectedKelasId = kelasList.find { it.namaKelas == name }?.id
                 }
             )
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             // Jurusan Dropdown
             DeisaDropdown(
                 label = "Jurusan",
                 options = jurusanList.map { it.namaJurusan ?: "Unknown" },
                 selectedOption = jurusanList.find { it.id == selectedJurusanId }?.namaJurusan ?: "Pilih Jurusan",
-                onOptionSelected = { name -> 
+                onOptionSelected = { name ->
                     selectedJurusanId = jurusanList.find { it.namaJurusan == name }?.id
                 }
             )
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             Row(modifier = Modifier.fillMaxWidth()) {
                 Box(modifier = Modifier.weight(1f)) {
                     DeisaDropdown(
                         label = "Jenis Kelamin",
                         options = listOf("Laki-laki", "Perempuan"),
-                        selectedOption = if(jenisKelamin == "L") "Laki-laki" else "Perempuan",
-                        onOptionSelected = { jenisKelamin = if(it == "Laki-laki") "L" else "P" }
+                        selectedOption = if (jenisKelamin == "L") "Laki-laki" else "Perempuan",
+                        onOptionSelected = { jenisKelamin = if (it == "Laki-laki") "L" else "P" }
                     )
                 }
                 Spacer(modifier = Modifier.width(8.dp))
@@ -136,24 +141,24 @@ fun SantriFormScreen(
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(8.dp))
             DeisaTextField(value = tempatLahir, onValueChange = { tempatLahir = it }, label = "Tempat Lahir")
             Spacer(modifier = Modifier.height(8.dp))
             DeisaDatePickerField(value = tanggalLahir, onValueChange = { tanggalLahir = it }, label = "Tanggal Lahir")
-            
+
             Spacer(modifier = Modifier.height(8.dp))
             DeisaTextField(value = alamat, onValueChange = { alamat = it }, label = "Alamat")
-            
+
             Spacer(modifier = Modifier.height(16.dp))
             HorizontalDivider()
             Spacer(modifier = Modifier.height(16.dp))
             Text("Data Wali Santri", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             DeisaTextField(value = namaWali, onValueChange = { namaWali = it }, label = "Nama Wali")
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             DeisaDropdown(
                 label = "Hubungan",
                 options = listOf("Ayah", "Ibu", "Kakek", "Nenek", "Paman", "Bibi", "Wali"),
@@ -161,46 +166,57 @@ fun SantriFormScreen(
                 onOptionSelected = { hubunganWali = it }
             )
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             DeisaTextField(
-                value = noHpWali, 
-                onValueChange = { noHpWali = it }, 
-                label = "No. HP Wali", 
+                value = noHpWali,
+                onValueChange = { noHpWali = it },
+                label = "No. HP Wali",
                 keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Phone)
-            ) 
+            )
 
             Spacer(modifier = Modifier.height(32.dp))
-            
+
             DeisaButton(
                 text = if (santriId == null) "Simpan Data" else "Update Data",
                 onClick = {
-                    if (selectedKelasId == null || selectedJurusanId == null) return@DeisaButton
-                    
+                    if (nis.isEmpty() || nama.isEmpty() || selectedKelasId == null) {
+                        scope.launch {
+                            snackbarHostState.showSnackbar("Mohon lengkapi NIS, Nama, dan Kelas")
+                        }
+                        return@DeisaButton
+                    }
+
                     isLoading = true
                     val request = SantriRequest(
                         nis = nis,
                         namaLengkap = nama,
                         kelasId = selectedKelasId!!,
-                        jurusanId = selectedJurusanId!!,
-                        jenisKelamin = jenisKelamin,
+                        jurusanId = selectedJurusanId,
                         tempatLahir = tempatLahir,
                         tanggalLahir = tanggalLahir,
+                        jenisKelamin = jenisKelamin,
                         alamat = alamat,
                         namaWali = namaWali,
-                        hubunganWali = hubunganWali,
-                        noHpWali = noHpWali
+                        noTelpWali = noHpWali,
+                        hubunganWali = hubunganWali
                     )
-                    
+
+                    val onSuccess: () -> Unit = {
+                        isLoading = false
+                        navController.popBackStack()
+                    }
+
+                    val onError: (String) -> Unit = { error ->
+                        isLoading = false
+                        scope.launch {
+                            snackbarHostState.showSnackbar(error)
+                        }
+                    }
+
                     if (santriId == null) {
-                        viewModel.createSantri(request) {
-                            isLoading = false
-                            navController.popBackStack()
-                        }
+                        viewModel.createSantri(request, onSuccess, onError)
                     } else {
-                        viewModel.updateSantri(santriId, request) {
-                            isLoading = false
-                            navController.popBackStack()
-                        }
+                        viewModel.updateSantri(santriId, request, onSuccess, onError)
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),

@@ -82,6 +82,12 @@ data class SantriDetailResponse(
     val data: SantriDetail
 )
 
+data class Wali(
+    @SerializedName("nama_wali") val namaWali: String,
+    val hubungan: String,
+    @SerializedName("no_hp") val noHp: String
+)
+
 data class Santri(
     val id: Int,
     val nis: String? = null,
@@ -90,7 +96,15 @@ data class Santri(
     val foto: String? = null,
     @SerializedName("kelas_id") val kelasId: Int? = null,
     val kelas: Kelas? = null,
-    @SerializedName("status_kesehatan") val statusKesehatan: String? = null
+    @SerializedName("jurusan_id") val jurusanId: Int? = null,
+    val jurusan: Jurusan? = null,
+    @SerializedName("status_kesehatan") val statusKesehatan: String? = null,
+    @SerializedName("jenis_kelamin") val jenisKelamin: String? = null,
+    @SerializedName("tempat_lahir") val tempatLahir: String? = null,
+    @SerializedName("tanggal_lahir") val tanggalLahir: String? = null,
+    val alamat: String? = null,
+    @SerializedName("golongan_darah") val golonganDarah: String? = null,
+    val wali: Wali? = null
 ) {
     fun displayName(): String = namaLengkap ?: nama ?: "Unknown"
     fun displayKelas(): String = kelas?.namaKelas ?: "-"
@@ -171,14 +185,20 @@ data class Sakit(
 
 data class SakitRequest(
     @SerializedName("santri_id") val santriId: Int,
-    @SerializedName("tanggal_mulai_sakit") val tanggalMulaiSakit: String,
-    val keluhan: String? = null,
-    val diagnosis: String? = null,
-    val gejala: String? = null,
-    val tindakan: String? = null,
-    @SerializedName("tingkat_kondisi") val tingkatKondisi: String? = null,
-    val status: String? = "sakit",
-    @SerializedName("obat_ids") val obatIds: List<Int>? = null
+    @SerializedName("tgl_masuk") val tglMasuk: String,
+    val status: String,
+    @SerializedName("jenis_perawatan") val jenisPerawatan: String,
+    @SerializedName("tujuan_rujukan") val tujuanRujukan: String?, // Nullable
+    val gejala: String,
+    val tindakan: String,
+    val catatan: String?,
+    @SerializedName("diagnosis_ids") val diagnosisIds: List<Int>?,
+    @SerializedName("obat_usage") val obatUsage: List<ObatUsageRequest>?
+)
+
+data class ObatUsageRequest(
+    @SerializedName("obat_id") val obatId: Int,
+    val jumlah: Int
 )
 
 // ==================
@@ -285,7 +305,8 @@ data class SantriRequest(
     @SerializedName("jenis_kelamin") val jenisKelamin: String = "L",
     val alamat: String? = null,
     @SerializedName("nama_wali") val namaWali: String? = null,
-    @SerializedName("no_telp_wali") val noTelpWali: String? = null
+    @SerializedName("no_telp_wali") val noTelpWali: String? = null,
+    @SerializedName("hubungan_wali") val hubunganWali: String? = null
 )
 
 data class HistoryResponse(

@@ -30,14 +30,14 @@ class AdminController extends Controller
             $reg->update(['status' => 'approved']);
         });
 
-        return back()->with('success', 'User approved.');
+        return back()->with('success', 'User berhasil disetujui.');
     }
 
     public function reject($id)
     {
         $reg = RegistrationRequest::findOrFail($id);
         $reg->update(['status' => 'rejected']);
-        return back()->with('success', 'User rejected.');
+        return back()->with('success', 'User berhasil ditolak.');
     }
 
     public function users()
@@ -50,9 +50,9 @@ class AdminController extends Controller
     {
         $user = User::findOrFail($id);
         if ($user->id === auth()->id()) {
-            return back()->with('error', 'Cannot delete yourself.');
+            return back()->with('error', 'Tidak dapat menghapus diri sendiri.');
         }
         $user->delete();
-        return back()->with('success', 'User removed.');
+        return back()->with('success', 'User berhasil dihapus.');
     }
 }

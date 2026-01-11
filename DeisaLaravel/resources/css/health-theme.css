@@ -1,0 +1,775 @@
+/*==============================================================
+    Health Application Theme - Green Color Scheme
+    Tema Aplikasi Kesehatan - Palet Warna Hijau
+==============================================================*/
+
+/* ============================================================
+   Color Palette - Palet Warna Kesehatan
+============================================================ */
+:root {
+    --health-primary: #10b981;        /* Hijau Utama */
+    --health-primary-light: #d1fae5;  /* Hijau Terang */
+    --health-primary-dark: #059669;   /* Hijau Gelap */
+    --health-secondary: #14b8a6;      /* Hijau Biru */
+    --health-accent: #06b6d4;         /* Cyan Aksen */
+    --health-success: #10b981;        /* Hijau Sukses */
+    --health-warning: #f59e0b;        /* Kuning Peringatan */
+    --health-danger: #ef4444;         /* Merah Bahaya */
+    --health-info: #3b82f6;           /* Biru Informasi */
+    --health-light: #f0fdf4;          /* Latar Terang */
+    --health-dark: #064e3b;           /* Gelap */
+    --health-gray: #6b7280;           /* Abu-abu */
+    --health-gray-light: #f3f4f6;     /* Abu-abu Terang */
+}
+
+/* ============================================================
+   Header & Navigation
+============================================================ */
+.navbar, .navbar-header {
+    background: linear-gradient(135deg, var(--health-primary) 0%, var(--health-secondary) 100%);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+    border-bottom: 3px solid var(--health-primary-dark);
+}
+
+.navbar-brand, .navbar .navbar-brand {
+    color: white !important;
+    font-weight: 700;
+    font-size: 1.5rem;
+    letter-spacing: 0.5px;
+}
+
+.navbar .nav-link {
+    color: rgba(255, 255, 255, 0.85) !important;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.navbar .nav-link:hover {
+    color: white !important;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+}
+
+.navbar .nav-link.active {
+    color: white !important;
+    background-color: var(--health-primary-dark);
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+}
+
+/* ============================================================
+   Sidebar
+============================================================ */
+.sidebar, .left-side-bar, .aside {
+    background: linear-gradient(180deg, #ffffff 0%, var(--health-light) 100%);
+    border-right: 2px solid var(--health-primary);
+    box-shadow: 2px 0 8px rgba(16, 185, 129, 0.1);
+}
+
+.sidebar .nav-link, .aside .nav-link {
+    color: var(--health-dark);
+    border-left: 3px solid transparent;
+    margin: 0.5rem 0;
+    padding: 0.75rem 1.25rem;
+    transition: all 0.3s ease;
+}
+
+.sidebar .nav-link:hover, .aside .nav-link:hover {
+    border-left-color: var(--health-primary);
+    background-color: var(--health-light);
+    color: var(--health-primary-dark);
+}
+
+.sidebar .nav-link.active, .aside .nav-link.active {
+    border-left-color: var(--health-primary);
+    background-color: var(--health-primary-light);
+    color: var(--health-primary-dark);
+    font-weight: 600;
+}
+
+/* ============================================================
+   Cards & Boxes
+============================================================ */
+.card, .box {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.08);
+    transition: all 0.3s ease;
+}
+
+.card:hover, .box:hover {
+    box-shadow: 0 8px 16px rgba(16, 185, 129, 0.15);
+    border-color: var(--health-primary);
+}
+
+.card-header, .box-header {
+    background: linear-gradient(90deg, var(--health-primary) 0%, var(--health-secondary) 100%);
+    color: white;
+    border-radius: 8px 8px 0 0;
+    padding: 1.25rem;
+    border-bottom: none;
+}
+
+.card-header h5, .card-header h4, .box-header h5 {
+    color: white;
+    font-weight: 700;
+}
+
+.card-body, .box-body {
+    padding: 1.5rem;
+}
+
+.card-footer, .box-footer {
+    background-color: var(--health-gray-light);
+    border-top: 1px solid #e5e7eb;
+    padding: 1rem 1.5rem;
+}
+
+/* ============================================================
+   Buttons
+============================================================ */
+.btn, button {
+    border-radius: 6px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.btn-primary, .btn-success {
+    background: linear-gradient(135deg, var(--health-primary) 0%, var(--health-secondary) 100%);
+    color: white;
+    border: none;
+}
+
+.btn-primary:hover, .btn-success:hover {
+    background: linear-gradient(135deg, var(--health-primary-dark) 0%, var(--health-secondary) 100%);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    transform: translateY(-2px);
+}
+
+.btn-primary:focus, .btn-success:focus {
+    box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.25);
+}
+
+.btn-secondary {
+    background-color: var(--health-gray);
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: var(--health-dark);
+}
+
+.btn-outline-primary {
+    color: var(--health-primary);
+    border: 2px solid var(--health-primary);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--health-primary);
+    color: white;
+    border-color: var(--health-primary);
+}
+
+.btn-danger {
+    background-color: var(--health-danger);
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #dc2626;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.btn-warning {
+    background-color: var(--health-warning);
+    color: white;
+}
+
+.btn-warning:hover {
+    background-color: #d97706;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.btn-sm {
+    padding: 0.35rem 0.85rem;
+    font-size: 0.85rem;
+}
+
+.btn-lg {
+    padding: 0.75rem 1.5rem;
+    font-size: 1.1rem;
+}
+
+/* ============================================================
+   Forms & Inputs
+============================================================ */
+.form-control, .form-select, .input-group {
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--health-primary);
+    box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.1);
+}
+
+.form-label {
+    color: var(--health-dark);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.form-check-input {
+    border-color: #d1d5db;
+    transition: all 0.2s ease;
+}
+
+.form-check-input:checked {
+    background-color: var(--health-primary);
+    border-color: var(--health-primary);
+}
+
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.25rem rgba(16, 185, 129, 0.25);
+}
+
+.input-group-text {
+    background-color: var(--health-light);
+    border-color: #d1d5db;
+    color: var(--health-dark);
+}
+
+/* ============================================================
+   Badges & Labels
+============================================================ */
+.badge {
+    border-radius: 20px;
+    padding: 0.5rem 0.85rem;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.badge-primary, .badge-success {
+    background-color: var(--health-primary);
+    color: white;
+}
+
+.badge-secondary {
+    background-color: var(--health-gray);
+    color: white;
+}
+
+.badge-danger {
+    background-color: var(--health-danger);
+    color: white;
+}
+
+.badge-warning {
+    background-color: var(--health-warning);
+    color: white;
+}
+
+.badge-info {
+    background-color: var(--health-info);
+    color: white;
+}
+
+.badge-light {
+    background-color: var(--health-light);
+    color: var(--health-dark);
+}
+
+/* ============================================================
+   Alerts & Messages
+============================================================ */
+.alert {
+    border-radius: 6px;
+    border-left: 4px solid;
+    padding: 1rem 1.25rem;
+}
+
+.alert-success {
+    background-color: var(--health-light);
+    color: var(--health-primary-dark);
+    border-left-color: var(--health-primary);
+}
+
+.alert-danger {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border-left-color: var(--health-danger);
+}
+
+.alert-warning {
+    background-color: #fef3c7;
+    color: #92400e;
+    border-left-color: var(--health-warning);
+}
+
+.alert-info {
+    background-color: #dbeafe;
+    color: #0c2d6b;
+    border-left-color: var(--health-info);
+}
+
+.alert-heading {
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+/* ============================================================
+   Modals & Dialogs
+============================================================ */
+.modal-content {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 10px 40px rgba(16, 185, 129, 0.15);
+}
+
+.modal-header {
+    background: linear-gradient(90deg, var(--health-primary) 0%, var(--health-secondary) 100%);
+    color: white;
+    border: none;
+    border-radius: 8px 8px 0 0;
+}
+
+.modal-header .btn-close {
+    filter: invert(1);
+}
+
+.modal-footer {
+    background-color: var(--health-gray-light);
+    border-top: 1px solid #e5e7eb;
+}
+
+/* ============================================================
+   Tables
+============================================================ */
+.table {
+    border-collapse: collapse;
+}
+
+.table thead th {
+    background: linear-gradient(90deg, var(--health-primary) 0%, var(--health-secondary) 100%);
+    color: white;
+    font-weight: 700;
+    border: none;
+    padding: 1rem;
+}
+
+.table tbody tr {
+    border-bottom: 1px solid #e5e7eb;
+    transition: all 0.2s ease;
+}
+
+.table tbody tr:hover {
+    background-color: var(--health-light);
+}
+
+.table td {
+    padding: 0.85rem 1rem;
+    vertical-align: middle;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: var(--health-light);
+}
+
+.table-sm td {
+    padding: 0.5rem 0.85rem;
+}
+
+/* ============================================================
+   Pagination
+============================================================ */
+.pagination {
+    gap: 0.5rem;
+}
+
+.page-link {
+    color: var(--health-primary);
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+}
+
+.page-link:hover {
+    background-color: var(--health-light);
+    border-color: var(--health-primary);
+    color: var(--health-primary-dark);
+}
+
+.page-link.active {
+    background: linear-gradient(135deg, var(--health-primary) 0%, var(--health-secondary) 100%);
+    border-color: var(--health-primary);
+}
+
+.page-link:disabled {
+    color: var(--health-gray);
+    background-color: var(--health-gray-light);
+}
+
+/* ============================================================
+   Progress Bars
+============================================================ */
+.progress {
+    background-color: #e5e7eb;
+    border-radius: 10px;
+    height: 1rem;
+}
+
+.progress-bar {
+    background: linear-gradient(90deg, var(--health-primary) 0%, var(--health-secondary) 100%);
+    border-radius: 10px;
+}
+
+.progress-bar-striped {
+    background-image: linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.15) 25%,
+        transparent 25%,
+        transparent 50%,
+        rgba(255, 255, 255, 0.15) 50%,
+        rgba(255, 255, 255, 0.15) 75%,
+        transparent 75%,
+        transparent
+    );
+}
+
+/* ============================================================
+   Panels & Boxes
+============================================================ */
+.panel, .info-box, .small-box {
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.08);
+    transition: all 0.3s ease;
+}
+
+.panel:hover, .info-box:hover, .small-box:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(16, 185, 129, 0.15);
+}
+
+.info-box-icon {
+    background: linear-gradient(135deg, var(--health-primary) 0%, var(--health-secondary) 100%);
+    color: white;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    font-size: 1.5rem;
+}
+
+.small-box-icon {
+    background: linear-gradient(135deg, var(--health-primary) 0%, var(--health-secondary) 100%);
+    color: white;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    font-size: 1.25rem;
+}
+
+/* ============================================================
+   Status Indicators
+============================================================ */
+.status-badge {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+}
+
+.status-badge.online, .status-badge.active {
+    background-color: var(--health-success);
+    animation: pulse 2s infinite;
+}
+
+.status-badge.offline {
+    background-color: var(--health-gray);
+}
+
+.status-badge.busy {
+    background-color: var(--health-warning);
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+/* ============================================================
+   Footer
+============================================================ */
+footer, .footer {
+    background: linear-gradient(180deg, var(--health-dark) 0%, var(--health-primary-dark) 100%);
+    color: white;
+    padding: 2rem 0;
+    border-top: 2px solid var(--health-primary);
+}
+
+footer a, .footer a {
+    color: var(--health-light);
+    transition: color 0.2s ease;
+}
+
+footer a:hover, .footer a:hover {
+    color: white;
+    text-decoration: underline;
+}
+
+/* ============================================================
+   Breadcrumb
+============================================================ */
+.breadcrumb {
+    background-color: transparent;
+    padding: 0;
+}
+
+.breadcrumb-item {
+    color: var(--health-gray);
+}
+
+.breadcrumb-item.active {
+    color: var(--health-primary);
+    font-weight: 600;
+}
+
+.breadcrumb-item a {
+    color: var(--health-primary);
+    transition: color 0.2s ease;
+}
+
+.breadcrumb-item a:hover {
+    color: var(--health-primary-dark);
+    text-decoration: underline;
+}
+
+/* ============================================================
+   Lists
+============================================================ */
+.list-group-item {
+    border: 1px solid #e5e7eb;
+    transition: all 0.2s ease;
+}
+
+.list-group-item:hover {
+    background-color: var(--health-light);
+    border-color: var(--health-primary);
+}
+
+.list-group-item.active {
+    background: linear-gradient(135deg, var(--health-primary) 0%, var(--health-secondary) 100%);
+    border-color: var(--health-primary);
+}
+
+/* ============================================================
+   Utility Classes
+============================================================ */
+.text-health-primary {
+    color: var(--health-primary) !important;
+}
+
+.text-health-success {
+    color: var(--health-success) !important;
+}
+
+.text-health-danger {
+    color: var(--health-danger) !important;
+}
+
+.text-health-warning {
+    color: var(--health-warning) !important;
+}
+
+.text-health-info {
+    color: var(--health-info) !important;
+}
+
+.bg-health-primary {
+    background-color: var(--health-primary) !important;
+}
+
+.bg-health-primary-light {
+    background-color: var(--health-primary-light) !important;
+}
+
+.bg-health-light {
+    background-color: var(--health-light) !important;
+}
+
+.bg-health-dark {
+    background-color: var(--health-dark) !important;
+}
+
+.border-health-primary {
+    border: 1px solid var(--health-primary) !important;
+}
+
+.border-left-health-primary {
+    border-left: 4px solid var(--health-primary) !important;
+}
+
+.border-top-health-primary {
+    border-top: 4px solid var(--health-primary) !important;
+}
+
+/* ============================================================
+   Shadows
+============================================================ */
+.shadow-health {
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15) !important;
+}
+
+.shadow-health-lg {
+    box-shadow: 0 10px 30px rgba(16, 185, 129, 0.2) !important;
+}
+
+/* ============================================================
+   Transitions
+============================================================ */
+.transition-all {
+    transition: all 0.3s ease;
+}
+
+.transition-colors {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ============================================================
+   Responsive Design
+============================================================ */
+@media (max-width: 768px) {
+    .navbar .navbar-brand {
+        font-size: 1.25rem;
+    }
+
+    .card, .box {
+        margin-bottom: 1rem;
+    }
+
+    .sidebar, .left-side-bar, .aside {
+        position: relative;
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+
+    .btn {
+        padding: 0.6rem 1rem;
+        font-size: 0.95rem;
+    }
+
+    .card-body, .box-body {
+        padding: 1rem;
+    }
+
+    .table {
+        font-size: 0.9rem;
+    }
+
+    .table td {
+        padding: 0.6rem 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .navbar .navbar-brand {
+        font-size: 1rem;
+    }
+
+    .card-header, .box-header {
+        padding: 0.75rem;
+    }
+
+    .btn-lg {
+        padding: 0.5rem 1rem;
+        font-size: 0.95rem;
+    }
+
+    .modal-content {
+        margin: 0.5rem;
+    }
+}
+
+/* ============================================================
+   Animations
+============================================================ */
+@keyframes slideInDown {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideInUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.animate-slide-down {
+    animation: slideInDown 0.3s ease;
+}
+
+.animate-slide-up {
+    animation: slideInUp 0.3s ease;
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.3s ease;
+}
+
+/* ============================================================
+   Print Styles
+============================================================ */
+@media print {
+    .navbar, .sidebar, footer, .page-link {
+        display: none;
+    }
+
+    .card, .box {
+        box-shadow: none;
+        border: 1px solid #000;
+    }
+
+    body {
+        background: white;
+    }
+}
+
+/*==============================================================
+    End of Health Application Theme
+==============================================================*/

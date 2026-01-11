@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('santri_id')->constrained('santris')->onDelete('cascade');
             $table->string('nama_wali');
-            $table->enum('hubungan', ['Ayah', 'Ibu', 'Kakek', 'Nenek', 'Paman', 'Bibi', 'Wali']);
+            $table->string('hubungan');
             $table->string('no_hp');
             $table->string('no_hp_alt')->nullable();
             $table->string('pekerjaan')->nullable();

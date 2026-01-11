@@ -30,7 +30,7 @@ class ObatController extends Controller
 
         Obat::create($request->all());
 
-        return redirect()->route('obat.index')->with('success', 'Medicine added successfully.');
+        return redirect()->route('obat.index')->with('success', 'Obat berhasil ditambahkan.');
     }
 
     public function edit(Obat $obat)
@@ -49,12 +49,12 @@ class ObatController extends Controller
 
         $obat->update($request->all());
 
-        return redirect()->route('obat.index')->with('success', 'Medicine updated successfully.');
+        return redirect()->route('obat.index')->with('success', 'Data obat diperbarui.');
     }
 
     public function destroy(Obat $obat)
     {
         $obat->delete();
-        return redirect()->route('obat.index')->with('success', 'Medicine deleted successfully.');
+        return redirect()->route('obat.index')->with('success', 'Obat berhasil dihapus.');
     }
 }

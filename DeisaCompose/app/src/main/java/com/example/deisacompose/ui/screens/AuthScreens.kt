@@ -17,11 +17,16 @@ import androidx.navigation.NavController
 import com.example.deisacompose.ui.theme.PrimaryGreen
 import com.example.deisacompose.ui.theme.PrimaryDark
 import com.example.deisacompose.viewmodels.AuthViewModel
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(navController: NavController, viewModel: AuthViewModel = viewModel()) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
     
     val isLoading by viewModel.isLoading.observeAsState(false)
     val error by viewModel.error.observeAsState()
@@ -34,84 +39,101 @@ fun LoginScreen(navController: NavController, viewModel: AuthViewModel = viewMod
             }
         }
     }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-         Box(
-            modifier = Modifier
-                .size(80.dp)
-                .background(PrimaryGreen, shape = androidx.compose.foundation.shape.CircleShape),
-            contentAlignment = Alignment.Center
-        ) {
-            Text("+", fontSize = 48.sp, color = Color.White)
+    
+    LaunchedEffect(error) {
+        error?.let {
+            snackbarHostState.showSnackbar(it)
+            viewModel.clearError()
         }
-        
-        Spacer(modifier = Modifier.height(24.dp))
-        
-        Text("Welcome Back", style = MaterialTheme.typography.titleLarge)
-        Text("Sign in to continue", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
+    }
 
-        Spacer(modifier = Modifier.height(32.dp))
-
-        OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("Email") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("Password") },
-             visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true
-        )
-
-        if (error != null) {
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = error!!, color = MaterialTheme.colorScheme.error)
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Button(
-            onClick = { viewModel.login(email, password) },
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { padding ->
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = PrimaryGreen)
+                .fillMaxSize()
+                .padding(padding)
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-             if (isLoading) {
-                CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
-            } else {
-                Text("Sign In", color = PrimaryDark)
+             Box(
+                modifier = Modifier
+                    .size(80.dp)
+                    .background(PrimaryGreen, shape = androidx.compose.foundation.shape.CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("+", fontSize = 48.sp, color = Color.White)
             }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        TextButton(onClick = { navController.navigate("register") }) {
-            Text("Don't have an account? Request Access")
+            
+            Spacer(modifier = Modifier.height(24.dp))
+            
+            Text("Selamat Datang", style = MaterialTheme.typography.titleLarge)
+            Text("Masuk untuk melanjutkan", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
+    
+            Spacer(modifier = Modifier.height(32.dp))
+    
+            OutlinedTextField(
+                value = email,
+                onValueChange = { email = it },
+                label = { Text("Surel (Email)") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+    
+            Spacer(modifier = Modifier.height(16.dp))
+    
+            OutlinedTextField(
+                value = password,
+                onValueChange = { password = it },
+                label = { Text("Kata Sandi") },
+                 visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+    
+            Spacer(modifier = Modifier.height(24.dp))
+    
+            Button(
+                onClick = { 
+                    if (email.isEmpty() || password.isEmpty()) {
+                        scope.launch { snackbarHostState.showSnackbar("Surel dan kata sandi wajib diisi") }
+                        return@Button
+                    }
+                    viewModel.login(email, password) 
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = PrimaryGreen)
+            ) {
+                 if (isLoading) {
+                    CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                } else {
+                    Text("Masuk Sekarang", color = PrimaryDark)
+                }
+            }
+    
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            TextButton(onClick = { navController.navigate("register") }) {
+                Text("Belum punya akun? Ajukan Akses")
+            }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(navController: NavController, viewModel: AuthViewModel = viewModel()) {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
+    
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
     
     val isLoading by viewModel.isLoading.observeAsState(false)
     val successMsg by viewModel.registrationSuccess.observeAsState()
@@ -123,95 +145,106 @@ fun RegisterScreen(navController: NavController, viewModel: AuthViewModel = view
                 viewModel.resetRegistrationSuccess()
                 navController.popBackStack() 
             },
-            title = { Text("Request Submitted") },
+            title = { Text("Permintaan Terkirim") },
             text = { Text(successMsg!!) },
             confirmButton = {
                 Button(onClick = {
                     viewModel.resetRegistrationSuccess()
                     navController.popBackStack()
                 }) {
-                    Text("OK")
+                    Text("Siap")
                 }
             }
         )
     }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("Create Account", style = MaterialTheme.typography.titleLarge)
-        Spacer(modifier = Modifier.height(32.dp))
-
-        OutlinedTextField(
-            value = name,
-            onValueChange = { name = it },
-            label = { Text("Full Name") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("Email") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("Password") },
-             visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
-        )
-        
-         Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = confirmPassword,
-            onValueChange = { confirmPassword = it },
-            label = { Text("Confirm Password") },
-             visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
-        )
-
-         if (error != null) {
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = error!!, color = MaterialTheme.colorScheme.error)
+    
+    LaunchedEffect(error) {
+        error?.let {
+            snackbarHostState.showSnackbar(it)
+            viewModel.clearError()
         }
+    }
 
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Button(
-            onClick = { 
-                if (password == confirmPassword) {
-                    viewModel.register(name, email, password) 
-                } else {
-                   // Show mismatch error
-                }
-            },
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { padding ->
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = PrimaryGreen)
+                .fillMaxSize()
+                .padding(padding)
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-             if (isLoading) {
-                CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
-            } else {
-                Text("Request Registration", color = PrimaryDark)
+            Text("Buat Akun Baru", style = MaterialTheme.typography.titleLarge)
+            Spacer(modifier = Modifier.height(32.dp))
+    
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text("Nama Lengkap") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+    
+            OutlinedTextField(
+                value = email,
+                onValueChange = { email = it },
+                label = { Text("Surel (Email)") },
+                modifier = Modifier.fillMaxWidth()
+            )
+    
+            Spacer(modifier = Modifier.height(16.dp))
+    
+            OutlinedTextField(
+                value = password,
+                onValueChange = { password = it },
+                label = { Text("Kata Sandi") },
+                 visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth()
+            )
+            
+             Spacer(modifier = Modifier.height(16.dp))
+    
+            OutlinedTextField(
+                value = confirmPassword,
+                onValueChange = { confirmPassword = it },
+                label = { Text("Konfirmasi Kata Sandi") },
+                 visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth()
+            )
+    
+            Spacer(modifier = Modifier.height(24.dp))
+    
+            Button(
+                onClick = { 
+                    if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
+                        scope.launch { snackbarHostState.showSnackbar("Mohon lengkapi semua data") }
+                        return@Button
+                    }
+                    if (password == confirmPassword) {
+                        viewModel.register(name, email, password) 
+                    } else {
+                        scope.launch { snackbarHostState.showSnackbar("Konfirmasi kata sandi tidak cocok") }
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = PrimaryGreen)
+            ) {
+                 if (isLoading) {
+                    CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                } else {
+                    Text("Ajukan Pendaftaran", color = PrimaryDark)
+                }
             }
-        }
-        
-         Spacer(modifier = Modifier.height(16.dp))
-        
-        TextButton(onClick = { navController.popBackStack() }) {
-            Text("Already have an account? Login")
+            
+             Spacer(modifier = Modifier.height(16.dp))
+            
+            TextButton(onClick = { navController.popBackStack() }) {
+                Text("Sudah punya akun? Masuk")
+            }
         }
     }
 }

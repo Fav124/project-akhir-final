@@ -1,89 +1,115 @@
 package com.example.deisacompose.viewmodels
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.deisacompose.data.models.Santri
 import com.example.deisacompose.data.models.SantriRequest
-import com.example.deisacompose.data.network.RetrofitClient
 import kotlinx.coroutines.launch
 
-class SantriViewModel(application: Application) : AndroidViewModel(application) {
+class SantriViewModel : BaseViewModel() {
+
     private val _santriList = MutableLiveData<List<Santri>>()
     val santriList: LiveData<List<Santri>> = _santriList
 
     private val _santriDetail = MutableLiveData<Santri?>()
     val santriDetail: LiveData<Santri?> = _santriDetail
 
-    private val _isLoading = MutableLiveData(false)
+    private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
 
-    private fun getToken(): String {
-        val prefs = getApplication<Application>().getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE)
-        return "Bearer " + (prefs.getString("token", "") ?: "")
-    }
+    private val _message = MutableLiveData<String?>()
+    val message: LiveData<String?> = _message
 
-    fun fetchSantri() {
-        _isLoading.value = true
+    fun fetchSantri(search: String? = null) {
+        _isLoading.postValue(true)
         viewModelScope.launch {
             try {
-                val response = RetrofitClient.instance.getSantri(getToken())
+                val response = apiService.getSantri(search = search)
                 if (response.isSuccessful) {
-                    _santriList.value = response.body()?.data ?: emptyList()
+                    _santriList.postValue(response.body()?.data)
+                } else {
+                    _message.postValue("Error: ${response.message()}")
                 }
             } catch (e: Exception) {
+                _message.postValue(e.message ?: "An unknown error occurred")
             } finally {
-                _isLoading.value = false
+                _isLoading.postValue(false)
             }
         }
     }
-    
+
     fun fetchSantriById(id: Int) {
-         _isLoading.value = true
+        _isLoading.postValue(true)
         viewModelScope.launch {
             try {
-                val response = RetrofitClient.instance.getSantriDetail(getToken(), id)
+                val response = apiService.getSantriById(id)
                 if (response.isSuccessful) {
-                    // Extract santri from detail wrapper
-                    _santriDetail.value = response.body()?.data?.santri
+                    _santriDetail.postValue(response.body()?.data?.santri)
+                } else {
+                    _message.postValue("Error: ${response.message()}")
                 }
             } catch (e: Exception) {
+                _message.postValue(e.message ?: "An unknown error occurred")
             } finally {
-                _isLoading.value = false
+                _isLoading.postValue(false)
             }
         }
     }
 
-    fun createSantri(request: SantriRequest, onSuccess: () -> Unit) {
+    fun createSantri(request: SantriRequest, onSuccess: () -> Unit, onError: (String) -> Unit) {
         viewModelScope.launch {
             try {
-                val response = RetrofitClient.instance.storeSantri(getToken(), request)
-                if (response.isSuccessful) onSuccess()
-            } catch (e: Exception) { }
+                val response = apiService.createSantri(request)
+                if (response.isSuccessful) {
+                    fetchSantri()
+                    onSuccess()
+                } else {
+                    onError(response.message() ?: "Gagal menambahkan santri")
+                }
+            } catch (e: Exception) {
+                onError(e.message ?: "Terjadi kesalahan")
+            }
         }
     }
-    
-    fun updateSantri(id: Int, request: SantriRequest, onSuccess: () -> Unit) {
+
+    fun updateSantri(id: Int, request: SantriRequest, onSuccess: () -> Unit, onError: (String) -> Unit) {
         viewModelScope.launch {
             try {
-                val response = RetrofitClient.instance.updateSantri(getToken(), id, request)
-                if (response.isSuccessful) onSuccess()
-            } catch (e: Exception) { }
+                val response = apiService.updateSantri(id, request)
+                if (response.isSuccessful) {
+                    fetchSantriById(id)
+                    onSuccess()
+                } else {
+                    onError(response.message() ?: "Gagal memperbarui santri")
+                }
+            } catch (e: Exception) {
+                onError(e.message ?: "Terjadi kesalahan")
+            }
         }
     }
-    
-    fun deleteSantri(id: Int) {
+
+    fun deleteSantri(id: Int, onSuccess: () -> Unit, onError: (String) -> Unit) {
         viewModelScope.launch {
             try {
-                val response = RetrofitClient.instance.deleteSantri(getToken(), id)
-                if (response.isSuccessful) fetchSantri()
-            } catch (e: Exception) { }
+                val response = apiService.deleteSantri(id)
+                if (response.isSuccessful) {
+                    fetchSantri()
+                    onSuccess()
+                } else {
+                    onError(response.message() ?: "Gagal menghapus santri")
+                }
+            } catch (e: Exception) {
+                onError(e.message ?: "Terjadi kesalahan")
+            }
         }
     }
-    
+
     fun clearDetail() {
         _santriDetail.value = null
+    }
+
+    fun clearMessage() {
+        _message.value = null
     }
 }

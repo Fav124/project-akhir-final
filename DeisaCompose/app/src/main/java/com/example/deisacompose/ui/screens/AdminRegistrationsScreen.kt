@@ -25,7 +25,7 @@ fun AdminRegistrationsScreen(
     navController: NavController,
     viewModel: AdminViewModel = viewModel()
 ) {
-    val requests by viewModel.pendingRequests.observeAsState(emptyList())
+    val requests by viewModel.registrationList.observeAsState(emptyList())
     val isLoading by viewModel.isLoading.observeAsState(false)
     val message by viewModel.message.observeAsState()
 

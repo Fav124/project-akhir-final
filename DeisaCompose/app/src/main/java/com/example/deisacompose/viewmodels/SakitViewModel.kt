@@ -1,86 +1,131 @@
 package com.example.deisacompose.viewmodels
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.deisacompose.data.models.Sakit
 import com.example.deisacompose.data.models.SakitRequest
-import com.example.deisacompose.data.network.RetrofitClient
 import kotlinx.coroutines.launch
 
-class SakitViewModel(application: Application) : AndroidViewModel(application) {
+class SakitViewModel : BaseViewModel() {
+
     private val _sakitList = MutableLiveData<List<Sakit>>()
     val sakitList: LiveData<List<Sakit>> = _sakitList
-    
+
     private val _sakitDetail = MutableLiveData<Sakit?>()
     val sakitDetail: LiveData<Sakit?> = _sakitDetail
 
-    private val _isLoading = MutableLiveData(false)
+    private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
 
-    private fun getToken(): String = "Bearer " + getApplication<Application>()
-        .getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE)
-        .getString("token", "")
+    private val _message = MutableLiveData<String?>()
+    val message: LiveData<String?> = _message
 
     fun fetchSakit() {
-        _isLoading.value = true
+        _isLoading.postValue(true)
         viewModelScope.launch {
             try {
-                val response = RetrofitClient.instance.getSakit(getToken())
+                val response = apiService.getSakit()
                 if (response.isSuccessful) {
-                   _sakitList.value = response.body()?.data ?: emptyList()
-                }
-            } catch (e: Exception) {} 
-            finally { _isLoading.value = false }
-        }
-    }
-    
-    fun getSakitById(id: Int) {
-         _isLoading.value = true
-        viewModelScope.launch {
-             try {
-                val response = RetrofitClient.instance.getSakitDetail(getToken(), id)
-                if (response.isSuccessful) {
-                   _sakitDetail.value = response.body()?.data
+                    _sakitList.postValue(response.body()?.data)
+                } else {
+                    _message.postValue("Error: ${response.message()}")
                 }
             } catch (e: Exception) {
-                 _sakitDetail.value = _sakitList.value?.find { it.id == id }
-            } 
-            finally { _isLoading.value = false }
+                _message.postValue(e.message ?: "An unknown error occurred")
+            } finally {
+                _isLoading.postValue(false)
+            }
         }
     }
 
-    fun submitSakit(request: SakitRequest, onSuccess: () -> Unit) {
-         viewModelScope.launch {
-            try {
-                val response = RetrofitClient.instance.storeSakit(getToken(), request)
-                if (response.isSuccessful) onSuccess()
-            } catch (e: Exception) { }
-        }
-    }
-
-    fun markSembuh(id: Int, onSuccess: () -> Unit) {
+    fun getSakitById(id: Int) {
+        _isLoading.postValue(true)
         viewModelScope.launch {
             try {
-                val response = RetrofitClient.instance.markSembuh(getToken(), id)
+                val response = apiService.getSakitById(id)
                 if (response.isSuccessful) {
-                    onSuccess()
-                    fetchSakit()
+                    _sakitDetail.postValue(response.body()?.data)
+                } else {
+                    _message.postValue("Error: ${response.message()}")
                 }
-            } catch (e: Exception) { }
+            } catch (e: Exception) {
+                _message.postValue(e.message ?: "An unknown error occurred")
+            } finally {
+                _isLoading.postValue(false)
+            }
         }
     }
-    
-    fun deleteSakit(id: Int) {
-         viewModelScope.launch {
+
+    fun submitSakit(request: SakitRequest, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        viewModelScope.launch {
             try {
-                val response = RetrofitClient.instance.deleteSakit(getToken(), id)
-                if (response.isSuccessful) fetchSakit()
-            } catch (e: Exception) { }
+                val response = apiService.createSakit(request)
+                if (response.isSuccessful) {
+                    fetchSakit()
+                    onSuccess()
+                } else {
+                    onError(response.message() ?: "Gagal mencatat sakit")
+                }
+            } catch (e: Exception) {
+                onError(e.message ?: "Terjadi kesalahan")
+            }
         }
     }
-    
-    fun clearDetail() { _sakitDetail.value = null }
+
+    fun updateSakit(id: Int, request: SakitRequest, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        viewModelScope.launch {
+            try {
+                val response = apiService.updateSakit(id, request)
+                if (response.isSuccessful) {
+                    getSakitById(id)
+                    onSuccess()
+                } else {
+                    onError(response.message() ?: "Gagal memperbarui data")
+                }
+            } catch (e: Exception) {
+                onError(e.message ?: "Terjadi kesalahan")
+            }
+        }
+    }
+
+    fun deleteSakit(id: Int, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        viewModelScope.launch {
+            try {
+                val response = apiService.deleteSakit(id)
+                if (response.isSuccessful) {
+                    fetchSakit() // Refresh list
+                    onSuccess()
+                } else {
+                    onError(response.message() ?: "Gagal menghapus data")
+                }
+            } catch (e: Exception) {
+                onError(e.message ?: "Terjadi kesalahan")
+            }
+        }
+    }
+
+    fun markAsSembuh(id: Int, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        viewModelScope.launch {
+            try {
+                val response = apiService.markAsSembuh(id)
+                if (response.isSuccessful) {
+                    fetchSakit() // Refresh list
+                    onSuccess()
+                } else {
+                    onError(response.message() ?: "Gagal menandai sembuh")
+                }
+            } catch (e: Exception) {
+                onError(e.message ?: "Terjadi kesalahan")
+            }
+        }
+    }
+
+    fun clearDetail() {
+        _sakitDetail.value = null
+    }
+
+    fun clearMessage() {
+        _message.value = null
+    }
 }

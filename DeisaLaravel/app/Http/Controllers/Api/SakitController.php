@@ -20,62 +20,71 @@ class SakitController extends Controller
 
     public function store(Request $request)
     {
+        // Aligning with Android SakitRequest format
         $request->validate([
             'santri_id' => 'required|exists:santris,id',
-            'tanggal_mulai_sakit' => 'nullable|date',
-            'tgl_masuk' => 'nullable|date',
+            'tgl_masuk' => 'required|date',
             'status' => 'required',
-            'keluhan' => 'nullable|string',
-            'diagnosis' => 'nullable|string',
-            'gejala' => 'nullable|string',
-            'tindakan' => 'nullable|string',
-            'tingkat_kondisi' => 'nullable|string',
-            'obat_ids' => 'nullable|array',
-            'obat_ids.*' => 'exists:obats,id'
+            'jenis_perawatan' => 'required',
+            'tujuan_rujukan' => 'nullable|string',
+            'gejala' => 'required|string',
+            'tindakan' => 'required|string',
+            'catatan' => 'nullable|string',
+            'diagnosis_ids' => 'nullable|array',
+            'diagnosis_ids.*' => 'exists:diagnoses,id',
+            'obat_usage' => 'nullable|array',
+            'obat_usage.*.obat_id' => 'required|exists:obats,id',
+            'obat_usage.*.jumlah' => 'required|integer|min:1'
         ]);
 
         try {
             return DB::transaction(function () use ($request) {
-                // Fallback for tgl_masuk if only tanggal_mulai_sakit is provided
-                $tglMasuk = $request->tgl_masuk ?? $request->tanggal_mulai_sakit ?? now();
-
                 $record = SantriSakit::create([
                     'santri_id' => $request->santri_id,
-                    'tgl_masuk' => $tglMasuk,
-                    'tanggal_mulai_sakit' => $request->tanggal_mulai_sakit ?? $tglMasuk,
+                    'tgl_masuk' => $request->tgl_masuk,
                     'status' => $request->status,
-                    'keluhan' => $request->keluhan,
-                    'diagnosis' => $request->diagnosis,
+                    'jenis_perawatan' => $request->jenis_perawatan,
+                    'tujuan_rujukan' => $request->tujuan_rujukan,
                     'gejala' => $request->gejala,
                     'tindakan' => $request->tindakan,
-                    'tingkat_kondisi' => $request->tingkat_kondisi,
-                    'jenis_perawatan' => $request->jenis_perawatan ?? 'UKS'
+                    'catatan' => $request->catatan,
+                    // Backward compatibility fields if needed
+                    'tanggal_mulai_sakit' => $request->tgl_masuk,
+                    'keluhan' => $request->gejala,
                 ]);
 
-                // Handle obat_ids (simplified Android version)
-                if ($request->has('obat_ids')) {
-                    foreach ($request->obat_ids as $obatId) {
+                // Attach Diagnosis IDs
+                if ($request->has('diagnosis_ids')) {
+                    $record->diagnoses()->attach($request->diagnosis_ids);
+                }
+
+                // Handle Medicine Usage
+                if ($request->has('obat_usage')) {
+                    foreach ($request->obat_usage as $usage) {
                         PenggunaanObat::create([
                             'santri_sakit_id' => $record->id,
-                            'obat_id' => $obatId,
-                            'jumlah' => 1 // Default to 1 if not specified
+                            'obat_id' => $usage['obat_id'],
+                            'jumlah' => $usage['jumlah'],
+                            'satuan' => 'Unit' // Default or fetch from Obat model
                         ]);
                         
-                        $obat = Obat::find($obatId);
-                        if ($obat && $obat->stok > 0) {
-                            $obat->decrement('stok', 1);
+                        $obat = Obat::find($usage['obat_id']);
+                        if ($obat && $obat->stok >= $usage['jumlah']) {
+                            $obat->decrement('stok', $usage['jumlah']);
                         }
                     }
                 }
 
                 // Update Santri health status
                 $santri = Santri::find($request->santri_id);
-                $santri->update(['status_kesehatan' => $request->status]);
+                if ($santri) {
+                    $santri->update(['status_kesehatan' => $request->status]);
+                }
 
                 return response()->json([
                     'success' => true,
                     'message' => 'Record created successfully',
-                    'data' => $record->load('santri')
+                    'data' => $record->load(['santri', 'diagnoses', 'obats'])
                 ], 201);
             });
         } catch (\Exception $e) {
@@ -84,6 +93,12 @@ class SakitController extends Controller
                 'message' => 'Error creating record: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    public function show($id)
+    {
+        $record = SantriSakit::with(['santri', 'diagnoses', 'obats'])->findOrFail($id);
+        return response()->json(['data' => $record]);
     }
 
     public function markSembuh($id)
@@ -98,6 +113,13 @@ class SakitController extends Controller
             $record->santri->update(['status_kesehatan' => 'Sehat']);
         });
 
-        return response()->json(['message' => 'Status updated to Sembuh']);
+        return response()->json(['success' => true, 'message' => 'Status updated to Sembuh']);
+    }
+
+    public function destroy($id)
+    {
+        $record = SantriSakit::findOrFail($id);
+        $record->delete();
+        return response()->json(['success' => true, 'message' => 'Deleted']);
     }
 }

@@ -78,6 +78,6 @@ class SakitController extends Controller
             $sakit->update(['status' => 'Sembuh', 'tgl_sembuh' => now()]);
             $sakit->santri->update(['status_kesehatan' => 'Sehat']);
         });
-        return back()->with('success', 'Santri ditandai sembuh.');
+        return back()->with('success', 'Santri berhasil ditandai sembuh.');
     }
 }

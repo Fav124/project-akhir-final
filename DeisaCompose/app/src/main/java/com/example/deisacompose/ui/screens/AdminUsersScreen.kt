@@ -27,7 +27,7 @@ fun AdminUsersScreen(
     navController: NavController,
     viewModel: AdminViewModel = viewModel()
 ) {
-    val users by viewModel.users.observeAsState(emptyList())
+    val users by viewModel.userList.observeAsState(emptyList())
     val isLoading by viewModel.isLoading.observeAsState(false)
     val message by viewModel.message.observeAsState()
 
@@ -52,9 +52,9 @@ fun AdminUsersScreen(
             if (isLoading) {
                 LoadingScreen()
             } else {
-                LazyColumn(modifier = Modifier.padding(16.dp)) {
+                LazyColumn(modifier = Modifier.padding(16.dp)) { 
                     items(users) { user ->
-                        UserItem(user = user)
+                        UserItem(user = user, onDelete = { viewModel.deleteUser(user.id) })
                     }
                 }
             }
@@ -63,12 +63,11 @@ fun AdminUsersScreen(
 }
 
 @Composable
-fun UserItem(user: User) {
+fun UserItem(user: User, onDelete: () -> Unit) {
     DeisaCard {
         Row(
             modifier = Modifier.fillMaxWidth().padding(8.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(user.name, style = MaterialTheme.typography.titleMedium)
@@ -79,6 +78,9 @@ fun UserItem(user: User) {
                 containerColor = if (user.role == "admin") Color(0xFFE8F5E9) else Color(0xFFF3F4F6),
                 contentColor = if (user.role == "admin") Color(0xFF2E7D32) else Color(0xFF374151)
             )
+            IconButton(onClick = onDelete) {
+                Icon(Icons.Default.Delete, contentDescription = "Delete User", tint = Color.Red)
+            }
         }
     }
 }

@@ -44,14 +44,14 @@ fun LaporanScreen(
                     DeisaDatePickerField(
                         value = startDate, 
                         onValueChange = { startDate = it },
-                        label = "Start Date"
+                        label = "Tanggal Mulai"
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     
                     DeisaDatePickerField(
                         value = endDate, 
                         onValueChange = { endDate = it },
-                        label = "End Date"
+                        label = "Tanggal Akhir"
                     )
                     
                     Spacer(modifier = Modifier.height(16.dp))

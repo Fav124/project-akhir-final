@@ -1,82 +1,115 @@
 package com.example.deisacompose.viewmodels
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.deisacompose.data.models.Obat
 import com.example.deisacompose.data.models.ObatRequest
-import com.example.deisacompose.data.network.RetrofitClient
 import kotlinx.coroutines.launch
 
-class ObatViewModel(application: Application) : AndroidViewModel(application) {
+class ObatViewModel : BaseViewModel() {
+
     private val _obatList = MutableLiveData<List<Obat>>()
     val obatList: LiveData<List<Obat>> = _obatList
-    
-    private val _obatDetail = MutableLiveData<Obat?>() // Assuming we can iterate local list or fetch
+
+    private val _obatDetail = MutableLiveData<Obat?>()
     val obatDetail: LiveData<Obat?> = _obatDetail
 
-    private val _isLoading = MutableLiveData(false)
+    private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
 
-    private fun getToken(): String = "Bearer " + getApplication<Application>()
-        .getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE)
-        .getString("token", "")
+    private val _message = MutableLiveData<String?>()
+    val message: LiveData<String?> = _message
 
     fun fetchObat() {
-        _isLoading.value = true
+        _isLoading.postValue(true)
         viewModelScope.launch {
             try {
-                val response = RetrofitClient.instance.getObat(getToken())
+                val response = apiService.getObat(1, 100) // Fetch first 100
                 if (response.isSuccessful) {
-                    _obatList.value = response.body()?.data ?: emptyList()
+                    _obatList.postValue(response.body()?.data)
+                } else {
+                    _message.postValue("Failed to fetch obat: ${response.message()}")
                 }
-            } catch (e: Exception) {}
-            finally { _isLoading.value = false }
-        }
-    }
-    
-    // Simplification: We don't have getObatDetail API yet, so we filter from list if available, or just fetch list and find
-    fun getObatById(id: Int) {
-        val current = _obatList.value?.find { it.id == id }
-        if (current != null) {
-            _obatDetail.value = current
-        } else {
-            // Ideally call API, but for now reuse fetch
-             viewModelScope.launch {
-                fetchObat() // Refresh
-                _obatDetail.value = _obatList.value?.find { it.id == id }
+            } catch (e: Exception) {
+                _message.postValue(e.message ?: "An unknown error occurred")
+            } finally {
+                _isLoading.postValue(false)
             }
         }
     }
-    
-    fun createObat(request: ObatRequest, onSuccess: () -> Unit) {
-         viewModelScope.launch {
+
+    fun getObatById(id: Int) {
+        _isLoading.postValue(true)
+        viewModelScope.launch {
             try {
-                val response = RetrofitClient.instance.storeObat(getToken(), request)
-                if (response.isSuccessful) onSuccess()
-            } catch (e: Exception) { }
+                val response = apiService.getObatById(id)
+                if (response.isSuccessful) {
+                    _obatDetail.postValue(response.body()?.data?.obat)
+                } else {
+                    _message.postValue("Failed to fetch obat details: ${response.message()}")
+                }
+            } catch (e: Exception) {
+                _message.postValue(e.message ?: "An unknown error occurred")
+            } finally {
+                _isLoading.postValue(false)
+            }
         }
     }
-    
-    fun updateObat(id: Int, request: ObatRequest, onSuccess: () -> Unit) {
-         viewModelScope.launch {
+
+    fun createObat(request: ObatRequest, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        viewModelScope.launch {
             try {
-                val response = RetrofitClient.instance.updateObat(getToken(), id, request)
-                if (response.isSuccessful) onSuccess()
-            } catch (e: Exception) { }
+                val response = apiService.createObat(request)
+                if (response.isSuccessful) {
+                    fetchObat() // Refresh list
+                    onSuccess()
+                } else {
+                    onError(response.message() ?: "Gagal menambahkan obat")
+                }
+            } catch (e: Exception) {
+                onError(e.message ?: "Terjadi kesalahan")
+            }
         }
     }
-    
-    fun deleteObat(id: Int) {
-         viewModelScope.launch {
+
+    fun updateObat(id: Int, request: ObatRequest, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        viewModelScope.launch {
             try {
-                val response = RetrofitClient.instance.deleteObat(getToken(), id)
-                if (response.isSuccessful) fetchObat()
-            } catch (e: Exception) { }
+                val response = apiService.updateObat(id, request)
+                if (response.isSuccessful) {
+                    getObatById(id) // Refresh detail
+                    onSuccess()
+                } else {
+                    onError(response.message() ?: "Gagal memperbarui obat")
+                }
+            } catch (e: Exception) {
+                onError(e.message ?: "Terjadi kesalahan")
+            }
         }
     }
-    
-    fun clearDetail() { _obatDetail.value = null }
+
+    fun deleteObat(id: Int, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        viewModelScope.launch {
+            try {
+                val response = apiService.deleteObat(id)
+                if (response.isSuccessful) {
+                    fetchObat() // Refresh list
+                    onSuccess()
+                } else {
+                    onError(response.message() ?: "Gagal menghapus obat")
+                }
+            } catch (e: Exception) { 
+                onError(e.message ?: "Terjadi kesalahan")
+            }
+        }
+    }
+
+    fun clearDetail() {
+        _obatDetail.value = null
+    }
+
+    fun clearMessage() {
+        _message.value = null
+    }
 }

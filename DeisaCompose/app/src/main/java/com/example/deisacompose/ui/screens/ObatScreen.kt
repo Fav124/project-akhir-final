@@ -17,6 +17,7 @@ import androidx.navigation.NavController
 import com.example.deisacompose.data.models.Obat
 import com.example.deisacompose.ui.components.*
 import com.example.deisacompose.viewmodels.ObatViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -26,13 +27,25 @@ fun ObatScreen(
 ) {
     val obatList by viewModel.obatList.observeAsState(emptyList())
     val isLoading by viewModel.isLoading.observeAsState(false)
-    
+    val message by viewModel.message.observeAsState()
+
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
     LaunchedEffect(Unit) {
         viewModel.fetchObat()
     }
 
+    LaunchedEffect(message) {
+        message?.let {
+            snackbarHostState.showSnackbar(it)
+            viewModel.clearMessage()
+        }
+    }
+
     Scaffold(
         topBar = { DeisaTopBar("Data Obat") },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
             DeisaFab(onClick = { navController.navigate("obat_form") })
         }
@@ -41,14 +54,23 @@ fun ObatScreen(
              if (isLoading) {
                 LoadingScreen()
             } else if (obatList.isEmpty()) {
-                EmptyState("No Medicine Found")
+                EmptyState("Data Obat Tidak Ditemukan")
             } else {
                 LazyColumn(modifier = Modifier.padding(HORIZONTAL_PADDING)) {
                     items(obatList) { obat ->
                          ObatItem(
                              obat = obat,
                              onEdit = { navController.navigate("obat_form?id=${obat.id}") },
-                             onDelete = { viewModel.deleteObat(obat.id) }
+                             onDelete = { 
+                                 viewModel.deleteObat(obat.id, 
+                                     onSuccess = { 
+                                         scope.launch { snackbarHostState.showSnackbar("Obat berhasil dihapus") } 
+                                     },
+                                     onError = { error -> 
+                                         scope.launch { snackbarHostState.showSnackbar(error) } 
+                                     }
+                                 )
+                             }
                          )
                     }
                 }
@@ -82,7 +104,7 @@ fun ObatItem(obat: Obat, onEdit: () -> Unit, onDelete: () -> Unit) {
                     Text("${obat.stok} ${obat.satuan ?: ""}", style = MaterialTheme.typography.bodyMedium, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
                     if (isLowStock) {
                         Spacer(modifier = Modifier.width(8.dp))
-                        DeisaBadge(text = "Low Stock", containerColor = Color(0xFFFFEBEE), contentColor = Color.Red)
+                        DeisaBadge(text = "Stok Menipis", containerColor = Color(0xFFFFEBEE), contentColor = Color.Red)
                     }
                 }
                 
@@ -91,7 +113,7 @@ fun ObatItem(obat: Obat, onEdit: () -> Unit, onDelete: () -> Unit) {
                 }
             }
             IconButton(onClick = onDelete) {
-                Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Red)
+                Icon(Icons.Default.Delete, contentDescription = "Hapus", tint = Color.Red)
             }
         }
     }

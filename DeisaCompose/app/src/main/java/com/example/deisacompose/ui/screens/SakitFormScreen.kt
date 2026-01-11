@@ -19,6 +19,7 @@ import com.example.deisacompose.data.models.ObatUsageRequest
 import com.example.deisacompose.data.models.SakitRequest
 import com.example.deisacompose.ui.components.*
 import com.example.deisacompose.viewmodels.*
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,6 +46,9 @@ fun SakitFormScreen(
     
     // Multi-select for Obat
     var obatUsageList by remember { mutableStateOf(listOf<ObatUsageState>()) }
+    
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
     
     var isLoading by remember { mutableStateOf(false) }
     
@@ -78,7 +82,8 @@ fun SakitFormScreen(
     }
 
     Scaffold(
-        topBar = { DeisaTopBar(if (sakitId == null) "Catat Sakit" else "Edit Data Sakit") }
+        topBar = { DeisaTopBar(if (sakitId == null) "Catat Sakit" else "Edit Data Sakit") },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -211,7 +216,12 @@ fun SakitFormScreen(
             DeisaButton(
                 text = if (sakitId == null) "Simpan Data" else "Update Data",
                 onClick = {
-                    if (selectedSantriId == null) return@DeisaButton
+                    if (selectedSantriId == null || tglMasuk.isEmpty()) {
+                        scope.launch {
+                            snackbarHostState.showSnackbar("Mohon isi Santri dan Tanggal Masuk")
+                        }
+                        return@DeisaButton
+                    }
                     
                     isLoading = true
                     val request = SakitRequest(
@@ -229,16 +239,22 @@ fun SakitFormScreen(
                         }
                     )
                     
+                    val onSuccess: () -> Unit = {
+                        isLoading = false
+                        navController.popBackStack()
+                    }
+                    
+                    val onError: (String) -> Unit = { error ->
+                        isLoading = false
+                        scope.launch {
+                            snackbarHostState.showSnackbar(error)
+                        }
+                    }
+
                     if (sakitId == null) {
-                        viewModel.submitSakit(request) {
-                            isLoading = false
-                            navController.popBackStack()
-                        }
+                        viewModel.submitSakit(request, onSuccess, onError)
                     } else {
-                        viewModel.updateSakit(sakitId, request) {
-                            isLoading = false
-                            navController.popBackStack()
-                        }
+                        viewModel.updateSakit(sakitId, request, onSuccess, onError)
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),

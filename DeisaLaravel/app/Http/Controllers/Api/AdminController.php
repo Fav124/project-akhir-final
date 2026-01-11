@@ -79,4 +79,25 @@ class AdminController extends Controller
         $user->delete();
         return response()->json(['message' => 'User deleted successfully.']);
     }
+
+    /**
+     * Toggle admin role for a user.
+     */
+    public function toggleAdmin($id)
+    {
+        $user = User::findOrFail($id);
+        
+        if ($user->id === auth()->id()) {
+            return response()->json(['message' => 'Cannot change your own role.'], 400);
+        }
+
+        $user->role = $user->role === 'admin' ? 'petugas' : 'admin';
+        $user->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'User role updated to ' . $user->role,
+            'data' => $user
+        ]);
+    }
 }

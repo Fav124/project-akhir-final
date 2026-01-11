@@ -2,21 +2,18 @@ package com.example.deisacompose.viewmodels
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.deisacompose.data.models.RegistrationRequest
 import com.example.deisacompose.data.models.User
-import com.example.deisacompose.data.network.RetrofitClient
 import kotlinx.coroutines.launch
 
-class AdminViewModel : ViewModel() {
-    private val apiService = RetrofitClient.apiService
+class AdminViewModel : BaseViewModel() {
 
-    private val _pendingRequests = MutableLiveData<List<RegistrationRequest>>()
-    val pendingRequests: LiveData<List<RegistrationRequest>> = _pendingRequests
+    private val _registrationList = MutableLiveData<List<RegistrationRequest>>()
+    val registrationList: LiveData<List<RegistrationRequest>> = _registrationList
 
-    private val _users = MutableLiveData<List<User>>()
-    val users: LiveData<List<User>> = _users
+    private val _userList = MutableLiveData<List<User>>()
+    val userList: LiveData<List<User>> = _userList
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
@@ -25,17 +22,37 @@ class AdminViewModel : ViewModel() {
     val message: LiveData<String?> = _message
 
     fun fetchPendingRegistrations() {
-        _isLoading.value = true
+        _isLoading.postValue(true)
         viewModelScope.launch {
             try {
                 val response = apiService.getPendingRegistrations()
                 if (response.isSuccessful) {
-                    _pendingRequests.value = response.body()?.data ?: emptyList()
+                    _registrationList.postValue(response.body()?.data)
+                } else {
+                    _message.postValue("Failed to fetch registrations: ${response.message()}")
                 }
             } catch (e: Exception) {
-                _message.value = "Error fetching registrations: ${e.message}"
+                _message.postValue(e.message ?: "An unknown error occurred")
             } finally {
-                _isLoading.value = false
+                _isLoading.postValue(false)
+            }
+        }
+    }
+
+    fun fetchUsers() {
+        _isLoading.postValue(true)
+        viewModelScope.launch {
+            try {
+                val response = apiService.getUsers()
+                if (response.isSuccessful) {
+                    _userList.postValue(response.body()?.data)
+                } else {
+                    _message.postValue("Failed to fetch users: ${response.message()}")
+                }
+            } catch (e: Exception) {
+                _message.postValue(e.message ?: "An unknown error occurred")
+            } finally {
+                _isLoading.postValue(false)
             }
         }
     }
@@ -45,11 +62,13 @@ class AdminViewModel : ViewModel() {
             try {
                 val response = apiService.approveRegistration(id)
                 if (response.isSuccessful) {
-                    _message.value = "User approved successfully"
-                    fetchPendingRegistrations()
+                    _message.postValue("Registration approved successfully")
+                    fetchPendingRegistrations() // Refresh list
+                } else {
+                    _message.postValue("Failed to approve: ${response.message()}")
                 }
             } catch (e: Exception) {
-                _message.value = "Error: ${e.message}"
+                _message.postValue(e.message ?: "An unknown error occurred")
             }
         }
     }
@@ -59,30 +78,34 @@ class AdminViewModel : ViewModel() {
             try {
                 val response = apiService.rejectRegistration(id)
                 if (response.isSuccessful) {
-                    _message.value = "User rejected"
-                    fetchPendingRegistrations()
+                    _message.postValue("Registration rejected successfully")
+                    fetchPendingRegistrations() // Refresh list
+                } else {
+                    _message.postValue("Failed to reject: ${response.message()}")
                 }
             } catch (e: Exception) {
-                _message.value = "Error: ${e.message}"
+                _message.postValue(e.message ?: "An unknown error occurred")
             }
         }
     }
 
-    fun fetchUsers() {
-        _isLoading.value = true
+    fun deleteUser(id: Int) {
         viewModelScope.launch {
             try {
-                val response = apiService.getUsers()
+                val response = apiService.deleteUser(id)
                 if (response.isSuccessful) {
-                    _users.value = response.body()?.data ?: emptyList()
+                    _message.postValue("User deleted successfully")
+                    fetchUsers() // Refresh list
+                } else {
+                    _message.postValue("Failed to delete user: ${response.message()}")
                 }
             } catch (e: Exception) {
-                _message.value = "Error fetching users: ${e.message}"
-            } finally {
-                _isLoading.value = false
+                _message.postValue(e.message ?: "An unknown error occurred")
             }
         }
     }
 
-    fun clearMessage() { _message.value = null }
+    fun clearMessage() {
+        _message.value = null
+    }
 }
