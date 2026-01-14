@@ -59,5 +59,9 @@ fun AppNavigation(navController: NavHostController) {
         // Secondary
         composable("profile") { ProfileScreen(navController) }
         composable("about") { AboutScreen(navController) }
+        
+        // Admin
+        composable("admin_registrations") { AdminRegistrationsScreen(navController) }
+        composable("admin_users") { AdminUsersScreen(navController) }
     }
 }

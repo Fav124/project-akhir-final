@@ -28,7 +28,7 @@ class JurusanController extends Controller
 
         Jurusan::create($request->all());
 
-        return redirect()->route('jurusan.index')->with('success', 'Jurusan berhasil ditambahkan.');
+        return redirect()->route('web.jurusan.index')->with('success', 'Jurusan berhasil ditambahkan.');
     }
 
     public function edit(Jurusan $jurusan)
@@ -45,12 +45,12 @@ class JurusanController extends Controller
 
         $jurusan->update($request->all());
 
-        return redirect()->route('jurusan.index')->with('success', 'Data jurusan diperbarui.');
+        return redirect()->route('web.jurusan.index')->with('success', 'Data jurusan diperbarui.');
     }
 
     public function destroy(Jurusan $jurusan)
     {
         $jurusan->delete();
-        return redirect()->route('jurusan.index')->with('success', 'Jurusan berhasil dihapus.');
+        return redirect()->route('web.jurusan.index')->with('success', 'Jurusan berhasil dihapus.');
     }
 }

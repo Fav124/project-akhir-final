@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+
+<html class="light" lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Profil Santri &amp; Riwayat Medis | SiSehat Santri</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2999a3",
+                        "background-light": "#f4f4f6",
+                        "background-dark": "#22252a",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; }
+        .timeline-line::before {
+            content: '';
+            position: absolute;
+            left: 18px;
+            top: 40px;
+            bottom: 0;
+            width: 2px;
+            background-color: #2999a3;
+            opacity: 0.2;
+        }
+        .timeline-item:last-child .timeline-line::before {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#121617] dark:text-white transition-colors duration-200">
+<!-- Top Navigation Bar -->
+<header class="sticky top-0 z-50 w-full border-b border-[#dde3e4] dark:border-[#3a3f44] bg-white/80 dark:bg-background-dark/80 backdrop-blur-md px-6 lg:px-20 py-3">
+<div class="max-w-[1280px] mx-auto flex items-center justify-between">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3">
+<div class="size-9 bg-primary flex items-center justify-center rounded-lg text-white">
+<span class="material-symbols-outlined">health_and_safety</span>
+</div>
+<h2 class="text-lg font-extrabold tracking-tight">SiSehat Santri</h2>
+</div>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-sm font-semibold opacity-60 hover:opacity-100 transition-opacity" href="#">Dashboard</a>
+<a class="text-sm font-semibold text-primary underline underline-offset-8 decoration-2" href="#">Santri</a>
+<a class="text-sm font-semibold opacity-60 hover:opacity-100 transition-opacity" href="#">Rekam Medis</a>
+<a class="text-sm font-semibold opacity-60 hover:opacity-100 transition-opacity" href="#">Staff</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#678183] text-sm">search</span>
+<input class="bg-[#f1f4f4] dark:bg-[#2d3238] border-none rounded-lg pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary w-64" placeholder="Cari santri..." type="text"/>
+</div>
+<button class="p-2 rounded-lg bg-[#f1f4f4] dark:bg-[#2d3238] hover:bg-[#e2e7e7] dark:hover:bg-[#3a3f44] transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="size-9 rounded-full bg-cover bg-center border border-primary/20" data-alt="User avatar of the health staff" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCQxlV9eKP807HKCyu3e8HICwAj6XDFgVMh2MNygiEM8QJfvNVhfqiefXUuhb-b8z6OqJjtv5fVkK03qX4IuaFt5Z-q6Wd5sNZs2MNSRlsXgJUlDbWirGnPlFBdgB6f6x767YFiIbh5ujAVCtaDQomSDPyadw5pLnXSo5fhdGt-OMapqUQaOf4soJN3J5diiX5ud0ofYA4tXwwfBXKrbp7G5q65QrlrGvhEz-72Y2M-QkjlH7m5m0ULV3RFb7VO5zzfuApwt_3yPL8g')"></div>
+</div>
+</div>
+</header>
+<main class="max-w-[1280px] mx-auto px-6 lg:px-20 py-8">
+<!-- Profile Header Section -->
+<section class="bg-white dark:bg-[#2d3238] rounded-xl p-6 shadow-sm border border-[#dde3e4] dark:border-[#3a3f44] mb-8">
+<div class="flex flex-col md:flex-row items-center gap-8">
+<div class="relative">
+<div class="size-32 lg:size-40 rounded-full border-4 border-primary/10 overflow-hidden shadow-inner bg-background-light">
+<img alt="Student profile photo" class="w-full h-full object-cover" data-alt="Student profile photo portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6wS8TcFDAs3hkX3PKT_SeMJe0qF-sE53y0rut_MtYCbYZgOv1PgpWdQSqsS95blOJbotW3D8Fb1EAJH1Qvd0OfP0mu4ZnOtyad1Kxc_pNpZkUyUXuyK1EE-on_KgIPUvWwAIyfwfHGVe8yhks2eeKt9lHqkYUp9q3CilZCJXGgheh0bKqYRZfo_0mawy54Feg1lDOpVMNxUJvYp5JD5CqSFx_lfu_sTvdROsDTQdA93rsHnd39zs6OobGpkkGFKjVMZ7yyDtgw7Ar"/>
+</div>
+<div class="absolute bottom-2 right-2 size-6 bg-green-500 border-2 border-white dark:border-[#2d3238] rounded-full" title="Status: Sehat"></div>
+</div>
+<div class="flex-1 text-center md:text-left">
+<div class="flex flex-col md:flex-row md:items-center gap-3 mb-2">
+<h1 class="text-2xl lg:text-3xl font-bold tracking-tight">Ahmad Fauzi</h1>
+<span class="inline-flex items-center rounded-full bg-green-50 dark:bg-green-900/20 px-3 py-1 text-xs font-bold text-green-700 dark:text-green-400 ring-1 ring-inset ring-green-600/20">
+                            AKTIF / SEHAT
+                        </span>
+</div>
+<p class="text-[#678183] dark:text-[#a1b1b3] font-medium mb-1">NIS: 12345678 • Kelas 12-A IPA</p>
+<div class="flex flex-wrap justify-center md:justify-start gap-4 mt-4">
+<div class="flex items-center gap-2 bg-[#f1f4f4] dark:bg-[#3a3f44] px-3 py-1.5 rounded-lg">
+<span class="material-symbols-outlined text-primary text-sm">water_drop</span>
+<span class="text-sm font-bold">Golongan Darah: O+</span>
+</div>
+<div class="flex items-center gap-2 bg-[#f1f4f4] dark:bg-[#3a3f44] px-3 py-1.5 rounded-lg">
+<span class="material-symbols-outlined text-primary text-sm">height</span>
+<span class="text-sm font-bold">175 cm</span>
+</div>
+<div class="flex items-center gap-2 bg-[#f1f4f4] dark:bg-[#3a3f44] px-3 py-1.5 rounded-lg">
+<span class="material-symbols-outlined text-primary text-sm">weight</span>
+<span class="text-sm font-bold">68 kg</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col sm:flex-row md:flex-col lg:flex-row gap-3 w-full md:w-auto">
+<button class="flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg bg-primary text-white font-bold text-sm shadow-md shadow-primary/20 hover:bg-primary/90 transition-all">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+                        Edit Profil
+                    </button>
+<button class="flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg bg-[#25D366]/10 text-[#25D366] border border-[#25D366]/30 font-bold text-sm hover:bg-[#25D366]/20 transition-all">
+<span class="material-symbols-outlined text-[18px]">chat</span>
+                        WhatsApp Wali
+                    </button>
+</div>
+</div>
+</section>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Left Sidebar: Biodata & Alerts -->
+<div class="lg:col-span-4 space-y-6">
+<!-- Emergency Alert Card -->
+<div class="bg-red-600 rounded-xl p-5 text-white shadow-lg shadow-red-600/20 relative overflow-hidden group">
+<div class="absolute -right-4 -top-4 opacity-10 rotate-12 group-hover:scale-110 transition-transform duration-500">
+<span class="material-symbols-outlined text-[120px]">warning</span>
+</div>
+<div class="flex items-center gap-3 mb-3 relative z-10">
+<span class="material-symbols-outlined text-2xl">priority_high</span>
+<h3 class="font-extrabold text-lg tracking-tight uppercase">Peringatan Alergi</h3>
+</div>
+<div class="relative z-10">
+<p class="text-red-50 text-sm mb-1 opacity-90">Sangat Sensitif Terhadap:</p>
+<p class="font-bold text-xl leading-tight">Penicillin, Kacang-kacangan, Seafood</p>
+</div>
+</div>
+<!-- Personal Information -->
+<div class="bg-white dark:bg-[#2d3238] rounded-xl shadow-sm border border-[#dde3e4] dark:border-[#3a3f44] overflow-hidden">
+<div class="px-5 py-4 border-b border-[#dde3e4] dark:border-[#3a3f44] bg-[#f8f9f9] dark:bg-[#22252a]/30">
+<h3 class="font-bold text-sm uppercase tracking-wider opacity-60">Informasi Pribadi</h3>
+</div>
+<div class="p-5 space-y-4">
+<div>
+<p class="text-xs font-bold text-[#678183] dark:text-[#a1b1b3] uppercase mb-1">Tanggal Lahir</p>
+<p class="font-semibold">12 Mei 2006 (17 Tahun)</p>
+</div>
+<div>
+<p class="text-xs font-bold text-[#678183] dark:text-[#a1b1b3] uppercase mb-1">Jenis Kelamin</p>
+<p class="font-semibold">Laki-laki</p>
+</div>
+<div>
+<p class="text-xs font-bold text-[#678183] dark:text-[#a1b1b3] uppercase mb-1">Alamat Domisili</p>
+<p class="font-semibold">Jl. Mawar Merah No. 12, Pondok Indah, Jakarta Selatan</p>
+</div>
+</div>
+</div>
+<!-- Guardian Information -->
+<div class="bg-white dark:bg-[#2d3238] rounded-xl shadow-sm border border-[#dde3e4] dark:border-[#3a3f44] overflow-hidden">
+<div class="px-5 py-4 border-b border-[#dde3e4] dark:border-[#3a3f44] bg-[#f8f9f9] dark:bg-[#22252a]/30">
+<h3 class="font-bold text-sm uppercase tracking-wider opacity-60">Kontak Orang Tua / Wali</h3>
+</div>
+<div class="p-5 space-y-4">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-xs font-bold text-[#678183] dark:text-[#a1b1b3] uppercase mb-1">Nama Ayah</p>
+<p class="font-semibold">H. Sulaiman Hakim</p>
+</div>
+<span class="material-symbols-outlined text-primary text-xl">contact_phone</span>
+</div>
+<div>
+<p class="text-xs font-bold text-[#678183] dark:text-[#a1b1b3] uppercase mb-1">Nomor Handphone</p>
+<p class="font-semibold text-primary underline">+62 812 3456 7890</p>
+</div>
+<div class="pt-2">
+<p class="text-xs font-bold text-[#678183] dark:text-[#a1b1b3] uppercase mb-1">Pekerjaan</p>
+<p class="font-semibold">Wiraswasta</p>
+</div>
+</div>
+</div>
+<!-- Stats Side Column -->
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-white dark:bg-[#2d3238] rounded-xl p-4 shadow-sm border border-[#dde3e4] dark:border-[#3a3f44]">
+<p class="text-[10px] font-extrabold text-[#678183] dark:text-[#a1b1b3] uppercase mb-1">Hari Sakit (2024)</p>
+<p class="text-3xl font-black text-primary">5 <span class="text-xs font-normal text-[#678183]">Hari</span></p>
+</div>
+<div class="bg-white dark:bg-[#2d3238] rounded-xl p-4 shadow-sm border border-[#dde3e4] dark:border-[#3a3f44]">
+<p class="text-[10px] font-extrabold text-[#678183] dark:text-[#a1b1b3] uppercase mb-1">Diagnosis Sering</p>
+<p class="text-sm font-black leading-tight mt-2 uppercase">Flu &amp; Batuk</p>
+</div>
+</div>
+</div>
+<!-- Main Content Area: Medical Timeline -->
+<div class="lg:col-span-8">
+<div class="flex items-center justify-between mb-6">
+<h2 class="text-xl font-extrabold tracking-tight">Riwayat Medis &amp; Timeline Kesehatan</h2>
+<button class="text-primary text-sm font-bold flex items-center gap-1 hover:underline">
+<span class="material-symbols-outlined text-sm">filter_list</span>
+                        Filter Tanggal
+                    </button>
+</div>
+<div class="relative space-y-8 timeline-container">
+<!-- Timeline Item 1 -->
+<div class="timeline-item relative pl-12">
+<div class="timeline-line"></div>
+<div class="absolute left-0 top-1.5 size-9 rounded-full bg-primary/10 border-2 border-primary flex items-center justify-center z-10">
+<span class="material-symbols-outlined text-primary text-[20px] font-bold">medical_services</span>
+</div>
+<div class="bg-white dark:bg-[#2d3238] rounded-xl shadow-sm border border-[#dde3e4] dark:border-[#3a3f44] overflow-hidden hover:shadow-md transition-shadow group">
+<div class="p-5">
+<div class="flex flex-wrap justify-between items-start gap-2 mb-3">
+<div>
+<p class="text-xs font-bold text-primary mb-1">12 NOVEMBER 2023</p>
+<h3 class="font-bold text-lg">Influenza &amp; Demam Tinggi</h3>
+</div>
+<div class="flex gap-2">
+<span class="px-2.5 py-1 rounded bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 text-[10px] font-bold uppercase ring-1 ring-blue-500/20">Lokasi: UKS</span>
+<span class="px-2.5 py-1 rounded bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400 text-[10px] font-bold uppercase ring-1 ring-orange-500/20">Rawat Jalan</span>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-4">
+<div class="space-y-2">
+<p class="text-[#678183] dark:text-[#a1b1b3] font-medium flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">stethoscope</span> 
+                                            Gejala: Pusing, suhu 39°C, batuk kering
+                                        </p>
+<p class="text-[#678183] dark:text-[#a1b1b3] font-medium flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">pill</span> 
+                                            Obat: Paracetamol 500mg, Ambroxol
+                                        </p>
+</div>
+<div class="space-y-2">
+<p class="text-[#678183] dark:text-[#a1b1b3] font-medium flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">person</span> 
+                                            Staff: Suster Siti Aminah
+                                        </p>
+<p class="text-primary font-bold cursor-pointer hover:underline text-xs">Lihat Catatan Lengkap →</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Timeline Item 2 -->
+<div class="timeline-item relative pl-12">
+<div class="timeline-line"></div>
+<div class="absolute left-0 top-1.5 size-9 rounded-full bg-primary/10 border-2 border-primary flex items-center justify-center z-10">
+<span class="material-symbols-outlined text-primary text-[20px] font-bold">vaccines</span>
+</div>
+<div class="bg-white dark:bg-[#2d3238] rounded-xl shadow-sm border border-[#dde3e4] dark:border-[#3a3f44] overflow-hidden hover:shadow-md transition-shadow">
+<div class="p-5">
+<div class="flex flex-wrap justify-between items-start gap-2 mb-3">
+<div>
+<p class="text-xs font-bold text-primary mb-1">05 SEPTEMBER 2023</p>
+<h3 class="font-bold text-lg">Vaksinasi Booster &amp; Screening Rutin</h3>
+</div>
+<div class="flex gap-2">
+<span class="px-2.5 py-1 rounded bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 text-[10px] font-bold uppercase ring-1 ring-green-500/20">Preventif</span>
+</div>
+</div>
+<div class="text-sm">
+<p class="text-[#678183] dark:text-[#a1b1b3] font-medium">Pemeriksaan kesehatan berkala untuk seluruh santri kelas 12. Hasil: Normal, Berat badan naik 2kg.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Timeline Item 3 -->
+<div class="timeline-item relative pl-12">
+<div class="timeline-line"></div>
+<div class="absolute left-0 top-1.5 size-9 rounded-full bg-red-100 dark:bg-red-900/20 border-2 border-red-500 flex items-center justify-center z-10">
+<span class="material-symbols-outlined text-red-500 text-[20px] font-bold">emergency_home</span>
+</div>
+<div class="bg-white dark:bg-[#2d3238] rounded-xl shadow-sm border border-red-200 dark:border-red-900/40 overflow-hidden hover:shadow-md transition-shadow">
+<div class="bg-red-50 dark:bg-red-900/10 px-5 py-2 border-b border-red-100 dark:border-red-900/30 flex justify-between items-center">
+<span class="text-[10px] font-bold text-red-600 dark:text-red-400 uppercase tracking-widest">Kondisi Darurat</span>
+<span class="text-[10px] font-bold text-red-600 dark:text-red-400">STATUS: TERATASI</span>
+</div>
+<div class="p-5">
+<div class="flex flex-wrap justify-between items-start gap-2 mb-3">
+<div>
+<p class="text-xs font-bold text-primary mb-1">20 MEI 2023</p>
+<h3 class="font-bold text-lg">Reaksi Alergi Makanan</h3>
+</div>
+<div class="flex gap-2">
+<span class="px-2.5 py-1 rounded bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 text-[10px] font-bold uppercase ring-1 ring-red-500/20">Lokasi: RS Medika</span>
+</div>
+</div>
+<p class="text-sm font-medium mb-4">Santri tidak sengaja mengonsumsi bumbu pecel (mengandung kacang). Dilakukan tindakan darurat di UKS kemudian dirujuk ke RS terdekat untuk observasi 6 jam.</p>
+<div class="bg-[#f8f9f9] dark:bg-[#22252a]/50 p-3 rounded-lg border border-[#dde3e4] dark:border-[#3a3f44]">
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-sm text-red-500">warning</span>
+<p class="text-xs font-bold uppercase">Tindakan Medis:</p>
+</div>
+<p class="text-xs font-medium italic opacity-70">Injeksi Epinephrine, Observasi Vital, Terapi Oksigen.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Timeline Item 4 (Older Entry) -->
+<div class="timeline-item relative pl-12 opacity-60 grayscale hover:opacity-100 hover:grayscale-0 transition-all">
+<div class="timeline-line"></div>
+<div class="absolute left-0 top-1.5 size-9 rounded-full bg-gray-200 dark:bg-gray-800 border-2 border-gray-400 flex items-center justify-center z-10">
+<span class="material-symbols-outlined text-gray-600 dark:text-gray-400 text-[20px]">history</span>
+</div>
+<div class="bg-white dark:bg-[#2d3238] rounded-xl p-5 shadow-sm border border-[#dde3e4] dark:border-[#3a3f44]">
+<p class="text-xs font-bold text-gray-500 mb-1">JANUARI 2023</p>
+<h3 class="font-bold text-base">Riwayat Tahun Ajaran Sebelumnya</h3>
+<p class="text-sm mt-1">3 Kunjungan UKS (Maag, Luka Ringan Olahraga, Pusing).</p>
+</div>
+</div>
+</div>
+<!-- Load More Button -->
+<div class="mt-12 flex justify-center">
+<button class="px-8 py-3 bg-white dark:bg-[#2d3238] border border-[#dde3e4] dark:border-[#3a3f44] rounded-full text-sm font-bold shadow-sm hover:bg-[#f1f4f4] transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">expand_more</span>
+                        Tampilkan Lebih Banyak
+                    </button>
+</div>
+</div>
+</div>
+</main>
+<!-- Simple Footer -->
+<footer class="mt-20 border-t border-[#dde3e4] dark:border-[#3a3f44] py-8 px-6 text-center text-[#678183] dark:text-[#a1b1b3]">
+<div class="flex flex-col items-center gap-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">health_and_safety</span>
+<span class="font-bold text-[#121617] dark:text-white">SiSehat Santri</span>
+</div>
+<p class="text-xs">Sistem Informasi Kesehatan Santri Digital © 2024</p>
+</div>
+</footer>
+</body></html>

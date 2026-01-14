@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tambah Obat Baru - SiSehat Santri</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#5b8ad7",
+                        "primary-hover": "#4a7ac9",
+                        "background-light": "#f9fafa",
+                        "background-dark": "#14181f",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#1e2329",
+                        "border-light": "#e5e7eb",
+                        "border-dark": "#2d3748",
+                        "text-main": "#121417",
+                        "text-secondary": "#677283",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #5b8ad7;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #5b8ad7;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-text-main dark:text-white font-display overflow-hidden">
+<div class="flex h-screen w-full">
+<!-- Sidebar -->
+<aside class="hidden lg:flex flex-col w-72 h-full bg-surface-light dark:bg-surface-dark border-r border-border-light dark:border-border-dark flex-shrink-0 z-20">
+<div class="p-6 flex items-center gap-3">
+<div class="bg-center bg-no-repeat bg-cover rounded-lg size-10 shadow-sm" data-alt="SiSehat Logo Abstract Blue Gradient" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCQHbXJjZbGvSxVnPvu4tVAS39CC7yj27tyagWmzAGmdf-Od-PsncC4EJBaoMVSJI3yLj-U4skImAGLPR5A_yYbHQOXWff1atIp2RQ-0GjbltSqFiL9IsxHZ5XsfOBo5Kl0IG5meNRke5puJigRV-N-aZAJmpjN-D9CULgo-2NrH2QpnXkOHTkyjhwrQySjlVsIUfwp_hcFoUP2qsGfwtHghcAtdBgvYOEMsJw44VQw3akD6AHKec2ZRpOxZyAOdRzSfmm4NlNN0Mrx");'></div>
+<div class="flex flex-col">
+<h1 class="text-text-main dark:text-white text-lg font-bold leading-tight">SiSehat Santri</h1>
+<p class="text-text-secondary text-xs font-medium">Admin Panel</p>
+</div>
+</div>
+<div class="flex flex-col gap-1 px-4 py-2 flex-1 overflow-y-auto">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-secondary hover:bg-background-light dark:hover:bg-background-dark group transition-colors" href="#">
+<span class="material-symbols-outlined text-text-secondary group-hover:text-primary transition-colors">grid_view</span>
+<span class="text-sm font-medium group-hover:text-text-main dark:group-hover:text-white transition-colors">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary" href="#">
+<span class="material-symbols-outlined text-primary fill-1">medication</span>
+<span class="text-sm font-bold">Inventaris Obat</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-secondary hover:bg-background-light dark:hover:bg-background-dark group transition-colors" href="#">
+<span class="material-symbols-outlined text-text-secondary group-hover:text-primary transition-colors">description</span>
+<span class="text-sm font-medium group-hover:text-text-main dark:group-hover:text-white transition-colors">Rekam Medis</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-secondary hover:bg-background-light dark:hover:bg-background-dark group transition-colors" href="#">
+<span class="material-symbols-outlined text-text-secondary group-hover:text-primary transition-colors">bar_chart</span>
+<span class="text-sm font-medium group-hover:text-text-main dark:group-hover:text-white transition-colors">Laporan</span>
+</a>
+<div class="my-2 border-t border-border-light dark:border-border-dark"></div>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-secondary hover:bg-background-light dark:hover:bg-background-dark group transition-colors" href="#">
+<span class="material-symbols-outlined text-text-secondary group-hover:text-primary transition-colors">settings</span>
+<span class="text-sm font-medium group-hover:text-text-main dark:group-hover:text-white transition-colors">Pengaturan</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-secondary hover:bg-background-light dark:hover:bg-background-dark group transition-colors" href="#">
+<span class="material-symbols-outlined text-text-secondary group-hover:text-primary transition-colors">help</span>
+<span class="text-sm font-medium group-hover:text-text-main dark:group-hover:text-white transition-colors">Bantuan</span>
+</a>
+</div>
+<div class="p-4 border-t border-border-light dark:border-border-dark">
+<div class="flex items-center gap-3 p-2 rounded-lg bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark">
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-8" data-alt="User Avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBkSXfFWHy7qHMGA1oHTOjqAHOHeboALzZK8uMiPFCHhDBuPrR1GeCoMaW4X1Of2QUdDiCG0faH8o09759YdXJr6bxyHVhCuFaEhI48LtN8XHAbsy_-YyZkDcJDf6lrOJ7lVyCeqnqsPWhtQAdZ18wSmwJXFAokVyOmzmRbbFNnas3QpTmicrbKAJziJR2TrazDAN_2fX-QsnhPVfRSiAWBEGP0Akcf3CVOcaA6KcpYVx-VKzZRjxo0VdMjt08SuboGueqS0kHzmuV4");'></div>
+<div class="flex flex-col overflow-hidden">
+<p class="text-sm font-bold text-text-main dark:text-white truncate">Dr. Ahmad Faisal</p>
+<p class="text-xs text-text-secondary truncate">Kepala Klinik</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<div class="flex-1 flex flex-col min-w-0 h-full overflow-hidden relative">
+<!-- Top Header -->
+<header class="h-16 flex items-center justify-between px-6 bg-surface-light dark:bg-surface-dark border-b border-border-light dark:border-border-dark z-10">
+<div class="flex items-center gap-4 lg:hidden">
+<button class="text-text-main dark:text-white">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<span class="font-bold text-lg">SiSehat</span>
+</div>
+<div class="hidden lg:flex text-sm text-text-secondary items-center gap-2">
+<span>Inventaris Obat</span>
+<span class="material-symbols-outlined text-base">chevron_right</span>
+<span class="text-text-main dark:text-white font-medium">Tambah Obat Baru</span>
+</div>
+<div class="flex items-center gap-3 ml-auto">
+<button class="flex items-center justify-center size-10 rounded-full hover:bg-background-light dark:hover:bg-background-dark text-text-secondary transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2.5 right-2.5 size-2 bg-red-500 rounded-full border border-white dark:border-surface-dark"></span>
+</button>
+<button class="flex items-center justify-center size-10 rounded-full hover:bg-background-light dark:hover:bg-background-dark text-text-secondary transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</header>
+<!-- Scrollable Page Content -->
+<main class="flex-1 overflow-y-auto bg-background-light dark:bg-background-dark">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<!-- Page Heading -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+<div>
+<h1 class="text-2xl sm:text-3xl font-black text-text-main dark:text-white tracking-tight">Tambah Obat Baru</h1>
+<p class="text-text-secondary mt-1">Masukkan informasi detail untuk menambahkan obat ke inventaris.</p>
+</div>
+<button class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark text-text-main dark:text-white text-sm font-bold hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[20px]">arrow_back</span>
+<span>Kembali ke Inventaris</span>
+</button>
+</div>
+<form class="grid grid-cols-1 lg:grid-cols-12 gap-6 pb-20">
+<!-- Left Column: General Information -->
+<div class="lg:col-span-7 flex flex-col gap-6">
+<!-- Card -->
+<div class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark p-6">
+<h2 class="text-lg font-bold text-text-main dark:text-white mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">info</span>
+                                    Informasi Umum
+                                </h2>
+<!-- Image Upload -->
+<div class="mb-8">
+<label class="block text-sm font-medium text-text-main dark:text-white mb-2">Foto Obat</label>
+<div class="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-border-light dark:border-border-dark rounded-xl bg-background-light dark:bg-background-dark hover:border-primary/50 hover:bg-primary/5 transition-all cursor-pointer group">
+<div class="flex flex-col items-center justify-center pt-5 pb-6">
+<div class="mb-3 p-3 bg-white dark:bg-surface-dark rounded-full shadow-sm group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-primary text-3xl">cloud_upload</span>
+</div>
+<p class="mb-1 text-sm text-text-main dark:text-white font-medium"><span class="text-primary font-bold">Klik untuk upload</span> atau drag &amp; drop</p>
+<p class="text-xs text-text-secondary">SVG, PNG, JPG or GIF (max. 800x400px)</p>
+</div>
+<input class="hidden" id="dropzone-file" type="file"/>
+</div>
+</div>
+<!-- Form Fields -->
+<div class="space-y-5">
+<div>
+<label class="block text-sm font-bold text-text-main dark:text-white mb-1.5" for="medicine-name">
+                                            Nama Obat <span class="text-red-500">*</span>
+</label>
+<input class="w-full rounded-lg border-border-light dark:border-border-dark bg-white dark:bg-surface-dark text-text-main dark:text-white shadow-sm focus:border-primary focus:ring-primary h-11 px-4 text-sm placeholder:text-text-secondary/60" id="medicine-name" placeholder="Contoh: Paracetamol 500mg" type="text"/>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+<div class="relative">
+<div class="flex justify-between items-center mb-1.5">
+<label class="block text-sm font-bold text-text-main dark:text-white" for="medicine-code">Kode Obat</label>
+<div class="flex items-center gap-2">
+<span class="text-xs text-text-secondary font-medium">Auto</span>
+<div class="relative inline-block w-8 align-middle select-none transition duration-200 ease-in">
+<input class="toggle-checkbox absolute block w-4 h-4 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300" id="toggle" name="toggle" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-4 rounded-full bg-gray-300 cursor-pointer" for="toggle"></label>
+</div>
+</div>
+</div>
+<div class="relative">
+<span class="absolute inset-y-0 left-0 flex items-center pl-3 text-text-secondary">
+<span class="material-symbols-outlined text-[20px]">qr_code_2</span>
+</span>
+<input class="w-full rounded-lg border-border-light dark:border-border-dark bg-white dark:bg-surface-dark text-text-main dark:text-white shadow-sm focus:border-primary focus:ring-primary h-11 pl-10 pr-4 text-sm placeholder:text-text-secondary/60 font-mono" id="medicine-code" placeholder="MED-001" type="text"/>
+</div>
+</div>
+<div>
+<label class="block text-sm font-bold text-text-main dark:text-white mb-1.5" for="category">Kategori</label>
+<div class="relative">
+<select class="w-full appearance-none rounded-lg border-border-light dark:border-border-dark bg-white dark:bg-surface-dark text-text-main dark:text-white shadow-sm focus:border-primary focus:ring-primary h-11 px-4 text-sm pr-10" id="category">
+<option>Pilih Kategori</option>
+<option>Tablet / Kapsul</option>
+<option>Sirup / Cair</option>
+<option>Salep / Krim</option>
+<option>Injeksi</option>
+<option>Alat Kesehatan</option>
+</select>
+<span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-text-secondary">
+<span class="material-symbols-outlined text-[20px]">expand_more</span>
+</span>
+</div>
+</div>
+</div>
+<div>
+<label class="block text-sm font-bold text-text-main dark:text-white mb-1.5" for="description">Deskripsi / Indikasi</label>
+<textarea class="w-full rounded-lg border-border-light dark:border-border-dark bg-white dark:bg-surface-dark text-text-main dark:text-white shadow-sm focus:border-primary focus:ring-primary p-4 text-sm placeholder:text-text-secondary/60 resize-none" id="description" placeholder="Jelaskan kegunaan obat dan dosis pemakaian umum..." rows="4"></textarea>
+<p class="text-xs text-text-secondary mt-1 text-right">0/500 karakter</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Inventory Details -->
+<div class="lg:col-span-5 flex flex-col gap-6">
+<!-- Card -->
+<div class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark p-6 h-full">
+<h2 class="text-lg font-bold text-text-main dark:text-white mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">inventory_2</span>
+                                    Detail Inventaris
+                                </h2>
+<div class="space-y-5">
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="block text-sm font-bold text-text-main dark:text-white mb-1.5" for="stock-initial">Stok Awal</label>
+<input class="w-full rounded-lg border-border-light dark:border-border-dark bg-white dark:bg-surface-dark text-text-main dark:text-white shadow-sm focus:border-primary focus:ring-primary h-11 px-4 text-sm" id="stock-initial" placeholder="0" type="number"/>
+</div>
+<div>
+<label class="block text-sm font-bold text-text-main dark:text-white mb-1.5 flex items-center gap-1" for="stock-min">
+                                                Min. Stok
+                                                <span class="material-symbols-outlined text-[16px] text-text-secondary cursor-help" title="Alert will be triggered when stock falls below this">help</span>
+</label>
+<input class="w-full rounded-lg border-border-light dark:border-border-dark bg-white dark:bg-surface-dark text-text-main dark:text-white shadow-sm focus:border-primary focus:ring-primary h-11 px-4 text-sm border-l-4 border-l-orange-300" id="stock-min" placeholder="10" type="number"/>
+</div>
+</div>
+<div>
+<label class="block text-sm font-bold text-text-main dark:text-white mb-1.5" for="unit">Satuan</label>
+<div class="relative">
+<select class="w-full appearance-none rounded-lg border-border-light dark:border-border-dark bg-white dark:bg-surface-dark text-text-main dark:text-white shadow-sm focus:border-primary focus:ring-primary h-11 px-4 text-sm pr-10" id="unit">
+<option>Pilih Satuan</option>
+<option>Strip (10 Tablet)</option>
+<option>Botol</option>
+<option>Tube</option>
+<option>Pcs</option>
+<option>Box</option>
+</select>
+<span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-text-secondary">
+<span class="material-symbols-outlined text-[20px]">expand_more</span>
+</span>
+</div>
+</div>
+<div>
+<label class="block text-sm font-bold text-text-main dark:text-white mb-1.5" for="expiry">Tanggal Kadaluwarsa</label>
+<div class="relative">
+<span class="absolute inset-y-0 left-0 flex items-center pl-3 text-text-secondary pointer-events-none">
+<span class="material-symbols-outlined text-[20px]">calendar_month</span>
+</span>
+<input class="w-full rounded-lg border-border-light dark:border-border-dark bg-white dark:bg-surface-dark text-text-main dark:text-white shadow-sm focus:border-primary focus:ring-primary h-11 pl-10 px-4 text-sm" id="expiry" type="date"/>
+</div>
+</div>
+<div>
+<label class="block text-sm font-bold text-text-main dark:text-white mb-1.5" for="location">Lokasi Penyimpanan</label>
+<div class="relative">
+<span class="absolute inset-y-0 left-0 flex items-center pl-3 text-text-secondary pointer-events-none">
+<span class="material-symbols-outlined text-[20px]">shelves</span>
+</span>
+<input class="w-full rounded-lg border-border-light dark:border-border-dark bg-white dark:bg-surface-dark text-text-main dark:text-white shadow-sm focus:border-primary focus:ring-primary h-11 pl-10 px-4 text-sm" id="location" placeholder="Contoh: Rak A-1, Lemari Pendingin" type="text"/>
+</div>
+</div>
+<div class="pt-2 border-t border-border-light dark:border-border-dark mt-2">
+<label class="block text-sm font-bold text-text-main dark:text-white mb-1.5" for="price">Harga Per Satuan (Opsional)</label>
+<div class="relative">
+<span class="absolute inset-y-0 left-0 flex items-center pl-3 text-text-secondary pointer-events-none">
+<span class="text-sm font-bold">Rp</span>
+</span>
+<input class="w-full rounded-lg border-border-light dark:border-border-dark bg-white dark:bg-surface-dark text-text-main dark:text-white shadow-sm focus:border-primary focus:ring-primary h-11 pl-10 px-4 text-sm text-right" id="price" placeholder="0" type="number"/>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Sticky Footer Actions (Mobile: Fixed, Desktop: Flow) -->
+<div class="fixed bottom-0 left-0 w-full bg-white dark:bg-surface-dark border-t border-border-light dark:border-border-dark p-4 lg:static lg:bg-transparent lg:border-none lg:p-0 lg:col-span-12 z-30">
+<div class="flex items-center justify-end gap-3 max-w-7xl mx-auto">
+<button class="flex-1 lg:flex-none lg:w-32 justify-center items-center h-12 rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark text-text-main dark:text-white font-bold text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors" type="button">
+                                    Batal
+                                </button>
+<button class="flex-1 lg:flex-none lg:w-40 justify-center items-center h-12 rounded-lg bg-primary hover:bg-primary-hover text-white font-bold text-sm shadow-md transition-colors flex gap-2" type="button">
+<span class="material-symbols-outlined text-[20px]">save</span>
+                                    Simpan Obat
+                                </button>
+</div>
+</div>
+</form>
+</div>
+</main>
+</div>
+</div>
+</body></html>

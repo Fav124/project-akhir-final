@@ -28,7 +28,7 @@ class DiagnosisController extends Controller
 
         Diagnosis::create($request->all());
 
-        return redirect()->route('diagnosis.index')->with('success', 'Diagnosis created successfully.');
+        return redirect()->route('web.diagnosis.index')->with('success', 'Diagnosis created successfully.');
     }
 
     public function edit(Diagnosis $diagnosis)
@@ -45,12 +45,12 @@ class DiagnosisController extends Controller
 
         $diagnosis->update($request->all());
 
-        return redirect()->route('diagnosis.index')->with('success', 'Diagnosis updated successfully.');
+        return redirect()->route('web.diagnosis.index')->with('success', 'Diagnosis updated successfully.');
     }
 
     public function destroy(Diagnosis $diagnosis)
     {
         $diagnosis->delete();
-        return redirect()->route('diagnosis.index')->with('success', 'Diagnosis deleted successfully.');
+        return redirect()->route('web.diagnosis.index')->with('success', 'Diagnosis deleted successfully.');
     }
 }

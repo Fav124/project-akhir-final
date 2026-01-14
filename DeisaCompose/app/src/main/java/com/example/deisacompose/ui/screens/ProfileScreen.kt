@@ -25,10 +25,10 @@ fun ProfileScreen(
     mainViewModel: MainViewModel = viewModel(),
     authViewModel: AuthViewModel = viewModel()
 ) {
-    val user by mainViewModel.currentUser.observeAsState()
+    val user by mainViewModel.user.observeAsState()
     
     LaunchedEffect(Unit) {
-        mainViewModel.fetchUser()
+        mainViewModel.fetchProfile()
     }
 
     Scaffold(

@@ -12,16 +12,17 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.deisacompose.ui.theme.PrimaryGreen
+import com.example.deisacompose.viewmodels.AuthViewModel
 import com.example.deisacompose.viewmodels.MainViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavController, viewModel: MainViewModel = viewModel()) {
+fun HomeScreen(navController: NavController, viewModel: MainViewModel = viewModel(), authViewModel: AuthViewModel = viewModel()) {
     
-    val user by viewModel.currentUser.observeAsState()
+    val user by viewModel.user.observeAsState()
     
     LaunchedEffect(Unit) {
-        viewModel.fetchUser()
+        viewModel.fetchProfile()
     }
 
     Scaffold(
@@ -34,7 +35,7 @@ fun HomeScreen(navController: NavController, viewModel: MainViewModel = viewMode
                 actions = {
                      // Logout Button
                      TextButton(onClick = {
-                         viewModel.logout()
+                         authViewModel.logout()
                          navController.navigate("login") {
                              popUpTo("home") { inclusive = true }
                          }
@@ -68,12 +69,12 @@ fun HomeScreen(navController: NavController, viewModel: MainViewModel = viewMode
             
             // Core Features (Everyone)
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                ActionCard("Data Sakit", "Lihat Catatan", Modifier.weight(1f), onClick = { navController.navigate("sakit_list") })
-                ActionCard("Data Obat", "Kelola Stok", Modifier.weight(1f), onClick = { navController.navigate("obat_list") })
+                ActionCard("Data Sakit", "Lihat Catatan", Modifier.weight(1f), onClick = { navController.navigate("sakit") })
+                ActionCard("Data Obat", "Kelola Stok", Modifier.weight(1f), onClick = { navController.navigate("obat") })
             }
              Spacer(modifier = Modifier.height(16.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                ActionCard("Data Santri", "Semua Santri", Modifier.weight(1f), onClick = { navController.navigate("santri_list") })
+                ActionCard("Data Santri", "Semua Santri", Modifier.weight(1f), onClick = { navController.navigate("santri") })
                 ActionCard("Laporan", "Ringkasan", Modifier.weight(1f), onClick = { navController.navigate("laporan") })
             }
             
@@ -89,7 +90,7 @@ fun HomeScreen(navController: NavController, viewModel: MainViewModel = viewMode
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    ActionCard("Data Induk", "Master Data", Modifier.weight(1f), onClick = { navController.navigate("management") })
+                    ActionCard("Data Induk", "Master Data", Modifier.weight(1f), onClick = { navController.navigate("management_list") })
                     Spacer(modifier = Modifier.weight(1f))
                 }
             }

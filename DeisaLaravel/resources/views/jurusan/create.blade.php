@@ -1,58 +1,50 @@
 @extends('layouts.app-tailwind')
 
-@section('title', 'Tambah Jurusan')
+@section('title', 'Create Jurusan')
+@section('subtitle', 'Add a new academic major')
 
 @section('content')
-<div class="max-w-4xl mx-auto space-y-6">
-    <!-- Header -->
-    <div class="flex items-center gap-4 py-4 animate-slide-in-down">
-        <a href="{{ route('web.jurusan.index') }}" class="p-2.5 rounded-xl bg-white shadow-sm border border-gray-100 text-gray-400 hover:text-indigo-500 hover:border-indigo-100 transition-all duration-300 group">
-            <svg class="w-6 h-6 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-            </svg>
-        </a>
-        <div>
-            <h1 class="text-3xl font-black text-gray-900 tracking-tight">Tambah Jurusan</h1>
-            <p class="text-gray-500 font-medium mt-1">Daftarkan kompetensi keahlian baru ke dalam sistem.</p>
-        </div>
-    </div>
-
-    <!-- Form Card -->
-    <x-card variant="default" class="border-none shadow-2xl ring-1 ring-gray-100 overflow-visible">
-        <form action="{{ route('web.jurusan.store') }}" method="POST" class="space-y-8 p-4">
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-6 sm:p-8">
+        <form action="{{ route('web.jurusan.store') }}" method="POST" class="space-y-6">
             @csrf
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <!-- Nama Jurusan -->
-                <div class="space-y-2">
-                    <label for="nama_jurusan" class="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Nama Jurusan</label>
-                    <input type="text" name="nama_jurusan" id="nama_jurusan" placeholder="Misal: Teknik Komputer dan Jaringan" 
-                        class="w-full px-5 py-4 rounded-2xl border border-gray-100 bg-gray-50/30 focus:bg-white focus:ring-4 focus:ring-indigo-100 focus:border-indigo-400 transition-all outline-none font-bold text-gray-700" required>
+            <div class="space-y-1">
+                <label for="nama_jurusan" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Nama Jurusan</label>
+                <div class="relative">
+                     <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                        <span class="material-symbols-outlined text-[20px]">school</span>
+                    </span>
+                    <input type="text" name="nama_jurusan" id="nama_jurusan" class="block w-full pl-10 pr-3 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent sm:text-sm transition-shadow" placeholder="e.g. Ilmu Pengetahuan Alam" value="{{ old('nama_jurusan') }}" required>
                 </div>
-
-                <!-- Kode Jurusan -->
-                <div class="space-y-2">
-                    <label for="kode_jurusan" class="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Kode Jurusan</label>
-                    <input type="text" name="kode_jurusan" id="kode_jurusan" placeholder="Misal: TKJ, IPA, IPS" 
-                        class="w-full px-5 py-4 rounded-2xl border border-gray-100 bg-gray-50/30 focus:bg-white focus:ring-4 focus:ring-indigo-100 focus:border-indigo-400 transition-all outline-none font-bold text-gray-700 uppercase" required>
-                </div>
-
-                <!-- Deskripsi -->
-                <div class="md:col-span-2 space-y-2">
-                    <label for="deskripsi" class="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Deskripsi</label>
-                    <textarea name="deskripsi" id="deskripsi" rows="4" placeholder="Jelaskan secara singkat mengenai jurusan ini..." 
-                        class="w-full px-5 py-4 rounded-2xl border border-gray-100 bg-gray-50/30 focus:bg-white focus:ring-4 focus:ring-indigo-100 focus:border-indigo-400 transition-all outline-none font-bold text-gray-700 resize-none"></textarea>
-                </div>
+                @error('nama_jurusan')
+                    <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
-            <!-- Footer Actions -->
-            <div class="flex items-center justify-end gap-3 pt-6 border-t border-gray-50">
-                <a href="{{ route('web.jurusan.index') }}" class="px-8 py-4 rounded-2xl font-black text-gray-400 uppercase tracking-widest text-xs hover:bg-gray-50 transition-all">Batal</a>
-                <button type="submit" class="px-10 py-4 rounded-2xl font-black text-white bg-gradient-to-r from-indigo-500 to-purple-600 shadow-lg shadow-indigo-200 hover:shadow-xl hover:shadow-indigo-300 transition-all duration-300 transform hover:-translate-y-1 uppercase tracking-widest text-xs">
-                    Simpan Jurusan
+            <div class="space-y-1">
+                <label for="kode_jurusan" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Kode Jurusan</label>
+                <div class="relative">
+                     <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                        <span class="material-symbols-outlined text-[20px]">tag</span>
+                    </span>
+                    <input type="text" name="kode_jurusan" id="kode_jurusan" class="block w-full pl-10 pr-3 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent sm:text-sm transition-shadow" placeholder="e.g. IPA" value="{{ old('kode_jurusan') }}" required>
+                </div>
+                @error('kode_jurusan')
+                    <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                @enderror
+                <p class="text-xs text-slate-500 mt-1">Unique code for the major.</p>
+            </div>
+
+            <div class="pt-4 flex items-center justify-end gap-3">
+                <a href="{{ route('web.jurusan.index') }}" class="px-4 py-2 border border-slate-200 dark:border-slate-600 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                    Cancel
+                </a>
+                <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium shadow-lg shadow-blue-500/20 transition-all transform hover:-translate-y-0.5">
+                    Save Jurusan
                 </button>
             </div>
         </form>
-    </x-card>
+    </div>
 </div>
 @endsection

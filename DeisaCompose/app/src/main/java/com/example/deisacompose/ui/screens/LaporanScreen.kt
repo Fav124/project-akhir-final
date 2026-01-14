@@ -57,7 +57,7 @@ fun LaporanScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                     DeisaButton(
                         text = "Tampilkan Laporan",
-                        onClick = { viewModel.fetchReport(startDate, endDate) },
+                        onClick = { viewModel.fetchLaporan() },
                         modifier = Modifier.fillMaxWidth(),
                         isLoading = isLoading
                     )

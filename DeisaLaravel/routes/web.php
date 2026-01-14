@@ -20,15 +20,17 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Protected
-Route::middleware('auth')->group(function () {
+// Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
         $total_santri = Santri::count();
         $santri_sakit = SantriSakit::where('status', 'Sakit')->count();
         $total_obat = Obat::count();
         $low_stock = Obat::whereColumn('stok', '<=', 'stok_minimum')->count();
 
-        return view('dashboard-tailwind', compact('total_santri', 'santri_sakit', 'total_obat', 'low_stock'));
+        return view('dashboard', compact('total_santri', 'santri_sakit', 'total_obat', 'low_stock'));
     })->name('dashboard');
+
+
 
     // Analytics
     Route::get('/laporan', \App\Livewire\Laporan\LaporanIndex::class)->name('web.laporan.index');
@@ -52,4 +54,4 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/registrations/{id}/reject', [AdminController::class, 'reject'])->name('web.admin.reject');
     Route::get('/admin/users', [AdminController::class, 'users'])->name('web.admin.users');
     Route::delete('/admin/users/{id}', [AdminController::class, 'destroyUser'])->name('web.admin.user.destroy');
-});
+// });

@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SiSehat Santri - Riwayat Restock Obat</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#5b8ad7",
+                        "primary-dark": "#4a7AC7", 
+                        "background-light": "#f9fafa",
+                        "background-dark": "#22252a",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#2a2d33",
+                        "border-light": "#e5e7eb",
+                        "border-dark": "#374151",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom scrollbar for table if needed */
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 6px;
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 20px;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display transition-colors duration-200">
+<div class="flex h-screen w-full overflow-hidden">
+<!-- Sidebar -->
+<aside class="w-64 flex-shrink-0 border-r border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark flex flex-col justify-between hidden md:flex transition-colors duration-200">
+<div class="flex flex-col gap-6 p-6">
+<!-- Profile/Brand -->
+<div class="flex gap-3 items-center">
+<div class="bg-center bg-no-repeat bg-cover rounded-full h-10 w-10 ring-2 ring-primary/20" data-alt="Abstract medical cross logo gradient" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAHZwIMN1pwUzl5j-X7rp9YQA2mPw6ZfcgpmxNWUpAGZAff-HYl-ueNoFEYcn23PfZGJpnvuaaQwInV3kkJ07lCjqshGxjz0Heqpso8bVODTR4pMVSpAN3CMEigfXFGFD6cCySYWUUOd9MgUGhb2Q0z2fobRYBmSfbgBroHAa5XwvCh2t5iNj8RhUBBxk3lZBiPWzZdRw06oh0lRyJFtfwKZHkE2jJlRPk_0I9w_9ucsJy7QyOGAXkVuH0I3CyyYhlwahAoGMenX1Bg");'></div>
+<div class="flex flex-col">
+<h1 class="text-slate-900 dark:text-white text-base font-bold leading-tight">SiSehat Santri</h1>
+<p class="text-slate-500 dark:text-slate-400 text-xs font-normal">Admin Panel</p>
+</div>
+</div>
+<!-- Navigation -->
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group" href="#">
+<span class="material-symbols-outlined text-slate-500 group-hover:text-primary dark:text-slate-400 dark:group-hover:text-primary">grid_view</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group" href="#">
+<span class="material-symbols-outlined text-slate-500 group-hover:text-primary dark:text-slate-400 dark:group-hover:text-primary">inventory_2</span>
+<span class="text-sm font-medium">Inventaris</span>
+</a>
+<!-- Active State -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary dark:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined filled">history</span>
+<span class="text-sm font-bold">Riwayat Restock</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group" href="#">
+<span class="material-symbols-outlined text-slate-500 group-hover:text-primary dark:text-slate-400 dark:group-hover:text-primary">description</span>
+<span class="text-sm font-medium">Laporan</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group" href="#">
+<span class="material-symbols-outlined text-slate-500 group-hover:text-primary dark:text-slate-400 dark:group-hover:text-primary">settings</span>
+<span class="text-sm font-medium">Pengaturan</span>
+</a>
+</nav>
+</div>
+<!-- Bottom User Info -->
+<div class="p-6 border-t border-border-light dark:border-border-dark">
+<div class="flex items-center gap-3">
+<div class="h-8 w-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-600 dark:text-slate-300">AS</div>
+<div>
+<p class="text-sm font-medium text-slate-900 dark:text-white">Ahmad Santoso</p>
+<p class="text-xs text-slate-500 dark:text-slate-400">Kepala Logistik</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col h-full overflow-hidden relative">
+<!-- Scrollable Area -->
+<div class="flex-1 overflow-y-auto custom-scrollbar p-6 md:p-10">
+<div class="max-w-6xl mx-auto flex flex-col gap-8">
+<!-- Header -->
+<header class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div class="flex flex-col gap-1">
+<h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Riwayat Restock Obat</h2>
+<p class="text-slate-500 dark:text-slate-400 text-sm md:text-base">Pantau aktivitas penambahan stok obat masuk ke gudang klinik.</p>
+</div>
+<button class="bg-primary hover:bg-primary-dark text-white shadow-lg shadow-primary/20 px-5 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2 transition-all transform active:scale-95 w-fit">
+<span class="material-symbols-outlined text-[20px]">add</span>
+<span>Tambah Stok</span>
+</button>
+</header>
+<!-- Stats Cards -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<!-- Card 1 -->
+<div class="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 shadow-sm flex flex-col justify-between gap-4">
+<div class="flex items-start justify-between">
+<div>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Total Transaksi Bulan Ini</p>
+<p class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">24</p>
+</div>
+<div class="bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 text-xs font-bold px-2 py-1 rounded flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>
+                                    12%
+                                </div>
+</div>
+<div class="w-full bg-slate-100 dark:bg-slate-700 h-1 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 65%"></div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 shadow-sm flex flex-col justify-between gap-4">
+<div class="flex items-start justify-between">
+<div>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Total Item Masuk</p>
+<p class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">1,250 <span class="text-base font-normal text-slate-400">Unit</span></p>
+</div>
+<div class="bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 text-xs font-bold px-2 py-1 rounded flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>
+                                    5%
+                                </div>
+</div>
+<div class="w-full bg-slate-100 dark:bg-slate-700 h-1 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 45%"></div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 shadow-sm flex flex-col justify-between gap-4">
+<div class="flex items-start justify-between">
+<div>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Pengeluaran Pembelian</p>
+<p class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Rp 15.2jt</p>
+</div>
+<div class="bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-400 text-xs font-bold px-2 py-1 rounded flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">remove</span>
+                                    0.4%
+                                </div>
+</div>
+<div class="w-full bg-slate-100 dark:bg-slate-700 h-1 rounded-full overflow-hidden">
+<div class="bg-orange-400 h-full rounded-full" style="width: 30%"></div>
+</div>
+</div>
+</section>
+<!-- Filters & Search Toolbar -->
+<section class="flex flex-col md:flex-row gap-4 justify-between items-center bg-surface-light dark:bg-surface-dark p-2 rounded-xl border border-border-light dark:border-border-dark shadow-sm">
+<!-- Search -->
+<div class="relative w-full md:w-96 group">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-slate-400">search</span>
+</div>
+<input class="block w-full pl-10 pr-3 py-2.5 border-none rounded-lg leading-5 bg-background-light dark:bg-background-dark text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/50 sm:text-sm transition-shadow" placeholder="Cari nama obat, SKU, atau supplier..." type="text"/>
+</div>
+<!-- Filters -->
+<div class="flex gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0 px-2 md:px-0">
+<button class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 whitespace-nowrap transition-colors">
+<span class="material-symbols-outlined text-[18px]">calendar_today</span>
+<span>Okt 2023</span>
+<span class="material-symbols-outlined text-[16px] text-slate-400">expand_more</span>
+</button>
+<button class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 whitespace-nowrap transition-colors">
+<span>Semua Supplier</span>
+<span class="material-symbols-outlined text-[16px] text-slate-400">expand_more</span>
+</button>
+<button class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 whitespace-nowrap transition-colors">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+<span>Filter</span>
+</button>
+</div>
+</section>
+<!-- Main Table -->
+<div class="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm overflow-hidden flex flex-col">
+<div class="overflow-x-auto">
+<table class="min-w-full divide-y divide-border-light dark:divide-border-dark">
+<thead class="bg-slate-50 dark:bg-slate-800/50">
+<tr>
+<th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider" scope="col">Waktu &amp; Tanggal</th>
+<th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider" scope="col">Detail Obat</th>
+<th class="px-6 py-4 text-center text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider" scope="col">Stok Awal</th>
+<th class="px-6 py-4 text-center text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider" scope="col">Masuk</th>
+<th class="px-6 py-4 text-center text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider" scope="col">Stok Akhir</th>
+<th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider" scope="col">Petugas &amp; Supplier</th>
+<th class="px-6 py-4 text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider" scope="col">Aksi</th>
+</tr>
+</thead>
+<tbody class="bg-surface-light dark:bg-surface-dark divide-y divide-border-light dark:divide-border-dark">
+<!-- Row 1 -->
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="text-sm font-medium text-slate-900 dark:text-white">12 Okt 2023</div>
+<div class="text-xs text-slate-500 dark:text-slate-400">10:30 AM</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex items-center">
+<div class="h-10 w-10 flex-shrink-0 rounded-lg bg-slate-100 dark:bg-slate-700 border border-border-light dark:border-border-dark flex items-center justify-center overflow-hidden">
+<img alt="" class="h-8 w-8 object-contain mix-blend-multiply dark:mix-blend-normal" data-alt="Paracetamol Bottle" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCrtOs06PTq1l52o9FcntYL9QtjLpB7L4Anv4dEBZjuYOnoO9cgRh8TJ3NjdBQT-BqhXVqyIh4qhBW9UJN6dlu9mkjURmKJOsAXc2OcXZwciXYRpTe-oAmyCnq-8FIv6nbiFyos3zfD_aI3wNYZEEkmR8_4WBmR5I-jvbzvt-UV82KJ0PCBfAR6XFHBo79MZVYP4ka0Fbkg7OK_AnFWYp4HI1lSALyvLOD3gMsz6SPDH4KObYiZ-VcGI9ZpCR311N2dUZk85MJ8lK2D"/>
+</div>
+<div class="ml-4">
+<div class="text-sm font-bold text-slate-900 dark:text-white">Paracetamol 500mg</div>
+<div class="text-xs text-slate-500 dark:text-slate-400 font-mono">SKU: PCM-500-TAB</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-center text-sm text-slate-500 dark:text-slate-400">
+                                            20
+                                        </td>
+<td class="px-6 py-4 whitespace-nowrap text-center">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800">
+                                                +100 Box
+                                            </span>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-center text-sm font-bold text-slate-900 dark:text-white">
+                                            120
+                                        </td>
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="text-sm text-slate-900 dark:text-white">Ahmad S.</div>
+<div class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px] align-middle">local_shipping</span>
+                                                Kimia Farma
+                                            </div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+<button class="text-slate-400 hover:text-primary transition-colors p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700" title="View Details">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+<button class="text-slate-400 hover:text-primary transition-colors p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 ml-1" title="Download Receipt">
+<span class="material-symbols-outlined text-[20px]">receipt_long</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="text-sm font-medium text-slate-900 dark:text-white">12 Okt 2023</div>
+<div class="text-xs text-slate-500 dark:text-slate-400">09:15 AM</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex items-center">
+<div class="h-10 w-10 flex-shrink-0 rounded-lg bg-slate-100 dark:bg-slate-700 border border-border-light dark:border-border-dark flex items-center justify-center overflow-hidden">
+<img alt="" class="h-8 w-8 object-contain mix-blend-multiply dark:mix-blend-normal" data-alt="Amoxicillin Syrup Bottle" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDCg4v-FTiY7FTKGK8Ji4G8iMiKmSRV4L6hdih66ySZ2c6-wMDLYyttkutvGqt7jY4hTgTneaLWyKgDjPBF8XHQrJBNm-Q1ifP8K1crPBthm8-xnB2_smcb-jU0tnNrbK7tx1X5Bq_brQERCiUPXQCbopXQkI3YYKyGVqCuA9YToaCTfiLOus1Z4DIAmgJI2BjEIa8PDif_qqjihJ4eywMuqxvRMmYiCAScibHX0Xccfq-CxpGhHIjlyx61VKnOPUe3ZHPesIJEbrsG"/>
+</div>
+<div class="ml-4">
+<div class="text-sm font-bold text-slate-900 dark:text-white">Amoxicillin Sirup</div>
+<div class="text-xs text-slate-500 dark:text-slate-400 font-mono">SKU: AMX-SYR-60</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-center text-sm text-slate-500 dark:text-slate-400">
+                                            5
+                                        </td>
+<td class="px-6 py-4 whitespace-nowrap text-center">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800">
+                                                +50 Botol
+                                            </span>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-center text-sm font-bold text-slate-900 dark:text-white">
+                                            55
+                                        </td>
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="text-sm text-slate-900 dark:text-white">Siti Nurhaliza</div>
+<div class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px] align-middle">local_shipping</span>
+                                                Sanbe Farma
+                                            </div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+<button class="text-slate-400 hover:text-primary transition-colors p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700" title="View Details">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+<button class="text-slate-400 hover:text-primary transition-colors p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 ml-1" title="Download Receipt">
+<span class="material-symbols-outlined text-[20px]">receipt_long</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="text-sm font-medium text-slate-900 dark:text-white">11 Okt 2023</div>
+<div class="text-xs text-slate-500 dark:text-slate-400">04:45 PM</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex items-center">
+<div class="h-10 w-10 flex-shrink-0 rounded-lg bg-slate-100 dark:bg-slate-700 border border-border-light dark:border-border-dark flex items-center justify-center overflow-hidden">
+<img alt="" class="h-8 w-8 object-contain mix-blend-multiply dark:mix-blend-normal" data-alt="Vitamin C Strip" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlfWGd0UGvznRjLUg64Tf0Fo0qLmg4NJ6vhcDUX420lceF6qSHd6md9RdZPOKK30kBdpxg-NQCF4NLxeK2gvvvocaTK5NFyrQDPaNUUkRAb_3Vp1o0OTdM0MqGf0OQagkxGBzYwimIqZaCTYQRbSscRCraMnsPSlpLZwN4sBMwJiOvY9qbelH1Drz-2Y1mt1X2bEA713elFHA8yeNfZm89587zP_l2rw2mr227yM-Etx4X14pkJoxV8K8mgXHj0deyNx_XxmtUDZ8z"/>
+</div>
+<div class="ml-4">
+<div class="text-sm font-bold text-slate-900 dark:text-white">Vitamin C 500mg</div>
+<div class="text-xs text-slate-500 dark:text-slate-400 font-mono">SKU: VTC-500-STR</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-center text-sm text-slate-500 dark:text-slate-400">
+                                            150
+                                        </td>
+<td class="px-6 py-4 whitespace-nowrap text-center">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800">
+                                                +200 Strip
+                                            </span>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-center text-sm font-bold text-slate-900 dark:text-white">
+                                            350
+                                        </td>
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="text-sm text-slate-900 dark:text-white">Ahmad S.</div>
+<div class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px] align-middle">local_shipping</span>
+                                                Tempo Scan
+                                            </div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+<button class="text-slate-400 hover:text-primary transition-colors p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700" title="View Details">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+<button class="text-slate-400 hover:text-primary transition-colors p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 ml-1" title="Download Receipt">
+<span class="material-symbols-outlined text-[20px]">receipt_long</span>
+</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="text-sm font-medium text-slate-900 dark:text-white">10 Okt 2023</div>
+<div class="text-xs text-slate-500 dark:text-slate-400">11:20 AM</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex items-center">
+<div class="h-10 w-10 flex-shrink-0 rounded-lg bg-slate-100 dark:bg-slate-700 border border-border-light dark:border-border-dark flex items-center justify-center overflow-hidden">
+<img alt="" class="h-8 w-8 object-contain mix-blend-multiply dark:mix-blend-normal" data-alt="Betadine Bottle" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD3dWGIVUbLOdu6C2wOyNEMpxdD9Ucud-xNJ15moiz1rEdPU86Hvt03_MXBzpnpscfxO65fTP8RzTRmQiH3JK_0din1QtFvVaL7Gpf9kQIcBuqiwxm1Fv3mZ-IncOMgpZBHsRowzj5QWQA4jo64mNJJGEPSfAqOHE-vFnrjcaou4NLjXxW2pbYR0QIyD44GEnqu6Py5gbXFKF4c-H_9fRbsZclxjX7-LILE7nGAzXRqjqzPWc4zdmxvC08YCvY9KAVC_4t_9uEx8OiU"/>
+</div>
+<div class="ml-4">
+<div class="text-sm font-bold text-slate-900 dark:text-white">Betadine Antiseptik</div>
+<div class="text-xs text-slate-500 dark:text-slate-400 font-mono">SKU: BTD-SOL-30</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-center text-sm text-slate-500 dark:text-slate-400">
+                                            8
+                                        </td>
+<td class="px-6 py-4 whitespace-nowrap text-center">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800">
+                                                +24 Botol
+                                            </span>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-center text-sm font-bold text-slate-900 dark:text-white">
+                                            32
+                                        </td>
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="text-sm text-slate-900 dark:text-white">Budi Santoso</div>
+<div class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px] align-middle">edit_note</span>
+                                                Sumbangan Alumni
+                                            </div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+<button class="text-slate-400 hover:text-primary transition-colors p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700" title="View Details">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+<button class="text-slate-400 hover:text-primary transition-colors p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 ml-1" title="Download Receipt">
+<span class="material-symbols-outlined text-[20px]">receipt_long</span>
+</button>
+</td>
+</tr>
+<!-- Row 5 -->
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="text-sm font-medium text-slate-900 dark:text-white">09 Okt 2023</div>
+<div class="text-xs text-slate-500 dark:text-slate-400">02:10 PM</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex items-center">
+<div class="h-10 w-10 flex-shrink-0 rounded-lg bg-slate-100 dark:bg-slate-700 border border-border-light dark:border-border-dark flex items-center justify-center overflow-hidden">
+<img alt="" class="h-8 w-8 object-contain mix-blend-multiply dark:mix-blend-normal" data-alt="Mask Box" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBcKNl_vMCaUStvE1zUWEX4bAtciFnuRecWSFEPPxEqtT3VxRNd90bM4D2AiPMZNUe9q9Xj8E0qZOj8gmtWLzHcnA7z_xH_85i3-vKUTi0rirK02O_ZE1I1zVmzrr6p5EToDO6HAh6YT2yiokk7aD3dZL8sZLV8HIUx3Fck0sVcVLLNv-BSXY4SnZE94CX1Y8oa-1QEGTfpxaSND7owBtVp9fbqDt9IKSdGUpA7PNyyl-oF3yzf0bisFZVwQLU84aYAL3eIsibjYP_M"/>
+</div>
+<div class="ml-4">
+<div class="text-sm font-bold text-slate-900 dark:text-white">Masker Medis 3-Ply</div>
+<div class="text-xs text-slate-500 dark:text-slate-400 font-mono">SKU: MSK-PLY-50</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-center text-sm text-slate-500 dark:text-slate-400">
+                                            10
+                                        </td>
+<td class="px-6 py-4 whitespace-nowrap text-center">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800">
+                                                +500 Box
+                                            </span>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-center text-sm font-bold text-slate-900 dark:text-white">
+                                            510
+                                        </td>
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="text-sm text-slate-900 dark:text-white">Ahmad S.</div>
+<div class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px] align-middle">local_shipping</span>
+                                                Sensi Medical
+                                            </div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+<button class="text-slate-400 hover:text-primary transition-colors p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700" title="View Details">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+<button class="text-slate-400 hover:text-primary transition-colors p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 ml-1" title="Download Receipt">
+<span class="material-symbols-outlined text-[20px]">receipt_long</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="bg-surface-light dark:bg-surface-dark px-4 py-3 flex items-center justify-between border-t border-border-light dark:border-border-dark sm:px-6">
+<div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+<div>
+<p class="text-sm text-slate-700 dark:text-slate-300">
+                                        Menampilkan <span class="font-bold">1</span> sampai <span class="font-bold">5</span> dari <span class="font-bold">24</span> data
+                                    </p>
+</div>
+<div>
+<nav aria-label="Pagination" class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+<a class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark text-sm font-medium text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800" href="#">
+<span class="sr-only">Previous</span>
+<span class="material-symbols-outlined text-[20px]">chevron_left</span>
+</a>
+<a aria-current="page" class="z-10 bg-primary/10 border-primary text-primary relative inline-flex items-center px-4 py-2 border text-sm font-bold" href="#">
+                                            1
+                                        </a>
+<a class="bg-surface-light dark:bg-surface-dark border-border-light dark:border-border-dark text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 relative inline-flex items-center px-4 py-2 border text-sm font-medium" href="#">
+                                            2
+                                        </a>
+<a class="bg-surface-light dark:bg-surface-dark border-border-light dark:border-border-dark text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 relative inline-flex items-center px-4 py-2 border text-sm font-medium" href="#">
+                                            3
+                                        </a>
+<a class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark text-sm font-medium text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800" href="#">
+<span class="sr-only">Next</span>
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</a>
+</nav>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

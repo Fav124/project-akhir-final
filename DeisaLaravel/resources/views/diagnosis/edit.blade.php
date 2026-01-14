@@ -1,63 +1,57 @@
 @extends('layouts.app-tailwind')
 
 @section('title', 'Edit Diagnosis')
+@section('subtitle', 'Update diagnosis details')
 
 @section('content')
-<div class="max-w-4xl mx-auto space-y-6">
-    <!-- Header -->
-    <div class="flex items-center gap-4 py-4 animate-slide-in-down">
-        <a href="{{ route('web.diagnosis.index') }}" class="p-2.5 rounded-xl bg-white shadow-sm border border-gray-100 text-gray-400 hover:text-rose-500 hover:border-rose-100 transition-all duration-300 group">
-            <svg class="w-6 h-6 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-            </svg>
-        </a>
-        <div>
-            <h1 class="text-3xl font-black text-gray-900 tracking-tight">Edit Diagnosis</h1>
-            <p class="text-gray-500 font-medium mt-1">Ubah referensi diagnosa penyakit.</p>
-        </div>
-    </div>
-
-    <!-- Form Card -->
-    <x-card variant="premium" title="Edit Referensi Diagnosis" subtitle="Master Data Kesehatan">
-        <form action="{{ route('web.diagnosis.update', $diagnosis) }}" method="POST" class="space-y-8 p-4">
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-6 sm:p-8">
+        <form action="{{ route('web.diagnosis.update', $diagnosis->id) }}" method="POST" class="space-y-6">
             @csrf
             @method('PUT')
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <!-- Nama Diagnosis -->
-                <div class="space-y-2">
-                    <label for="nama_diagnosis" class="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Nama Diagnosis</label>
-                    <input type="text" name="nama_diagnosis" id="nama_diagnosis" value="{{ $diagnosis->nama_diagnosis }}"
-                        class="w-full px-5 py-4 rounded-2xl border border-gray-100 bg-gray-50/30 focus:bg-white focus:ring-4 focus:ring-rose-100 focus:border-rose-400 transition-all outline-none font-bold text-gray-700" required>
+            <div class="space-y-1">
+                <label for="nama_diagnosis" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Diagnosis Name</label>
+                <div class="relative">
+                     <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                        <span class="material-symbols-outlined text-[20px]">stethoscope</span>
+                    </span>
+                    <input type="text" name="nama_diagnosis" id="nama_diagnosis" class="block w-full pl-10 pr-3 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent sm:text-sm transition-shadow" placeholder="e.g. Demam Berdarah" value="{{ old('nama_diagnosis', $diagnosis->nama_diagnosis) }}" required>
                 </div>
-
-                <!-- Kategori -->
-                <div class="space-y-2">
-                    <label for="kategori" class="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Kategori Keparahan</label>
-                    <select name="kategori" id="kategori" 
-                        class="w-full px-5 py-4 rounded-2xl border border-gray-100 bg-gray-50/30 focus:bg-white focus:ring-4 focus:ring-rose-100 focus:border-rose-400 transition-all outline-none font-bold text-gray-700 appearance-none" required>
-                        <option value="Ringan" {{ $diagnosis->kategori == 'Ringan' ? 'selected' : '' }}>Ringan (Hijau)</option>
-                        <option value="Sedang" {{ $diagnosis->kategori == 'Sedang' ? 'selected' : '' }}>Sedang (Kuning)</option>
-                        <option value="Berat" {{ $diagnosis->kategori == 'Berat' ? 'selected' : '' }}>Berat (Merah)</option>
-                    </select>
-                </div>
-
-                <!-- Deskripsi -->
-                <div class="md:col-span-2 space-y-2">
-                    <label for="deskripsi" class="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Deskripsi / Penjelasan</label>
-                    <textarea name="deskripsi" id="deskripsi" rows="4" 
-                        class="w-full px-5 py-4 rounded-2xl border border-gray-100 bg-gray-50/30 focus:bg-white focus:ring-4 focus:ring-rose-100 focus:border-rose-400 transition-all outline-none font-bold text-gray-700 resize-none">{{ $diagnosis->deskripsi }}</textarea>
-                </div>
+                @error('nama_diagnosis')
+                    <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
-            <!-- Footer Actions -->
-            <div class="flex items-center justify-end gap-3 pt-6 border-t border-gray-50">
-                <a href="{{ route('web.diagnosis.index') }}" class="px-8 py-4 rounded-2xl font-black text-gray-400 uppercase tracking-widest text-xs hover:bg-gray-50 transition-all">Batal</a>
-                <button type="submit" class="px-10 py-4 rounded-2xl font-black text-white bg-gradient-to-r from-rose-500 to-red-600 shadow-lg shadow-rose-200 hover:shadow-xl hover:shadow-rose-300 transition-all duration-300 transform hover:-translate-y-1 uppercase tracking-widest text-xs">
-                    Simpan Perubahan
+            <div class="space-y-1">
+                <label for="kategori" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Category</label>
+                <div class="relative">
+                     <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                        <span class="material-symbols-outlined text-[20px]">category</span>
+                    </span>
+                    <select name="kategori" id="kategori" class="block w-full pl-10 pr-10 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent sm:text-sm transition-shadow appearance-none" required>
+                        <option value="Ringan" {{ old('kategori', $diagnosis->kategori) == 'Ringan' ? 'selected' : '' }}>Ringan</option>
+                        <option value="Sedang" {{ old('kategori', $diagnosis->kategori) == 'Sedang' ? 'selected' : '' }}>Sedang</option>
+                        <option value="Berat" {{ old('kategori', $diagnosis->kategori) == 'Berat' ? 'selected' : '' }}>Berat</option>
+                    </select>
+                    <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                         <span class="material-symbols-outlined text-slate-500">expand_more</span>
+                    </div>
+                </div>
+                @error('kategori')
+                    <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="pt-4 flex items-center justify-end gap-3">
+                <a href="{{ route('web.diagnosis.index') }}" class="px-4 py-2 border border-slate-200 dark:border-slate-600 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                    Cancel
+                </a>
+                <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium shadow-lg shadow-blue-500/20 transition-all transform hover:-translate-y-0.5">
+                    Update Diagnosis
                 </button>
             </div>
         </form>
-    </x-card>
+    </div>
 </div>
 @endsection
