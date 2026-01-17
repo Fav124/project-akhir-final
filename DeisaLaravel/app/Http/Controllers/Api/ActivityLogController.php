@@ -15,7 +15,10 @@ class ActivityLogController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate($limit);
 
-        return response()->json($logs);
+        return response()->json([
+            'success' => true,
+            'data' => $logs
+        ]);
     }
 
     public function store(Request $request)

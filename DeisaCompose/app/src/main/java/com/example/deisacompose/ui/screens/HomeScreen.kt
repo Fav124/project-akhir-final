@@ -1,97 +1,135 @@
 package com.example.deisacompose.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
-import com.example.deisacompose.ui.theme.PrimaryGreen
-import com.example.deisacompose.viewmodels.AuthViewModel
-import com.example.deisacompose.viewmodels.MainViewModel
+import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import com.example.deisacompose.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavController, viewModel: MainViewModel = viewModel(), authViewModel: AuthViewModel = viewModel()) {
-    
-    val user by viewModel.user.observeAsState()
-    
-    LaunchedEffect(Unit) {
-        viewModel.fetchProfile()
-    }
-
+fun HomeScreen(navController: NavHostController) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Dashboard Kesehatan Santri") },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White
-                ),
+                title = {
+                    Column {
+                        Text(
+                            text = "Deisa Health",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = "Admin Dashboard",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Slate500
+                        )
+                    }
+                },
                 actions = {
-                     // Logout Button
-                     TextButton(onClick = {
-                         authViewModel.logout()
-                         navController.navigate("login") {
-                             popUpTo("home") { inclusive = true }
-                         }
-                     }) {
-                         Text("Keluar", color = Color.Red)
-                     }
-                }
+                    IconButton(onClick = { navController.navigate("profile") }) {
+                        Surface(
+                            shape = CircleShape,
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                            modifier = Modifier.size(40.dp)
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(
+                                    Icons.Default.Person,
+                                    contentDescription = "Profile",
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
             )
-        }
-    ) { paddingValues ->
+        },
+        containerColor = Slate50
+    ) { padding ->
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
+                .padding(padding)
                 .padding(16.dp)
+                .fillMaxSize()
         ) {
-            Text("Selamat Datang, ${user?.name ?: "User"}", style = MaterialTheme.typography.titleMedium)
-            Spacer(modifier = Modifier.height(16.dp))
-            
             // Stats Row
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                StatsCard("12", "Sakit Hari Ini", Color(0xFFFEE2E2), Modifier.weight(1f))
-                StatsCard("5", "Stok Menipis", Color(0xFFFEF3C7), Modifier.weight(1f))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                StatCard(
+                    title = "Sakit",
+                    value = "12",
+                    icon = Icons.Default.MedicalServices,
+                    color = DangerRed,
+                    modifier = Modifier.weight(1f)
+                )
+                StatCard(
+                    title = "Obat",
+                    value = "45",
+                    icon = Icons.Default.Inventory,
+                    color = SuccessGreen,
+                    modifier = Modifier.weight(1f)
+                )
+                StatCard(
+                    title = "Santri",
+                    value = "150",
+                    icon = Icons.Default.Groups,
+                    color = DeisaBlue,
+                    modifier = Modifier.weight(1f)
+                )
             }
-            
+
             Spacer(modifier = Modifier.height(24.dp))
-            
-            Text("Manajemen Data", style = MaterialTheme.typography.titleMedium)
-            
+
+            Text(
+                text = "Main Menu",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = Slate900
+            )
+
             Spacer(modifier = Modifier.height(16.dp))
-            
-            // Core Features (Everyone)
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                ActionCard("Data Sakit", "Lihat Catatan", Modifier.weight(1f), onClick = { navController.navigate("sakit") })
-                ActionCard("Data Obat", "Kelola Stok", Modifier.weight(1f), onClick = { navController.navigate("obat") })
-            }
-             Spacer(modifier = Modifier.height(16.dp))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                ActionCard("Data Santri", "Semua Santri", Modifier.weight(1f), onClick = { navController.navigate("santri") })
-                ActionCard("Laporan", "Ringkasan", Modifier.weight(1f), onClick = { navController.navigate("laporan") })
-            }
-            
-            // Admin Only Features
-            if (user?.isAdmin == true || user?.role == "admin") {
-                Spacer(modifier = Modifier.height(16.dp))
-                Text("Area Administrator", style = MaterialTheme.typography.titleMedium)
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    ActionCard("Persetujuan", "Registrasi Akun", Modifier.weight(1f), onClick = { navController.navigate("admin_registrations") })
-                    ActionCard("Petugas", "Kelola Akses", Modifier.weight(1f), onClick = { navController.navigate("admin_users") })
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    ActionCard("Data Induk", "Master Data", Modifier.weight(1f), onClick = { navController.navigate("management_list") })
-                    Spacer(modifier = Modifier.weight(1f))
+
+            val menuItems = listOf(
+                MenuItem("Santri", "Master Data Santri", Icons.Default.Groups, "santri", DeisaBlue),
+                MenuItem("Sakit", "Data Santri Sakit", Icons.Default.Sick, "sakit", DangerRed),
+                MenuItem("Obat", "Inventory & Stok Obat", Icons.Default.Medication, "obat", SuccessGreen),
+                MenuItem("Laporan", "Statistik & Laporan", Icons.Default.Assessment, "laporan", WarningOrange),
+                MenuItem("Management", "Pengaturan App", Icons.Default.Settings, "management_list", Slate700),
+                MenuItem("Users", "User Management", Icons.Default.ManageAccounts, "admin_users", Color.DarkGray)
+            )
+
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.fillMaxSize()
+            ) {
+                items(menuItems) { item ->
+                    MenuCard(item) {
+                        navController.navigate(item.route)
+                    }
                 }
             }
         }
@@ -99,35 +137,70 @@ fun HomeScreen(navController: NavController, viewModel: MainViewModel = viewMode
 }
 
 @Composable
-fun StatsCard(count: String, label: String, color: Color, modifier: Modifier = Modifier) {
+fun StatCard(
+    title: String,
+    value: String,
+    icon: ImageVector,
+    color: Color,
+    modifier: Modifier = Modifier
+) {
     Card(
         modifier = modifier,
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-             Box(modifier = Modifier.size(32.dp).background(color, androidx.compose.foundation.shape.CircleShape))
-             Spacer(modifier = Modifier.height(8.dp))
-             Text(count, style = MaterialTheme.typography.titleLarge)
-             Text(label, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+        Column(
+            modifier = Modifier.padding(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(
+                icon,
+                contentDescription = null,
+                tint = color,
+                modifier = Modifier.size(24.dp)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = value, fontWeight = FontWeight.Bold, fontSize = 20.sp, color = Slate900)
+            Text(text = title, fontSize = 12.sp, color = Slate500)
         }
     }
 }
 
 @Composable
-fun ActionCard(title: String, subtitle: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
+fun MenuCard(item: MenuItem, onClick: () -> Unit) {
     Card(
-        modifier = modifier.height(100.dp),
-         colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        onClick = onClick
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-         Column(
-             modifier = Modifier.padding(16.dp).fillMaxSize(),
-             verticalArrangement = Arrangement.Center
-         ) {
-             Text(title, style = MaterialTheme.typography.titleMedium)
-             Text(subtitle, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
-         }
+        Column(
+            modifier = Modifier.padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = item.color.copy(alpha = 0.1f),
+                modifier = Modifier.size(48.dp)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(item.icon, contentDescription = null, tint = item.color)
+                }
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(text = item.title, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Slate900)
+            Text(text = item.subtitle, fontSize = 10.sp, color = Slate500)
+        }
     }
 }
+
+data class MenuItem(
+    val title: String,
+    val subtitle: String,
+    val icon: ImageVector,
+    val route: String,
+    val color: Color
+)

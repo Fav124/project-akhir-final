@@ -33,9 +33,20 @@ class AuthViewModel : ViewModel() {
                 val response = apiService.login(request)
 
                 if (response.isSuccessful) {
+                    val token = response.body()?.data?.token
+                    if (token != null) {
+                        ApiClient.getSessionManager().saveAuthToken(token)
+                    }
                     _authSuccess.postValue(true)
                 } else {
-                    _error.postValue(response.body()?.message ?: "Login failed")
+                    val errorBody = response.errorBody()?.string()
+                    val errorMessage = try {
+                        val json = com.google.gson.JsonParser.parseString(errorBody).asJsonObject
+                        json.get("message")?.asString ?: "Login failed"
+                    } catch (e: Exception) {
+                        "Login failed: ${response.code()}"
+                    }
+                    _error.postValue(errorMessage)
                 }
             } catch (e: Exception) {
                 _error.postValue(e.message ?: "An unknown error occurred")
@@ -66,7 +77,14 @@ class AuthViewModel : ViewModel() {
                 if (response.isSuccessful) {
                     _registrationSuccess.postValue(response.body()?.message)
                 } else {
-                    _error.postValue(response.body()?.message ?: "Registration failed")
+                    val errorBody = response.errorBody()?.string()
+                    val errorMessage = try {
+                        val json = com.google.gson.JsonParser.parseString(errorBody).asJsonObject
+                        json.get("message")?.asString ?: "Registration failed"
+                    } catch (e: Exception) {
+                        "Registration failed: ${response.code()}"
+                    }
+                    _error.postValue(errorMessage)
                 }
             } catch (e: Exception) {
                 _error.postValue(e.message ?: "An unknown error occurred")

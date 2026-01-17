@@ -10,14 +10,48 @@ use Illuminate\Support\Facades\DB;
 
 class SantriController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(Santri::with(['kelas', 'jurusan', 'wali'])->paginate(15));
+        $search = $request->query('search');
+        $query = Santri::with(['kelas', 'jurusan', 'wali']);
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('nama_lengkap', 'LIKE', "%{$search}%")
+                    ->orWhere('nis', 'LIKE', "%{$search}%");
+            });
+        }
+
+        $paginated = $query->paginate(15);
+        return response()->json([
+            'success' => true,
+            'data' => $paginated->items(),
+            'meta' => [
+                'current_page' => $paginated->currentPage(),
+                'last_page' => $paginated->lastPage(),
+                'per_page' => $paginated->perPage(),
+                'total' => $paginated->total(),
+            ]
+        ]);
     }
 
     public function show($id)
     {
-        return response()->json(Santri::with(['kelas', 'jurusan', 'wali', 'sakit'])->findOrFail($id));
+        $santri = Santri::with(['kelas', 'jurusan', 'wali', 'sakit'])->findOrFail($id);
+
+        $stats = [
+            'total_sick_records' => $santri->sakit->count(),
+            'currently_sick' => $santri->status_kesehatan !== 'Sehat'
+        ];
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'santri' => $santri,
+                'statistics' => $stats,
+                'recent_sick_records' => $santri->sakit->take(5)
+            ]
+        ]);
     }
 
     public function store(Request $request)

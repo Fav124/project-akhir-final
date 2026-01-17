@@ -21,11 +21,11 @@ class ObatViewModel : BaseViewModel() {
     private val _message = MutableLiveData<String?>()
     val message: LiveData<String?> = _message
 
-    fun fetchObat() {
+    fun fetchObat(search: String? = null, all: Boolean? = null) {
         _isLoading.postValue(true)
         viewModelScope.launch {
             try {
-                val response = apiService.getObat(1, 100) // Fetch first 100
+                val response = apiService.getObat(1, 100, search = search, all = all)
                 if (response.isSuccessful) {
                     _obatList.postValue(response.body()?.data)
                 } else {

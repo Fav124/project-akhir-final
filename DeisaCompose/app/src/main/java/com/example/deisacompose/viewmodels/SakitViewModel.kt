@@ -21,11 +21,17 @@ class SakitViewModel : BaseViewModel() {
     private val _message = MutableLiveData<String?>()
     val message: LiveData<String?> = _message
 
-    fun fetchSakit() {
+    private val _diagnosisList = MutableLiveData<List<com.example.deisacompose.data.models.Diagnosis>>()
+    val diagnosisList: LiveData<List<com.example.deisacompose.data.models.Diagnosis>> = _diagnosisList
+
+    private val _obatList = MutableLiveData<List<com.example.deisacompose.data.models.Obat>>()
+    val obatList: LiveData<List<com.example.deisacompose.data.models.Obat>> = _obatList
+
+    fun fetchSakit(search: String? = null) {
         _isLoading.postValue(true)
         viewModelScope.launch {
             try {
-                val response = apiService.getSakit()
+                val response = apiService.getSakit(search = search)
                 if (response.isSuccessful) {
                     _sakitList.postValue(response.body()?.data)
                 } else {
@@ -118,6 +124,27 @@ class SakitViewModel : BaseViewModel() {
             } catch (e: Exception) {
                 onError(e.message ?: "Terjadi kesalahan")
             }
+        }
+    }
+    fun fetchDiagnosis() {
+        viewModelScope.launch {
+            try {
+                val response = apiService.getDiagnosis()
+                if (response.isSuccessful) {
+                    _diagnosisList.postValue(response.body()?.data)
+                }
+            } catch (e: Exception) {}
+        }
+    }
+
+    fun fetchObat() {
+        viewModelScope.launch {
+            try {
+                val response = apiService.getObat(all = true) // I should add 'all' param or just use getObat
+                if (response.isSuccessful) {
+                    _obatList.postValue(response.body()?.data)
+                }
+            } catch (e: Exception) {}
         }
     }
 

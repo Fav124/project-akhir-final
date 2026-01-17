@@ -2,60 +2,74 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\ManagementController;
-use App\Http\Controllers\Api\SantriController;
-use App\Http\Controllers\Api\ObatController;
-use App\Http\Controllers\Api\SakitController;
-use App\Http\Controllers\Api\LaporanController;
-use App\Http\Controllers\Api\ActivityLogController;
-use App\Http\Controllers\Api\AdminController;
 
-// Public Auth
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+/*
+|--------------------------------------------------------------------------
+| API Routes
+|--------------------------------------------------------------------------
+*/
 
-// Protected Routes
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+  return $request->user();
+});
+
+// Auth API
+Route::post('/login', [App\Http\Controllers\Api\AuthController::class, 'login']);
+Route::post('/register', [App\Http\Controllers\Api\AuthController::class, 'register']);
+
+// Android API Endpoints (v1)
+Route::prefix('v1')->group(function () {
+  Route::get('/obat', [App\Http\Controllers\Api\ObatController::class, 'index']);
+  Route::get('/obat/{id}', [App\Http\Controllers\Api\ObatController::class, 'show']);
+  Route::post('/obat', [App\Http\Controllers\Api\ObatController::class, 'store']);
+  Route::put('/obat/{id}', [App\Http\Controllers\Api\ObatController::class, 'update']);
+  Route::delete('/obat/{id}', [App\Http\Controllers\Api\ObatController::class, 'destroy']);
+  Route::post('/obat/{id}/use', [App\Http\Controllers\Api\ObatController::class, 'use']);
+});
+
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/user', [AuthController::class, 'user']);
-    Route::post('/logout', [AuthController::class, 'logout']);
+  Route::post('/logout', [App\Http\Controllers\Api\AuthController::class, 'logout']);
 
-    // Core Data
-    Route::apiResource('santri', SantriController::class);
-    Route::apiResource('obat', ObatController::class);
+  // Santri
+  Route::get('santri', [App\Http\Controllers\Api\SantriController::class, 'index']);
+  Route::get('santri/{id}', [App\Http\Controllers\Api\SantriController::class, 'show']);
+  Route::post('santri', [App\Http\Controllers\Api\SantriController::class, 'store']);
+  Route::put('santri/{id}', [App\Http\Controllers\Api\SantriController::class, 'update']);
+  Route::delete('santri/{id}', [App\Http\Controllers\Api\SantriController::class, 'destroy']);
 
-    // Transactions (Sakit)
-    Route::get('sakit', [SakitController::class, 'index']);
-    Route::get('sakit/{id}', [SakitController::class, 'show']);
-    Route::post('sakit', [SakitController::class, 'store']);
-    Route::post('sakit/{id}/sembuh', [SakitController::class, 'markSembuh']);
-    Route::delete('sakit/{id}', [SakitController::class, 'destroy']);
+  // Sakit
+  Route::get('sakit', [App\Http\Controllers\Api\SakitController::class, 'index']);
+  Route::get('sakit/{id}', [App\Http\Controllers\Api\SakitController::class, 'show']);
+  Route::post('sakit', [App\Http\Controllers\Api\SakitController::class, 'store']);
+  Route::put('sakit/{id}', [App\Http\Controllers\Api\SakitController::class, 'update']);
+  Route::delete('sakit/{id}', [App\Http\Controllers\Api\SakitController::class, 'destroy']);
+  Route::post('sakit/{id}/sembuh', [App\Http\Controllers\Api\SakitController::class, 'markSembuh']);
+  Route::get('santri-sakit/today', [App\Http\Controllers\Api\SakitController::class, 'today']);
 
-    // Reports & Statistics
-    Route::get('/laporan/summary', [LaporanController::class, 'getSummary']);
-    Route::get('/laporan/statistics', [LaporanController::class, 'getStatistics']);
-    Route::get('/dashboard', [LaporanController::class, 'getSummary']); // Alias for mobile dashboard
+  // Management
+  Route::prefix('management')->group(function () {
+    Route::get('users', [App\Http\Controllers\Api\AdminController::class, 'getUsers']);
+    Route::delete('users/{id}', [App\Http\Controllers\Api\AdminController::class, 'deleteUser']);
+    Route::get('pending-registrations', [App\Http\Controllers\Api\AdminController::class, 'getPendingRegistrations']);
+    Route::post('approve/{id}', [App\Http\Controllers\Api\AdminController::class, 'approveRegistration']);
+    Route::post('reject/{id}', [App\Http\Controllers\Api\AdminController::class, 'rejectRegistration']);
 
-    // Activity Logs
-    Route::get('/logs', [ActivityLogController::class, 'index']);
-    Route::post('/logs', [ActivityLogController::class, 'store']);
-    Route::get('/history', [ActivityLogController::class, 'index']); // Alias for mobile history
+    Route::get('kelas', [App\Http\Controllers\Api\ManagementController::class, 'getKelas']);
+    Route::post('kelas', [App\Http\Controllers\Api\ManagementController::class, 'addKelas']);
+    Route::delete('kelas/{id}', [App\Http\Controllers\Api\ManagementController::class, 'deleteKelas']);
 
-    // Management (Kelas, Jurusan, Diagnosis) - Generic Endpoints
-    Route::get('/management/{type}', [ManagementController::class, 'index']);
-    Route::get('/management/{type}/all', [ManagementController::class, 'all']);
-    Route::post('/management/{type}', [ManagementController::class, 'store']);
-    Route::delete('/management/{type}/{id}', [ManagementController::class, 'destroy']);
-    
-    // Global Search
-    Route::get('/search', [ManagementController::class, 'search']);
+    Route::get('jurusan', [App\Http\Controllers\Api\ManagementController::class, 'getJurusan']);
+    Route::post('jurusan', [App\Http\Controllers\Api\ManagementController::class, 'addJurusan']);
+    Route::delete('jurusan/{id}', [App\Http\Controllers\Api\ManagementController::class, 'deleteJurusan']);
 
-    // Admin & User Management
-    Route::get('/admin/registrations', [AdminController::class, 'getPendingRequests']);
-    Route::post('/admin/registrations/{id}/approve', [AdminController::class, 'approveRequest']);
-    Route::post('/admin/registrations/{id}/reject', [AdminController::class, 'rejectRequest']);
-    
-    Route::get('/users', [AdminController::class, 'getUsers']);
-    Route::post('/users/{id}/toggle-admin', [AdminController::class, 'toggleAdmin']);
-    Route::delete('/users/{id}', [AdminController::class, 'deleteUser']);
+    Route::get('diagnosis', [App\Http\Controllers\Api\ManagementController::class, 'getDiagnosis']);
+    Route::post('diagnosis', [App\Http\Controllers\Api\ManagementController::class, 'addDiagnosis']);
+    Route::delete('diagnosis/{id}', [App\Http\Controllers\Api\ManagementController::class, 'deleteDiagnosis']);
+
+    Route::get('history', [App\Http\Controllers\Api\ActivityLogController::class, 'index']);
+  });
+
+  // Laporan
+  Route::get('laporan/summary', [App\Http\Controllers\Api\LaporanController::class, 'getSummary']);
+  Route::get('reports/cases-trend', [App\Http\Controllers\Api\LaporanController::class, 'getStatistics']);
 });

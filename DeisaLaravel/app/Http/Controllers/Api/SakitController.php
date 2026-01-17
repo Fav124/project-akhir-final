@@ -12,10 +12,40 @@ use Illuminate\Support\Facades\DB;
 
 class SakitController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $records = SantriSakit::with(['santri', 'diagnoses', 'obats'])->orderBy('created_at', 'desc')->paginate(15);
-        return response()->json($records);
+        $search = $request->query('search');
+        $query = SantriSakit::with(['santri', 'diagnoses', 'obats'])->orderBy('created_at', 'desc');
+
+        if ($search) {
+            $query->whereHas('santri', function ($q) use ($search) {
+                $q->where('nama_lengkap', 'LIKE', "%{$search}%")
+                    ->orWhere('nis', 'LIKE', "%{$search}%");
+            });
+        }
+
+        $paginated = $query->paginate(15);
+        return response()->json([
+            'success' => true,
+            'data' => $paginated->items(),
+            'meta' => [
+                'current_page' => $paginated->currentPage(),
+                'last_page' => $paginated->lastPage(),
+                'per_page' => $paginated->perPage(),
+                'total' => $paginated->total(),
+            ]
+        ]);
+    }
+
+    public function today()
+    {
+        $records = SantriSakit::with(['santri', 'diagnoses', 'obats'])
+            ->whereDate('created_at', now()->today())
+            ->get();
+        return response()->json([
+            'success' => true,
+            'data' => $records
+        ]);
     }
 
     public function store(Request $request)
@@ -67,7 +97,7 @@ class SakitController extends Controller
                             'jumlah' => $usage['jumlah'],
                             'satuan' => 'Unit' // Default or fetch from Obat model
                         ]);
-                        
+
                         $obat = Obat::find($usage['obat_id']);
                         if ($obat && $obat->stok >= $usage['jumlah']) {
                             $obat->decrement('stok', $usage['jumlah']);
@@ -98,13 +128,16 @@ class SakitController extends Controller
     public function show($id)
     {
         $record = SantriSakit::with(['santri', 'diagnoses', 'obats'])->findOrFail($id);
-        return response()->json(['data' => $record]);
+        return response()->json([
+            'success' => true,
+            'data' => $record
+        ]);
     }
 
     public function markSembuh($id)
     {
         $record = SantriSakit::findOrFail($id);
-        
+
         DB::transaction(function () use ($record) {
             $record->update([
                 'status' => 'Sembuh',

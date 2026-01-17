@@ -44,7 +44,7 @@ data class LoginResponse(
 data class LoginData(
     val user: User,
     val token: String,
-    @SerializedName("token_type") val tokenType: String
+    @SerializedName("token_type") val tokenType: String? = "Bearer"
 )
 
 data class User(
@@ -54,6 +54,7 @@ data class User(
     val role: String? = null,
     val foto: String? = null,
     val phone: String? = null,
+    val status: String? = null,
     @SerializedName("is_admin") val isAdmin: Boolean = false
 )
 
@@ -156,10 +157,13 @@ data class PaginationMeta(
 // SAKIT
 // ==================
 data class SakitResponse(
-    val data: List<Sakit>
+    val success: Boolean,
+    val data: List<Sakit>,
+    val meta: PaginationMeta? = null
 )
 
 data class SakitDetailResponse(
+    val success: Boolean,
     val data: Sakit
 )
 
@@ -188,12 +192,13 @@ data class SakitRequest(
     @SerializedName("tgl_masuk") val tglMasuk: String,
     val status: String,
     @SerializedName("jenis_perawatan") val jenisPerawatan: String,
-    @SerializedName("tujuan_rujukan") val tujuanRujukan: String?, // Nullable
+    @SerializedName("tujuan_rujukan") val tujuanRujukan: String? = null,
     val gejala: String,
     val tindakan: String,
-    val catatan: String?,
-    @SerializedName("diagnosis_ids") val diagnosisIds: List<Int>?,
-    @SerializedName("obat_usage") val obatUsage: List<ObatUsageRequest>?
+    val catatan: String? = null,
+    @SerializedName("diagnosis_ids") val diagnosisIds: List<Int>? = emptyList(),
+    @SerializedName("obat_usage") val obatUsage: List<ObatUsageRequest>? = emptyList(),
+    @SerializedName("keluhan") val keluhan: String? = null // For backward compatibility
 )
 
 data class ObatUsageRequest(
@@ -250,10 +255,11 @@ data class ObatHistory(
 
 data class ObatRequest(
     @SerializedName("nama_obat") val namaObat: String,
+    @SerializedName("nama") val nama: String? = null, // Fallback for some API versions
     val kategori: String,
     val deskripsi: String? = null,
     val stok: Int,
-    @SerializedName("stok_awal") val stokAwal: Int,
+    @SerializedName("stok_awal") val stokAwal: Int? = null,
     val satuan: String,
     @SerializedName("stok_minimum") val stokMinimum: Int? = null,
     @SerializedName("harga_satuan") val harga: Double? = null,
@@ -298,15 +304,22 @@ data class JurusanResponse(val success: Boolean, val data: List<Jurusan>)
 data class SantriRequest(
     val nis: String,
     @SerializedName("nama_lengkap") val namaLengkap: String,
+    @SerializedName("nama") val nama: String? = null,
     @SerializedName("kelas_id") val kelasId: Int,
-    @SerializedName("jurusan_id") val jurusanId: Int? = null, // Optional if tied to class
+    @SerializedName("jurusan_id") val jurusanId: Int? = null,
     @SerializedName("tempat_lahir") val tempatLahir: String? = null,
     @SerializedName("tanggal_lahir") val tanggalLahir: String? = null,
     @SerializedName("jenis_kelamin") val jenisKelamin: String = "L",
     val alamat: String? = null,
+    @SerializedName("status_kesehatan") val statusKesehatan: String = "Sehat",
+    @SerializedName("riwayat_alergi") val riwayatAlergi: String? = null,
+    @SerializedName("golongan_darah") val golonganDarah: String? = null,
     @SerializedName("nama_wali") val namaWali: String? = null,
     @SerializedName("no_telp_wali") val noTelpWali: String? = null,
-    @SerializedName("hubungan_wali") val hubunganWali: String? = null
+    @SerializedName("no_hp_wali") val noHpWali: String? = null,
+    @SerializedName("hubungan_wali") val hubunganWali: String? = null,
+    @SerializedName("pekerjaan_wali") val pekerjaanWali: String? = null,
+    @SerializedName("alamat_wali") val alamatWali: String? = null
 )
 
 data class HistoryResponse(

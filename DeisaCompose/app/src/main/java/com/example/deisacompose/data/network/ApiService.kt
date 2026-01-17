@@ -36,24 +36,24 @@ interface ApiService {
     suspend fun deleteSantri(@Path("id") id: Int): Response<ApiResponse>
 
     // ================= OBAT =================
-    @GET("obat")
-    suspend fun getObat(@Query("page") page: Int = 1, @Query("per_page") perPage: Int = 10, @Query("search") search: String? = null): Response<ObatListResponse>
+    @GET("v1/obat")
+    suspend fun getObat(@Query("page") page: Int = 1, @Query("per_page") perPage: Int = 10, @Query("search") search: String? = null, @Query("all") all: Boolean? = null): Response<ObatListResponse>
 
-    @GET("obat/{id}")
+    @GET("v1/obat/{id}")
     suspend fun getObatById(@Path("id") id: Int): Response<ObatDetailResponse>
 
-    @POST("obat")
+    @POST("v1/obat")
     suspend fun createObat(@Body obat: ObatRequest): Response<ApiResponse>
 
-    @PUT("obat/{id}")
+    @PUT("v1/obat/{id}")
     suspend fun updateObat(@Path("id") id: Int, @Body obat: ObatRequest): Response<ApiResponse>
 
-    @DELETE("obat/{id}")
+    @DELETE("v1/obat/{id}")
     suspend fun deleteObat(@Path("id") id: Int): Response<ApiResponse>
 
     // ================= SAKIT =================
     @GET("sakit")
-    suspend fun getSakit(@Query("page") page: Int = 1, @Query("per_page") perPage: Int = 10): Response<SakitResponse>
+    suspend fun getSakit(@Query("page") page: Int = 1, @Query("per_page") perPage: Int = 10, @Query("search") search: String? = null): Response<SakitResponse>
 
     @GET("sakit/{id}")
     suspend fun getSakitById(@Path("id") id: Int): Response<SakitDetailResponse>

@@ -10,42 +10,43 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val DarkColorScheme = darkColorScheme(
-    primary = PrimaryGreen,
-    secondary = SecondaryGreen,
-    tertiary = Pink80,
-    background = PrimaryDark,
-    surface = SecondaryGreen,
-    onPrimary = PrimaryDark,
-    onSecondary = White,
-    onTertiary = White,
-    onBackground = White,
-    onSurface = White
+    primary = DeisaBlue,
+    secondary = DeisaBlueLight,
+    tertiary = SuccessGreen,
+    background = Color(0xFF0F172A),
+    surface = Color(0xFF1E293B),
+    onPrimary = Color.White,
+    onSecondary = DeisaBlue,
+    onTertiary = Color.White,
+    onBackground = Color.White,
+    onSurface = Color.White,
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = PrimaryDark, // Dark text/buttons on light bg
-    secondary = SecondaryGreen,
-    tertiary = Pink40,
-    background = LightGray,
-    surface = White,
-    onPrimary = White,
-    onSecondary = White,
-    onTertiary = White,
-    onBackground = PrimaryDark,
-    onSurface = PrimaryDark
+    primary = DeisaBlue,
+    secondary = DeisaBlueLight,
+    tertiary = SuccessGreen,
+    background = Slate50,
+    surface = Color.White,
+    onPrimary = Color.White,
+    onSecondary = DeisaBlue,
+    onTertiary = Color.White,
+    onBackground = Slate900,
+    onSurface = Slate700,
 )
 
 @Composable
 fun DeisaComposeTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = false, // Disable dynamic to keep brand consistency
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
@@ -53,16 +54,16 @@ fun DeisaComposeTheme(
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
+
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
-    
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.background.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
+            window.statusBarColor = colorScheme.primary.toArgb()
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
         }
     }
 

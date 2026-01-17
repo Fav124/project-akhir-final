@@ -13,7 +13,7 @@ class AdminController extends Controller
     /**
      * List all pending registration requests.
      */
-    public function getPendingRequests()
+    public function getPendingRegistrations()
     {
         $requests = RegistrationRequest::where('status', 'pending')->get();
         return response()->json(['data' => $requests]);
@@ -22,7 +22,7 @@ class AdminController extends Controller
     /**
      * Approve a registration request and create a user.
      */
-    public function approveRequest($id)
+    public function approveRegistration($id)
     {
         $regRequest = RegistrationRequest::findOrFail($id);
 
@@ -35,11 +35,13 @@ class AdminController extends Controller
             'email' => $regRequest->email,
             'password' => $regRequest->password, // Already hashed
             'role' => 'petugas', // Default role
+            'status' => 'active',
         ]);
 
         $regRequest->update(['status' => 'approved']);
 
         return response()->json([
+            'success' => true,
             'message' => 'User approved and created successfully.',
             'data' => $user
         ]);
@@ -48,12 +50,15 @@ class AdminController extends Controller
     /**
      * Reject a registration request.
      */
-    public function rejectRequest($id)
+    public function rejectRegistration($id)
     {
         $regRequest = RegistrationRequest::findOrFail($id);
         $regRequest->update(['status' => 'rejected']);
 
-        return response()->json(['message' => 'Request rejected.']);
+        return response()->json([
+            'success' => true,
+            'message' => 'Request rejected.'
+        ]);
     }
 
     /**
@@ -71,7 +76,7 @@ class AdminController extends Controller
     public function deleteUser($id)
     {
         $user = User::findOrFail($id);
-        
+
         if ($user->id === auth()->id()) {
             return response()->json(['message' => 'Cannot delete yourself.'], 400);
         }
@@ -86,7 +91,7 @@ class AdminController extends Controller
     public function toggleAdmin($id)
     {
         $user = User::findOrFail($id);
-        
+
         if ($user->id === auth()->id()) {
             return response()->json(['message' => 'Cannot change your own role.'], 400);
         }

@@ -13,18 +13,27 @@ class LaporanController extends Controller
 {
     public function getSummary()
     {
-        $totalSantri = Santri::count();
-        $totalSakit = SantriSakit::where('status', 'Sakit')->count();
-        $totalSembuh = SantriSakit::where('status', 'Sembuh')->count();
-        $lowStockObat = Obat::whereColumn('stok', '<=', 'stok_minimum')->count();
+        $totalSakit = SantriSakit::count();
+        $uniqueSantriSakit = SantriSakit::distinct('santri_id')->count('santri_id');
+        $currentlySick = SantriSakit::where('status', '!=', 'Sembuh')->count();
+
+        $byTingkat = [
+            'ringan' => SantriSakit::where('tingkat_kondisi', 'Ringan')->count(),
+            'sedang' => SantriSakit::where('tingkat_kondisi', 'Sedang')->count(),
+            'berat' => SantriSakit::where('tingkat_kondisi', 'Berat')->count(),
+        ];
 
         return response()->json([
-            'status' => 'success',
+            'success' => true,
             'data' => [
-                'total_santri' => $totalSantri,
-                'total_sakit' => $totalSakit,
-                'total_sembuh' => $totalSembuh,
-                'low_stock_obat' => $lowStockObat,
+                'summary' => [
+                    'total_sakit' => $totalSakit,
+                    'unique_santri_sakit' => $uniqueSantriSakit,
+                    'currently_sick' => $currentlySick,
+                    'by_tingkat' => $byTingkat,
+                ],
+                'top_santri' => [], // TODO: Implement if needed
+                'top_obat' => [], // TODO: Implement if needed
             ]
         ]);
     }
@@ -40,18 +49,18 @@ class LaporanController extends Controller
             ->limit(5)
             ->get();
 
-        // Monthly Sickness Trend (Last 6 Months) - MySQL compatible
+        // Monthly Sickness Trend (Last 6 Months)
         $monthlyTrend = SantriSakit::select(
-                DB::raw("DATE_FORMAT(tgl_masuk, '%Y-%m') as month"),
-                DB::raw('count(*) as count')
-            )
+            DB::raw("DATE_FORMAT(tgl_masuk, '%Y-%m') as month"),
+            DB::raw('count(*) as count')
+        )
             ->where('tgl_masuk', '>=', now()->subMonths(6))
             ->groupBy('month')
             ->orderBy('month', 'asc')
             ->get();
 
         return response()->json([
-            'status' => 'success',
+            'success' => true,
             'data' => [
                 'top_diagnoses' => $topDiagnoses,
                 'monthly_trend' => $monthlyTrend
