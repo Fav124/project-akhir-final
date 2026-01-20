@@ -126,14 +126,6 @@
             </div>
         </x-card>
     </div>
-
-    <!-- Floating Action Button -->
-    <button
-        class="fixed bottom-8 right-8 w-14 h-14 bg-deisa-blue text-white rounded-full shadow-lg hover:bg-blue-700 hover:shadow-xl hover:scale-105 transition-all flex items-center justify-center z-40 focus:outline-none focus:ring-4 focus:ring-blue-500/30">
-        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-        </svg>
-    </button>
 @endsection
 
 @push('scripts')

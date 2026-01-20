@@ -8,10 +8,10 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
+// Landing Page
+Route::get('/', [App\Http\Controllers\LandingController::class, 'index'])->name('landing');
+
 // Authentication Routes
-Route::get('/', function () {
-    return redirect()->route('login');
-});
 Route::get('/login', [App\Http\Controllers\Auth\LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [App\Http\Controllers\Auth\LoginController::class, 'login']);
 Route::get('/register', [App\Http\Controllers\Auth\RegisterController::class, 'showRegistrationForm'])->name('register');
@@ -26,6 +26,7 @@ Route::get('/dev-login', function () {
 // Admin Routes
 Route::middleware(['web'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/stats', [App\Http\Controllers\Admin\DashboardController::class, 'stats'])->name('dashboard.stats');
 
     // Protected Admin-Only Routes
     Route::middleware(['admin'])->group(function () {

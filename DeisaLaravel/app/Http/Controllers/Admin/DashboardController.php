@@ -14,13 +14,16 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $today = Carbon::today();
+        $stats = $this->getStats();
+        
+        if (request()->ajax() && request()->has('stats_only')) {
+            return response()->json([
+                'success' => true,
+                'stats' => $stats
+            ]);
+        }
 
-        // 1. Stats Cards
-        $totalPasienHariIni = SantriSakit::whereDate('created_at', $today)->count();
-        $menungguPemeriksaan = SantriSakit::where('status', 'menunggu')->count();
-        $obatKeluarHariIni = PenggunaanObat::whereDate('created_at', $today)->sum('jumlah');
-        $totalSakit = SantriSakit::where('status', 'sakit')->orWhere('status', 'Pulang')->count();
+        extract($stats);
 
         // 2. Medicine Alerts
         $criticalObatCount = Obat::whereRaw('stok <= stok_minimum')->count();
@@ -64,7 +67,35 @@ class DashboardController extends Controller
             'trendData',
             'diagLabels',
             'diagData',
-            'recentPatients'
+            'recentPatients',
+            'today'
         ));
+    }
+
+    /**
+     * Get dashboard stats for realtime updates
+     */
+    private function getStats()
+    {
+        $today = Carbon::today();
+
+        return [
+            'totalPasienHariIni' => SantriSakit::whereDate('created_at', $today)->count(),
+            'menungguPemeriksaan' => SantriSakit::where('status', 'menunggu')->count(),
+            'obatKeluarHariIni' => PenggunaanObat::whereDate('created_at', $today)->sum('jumlah'),
+            'totalSakit' => SantriSakit::whereIn('status', ['Sakit', 'Pulang'])->count(),
+            'today' => $today,
+        ];
+    }
+
+    /**
+     * API endpoint for realtime stats updates
+     */
+    public function stats()
+    {
+        return response()->json([
+            'success' => true,
+            'stats' => $this->getStats()
+        ]);
     }
 }

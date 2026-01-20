@@ -12,6 +12,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -20,12 +23,24 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.deisacompose.ui.theme.*
+import com.example.deisacompose.viewmodels.HomeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavHostController) {
+fun HomeScreen(
+    navController: NavHostController,
+    viewModel: HomeViewModel = viewModel()
+) {
+    val stats by viewModel.stats.observeAsState()
+    val isLoading by viewModel.isLoading.observeAsState(false)
+
+    LaunchedEffect(Unit) {
+        viewModel.fetchStats()
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -78,22 +93,22 @@ fun HomeScreen(navController: NavHostController) {
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 StatCard(
-                    title = "Sakit",
-                    value = "12",
+                    title = "Sedang Sakit",
+                    value = if (isLoading) "-" else (stats?.currentlySick?.toString() ?: "0"),
                     icon = Icons.Default.MedicalServices,
                     color = DangerRed,
                     modifier = Modifier.weight(1f)
                 )
                 StatCard(
                     title = "Obat",
-                    value = "45",
+                    value = if (isLoading) "-" else (stats?.obatCount?.toString() ?: "0"),
                     icon = Icons.Default.Inventory,
                     color = SuccessGreen,
                     modifier = Modifier.weight(1f)
                 )
                 StatCard(
                     title = "Santri",
-                    value = "150",
+                    value = if (isLoading) "-" else (stats?.santriCount?.toString() ?: "0"),
                     icon = Icons.Default.Groups,
                     color = DeisaBlue,
                     modifier = Modifier.weight(1f)

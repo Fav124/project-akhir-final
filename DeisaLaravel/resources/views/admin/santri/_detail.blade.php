@@ -48,6 +48,10 @@
                     </div>
                 </div>
                 <div>
+                    <label class="text-slate-400 uppercase text-[10px] font-bold">Tahun Masuk</label>
+                    <div class="font-medium text-slate-900">{{ $santri->tahun_masuk ?? '-' }}</div>
+                </div>
+                <div>
                     <label class="text-slate-400 uppercase text-[10px] font-bold">Gol. Darah</label>
                     <div class="font-medium text-slate-900">{{ $santri->golongan_darah ?? '-' }}</div>
                 </div>

@@ -103,6 +103,7 @@ data class Santri(
     @SerializedName("jenis_kelamin") val jenisKelamin: String? = null,
     @SerializedName("tempat_lahir") val tempatLahir: String? = null,
     @SerializedName("tanggal_lahir") val tanggalLahir: String? = null,
+    @SerializedName("tahun_masuk") val tahunMasuk: Int? = null,
     val alamat: String? = null,
     @SerializedName("golongan_darah") val golonganDarah: String? = null,
     val wali: Wali? = null
@@ -278,7 +279,13 @@ data class LaporanSummaryResponse(
 data class LaporanData(
     val summary: LaporanSummary,
     @SerializedName("top_santri") val topSantri: List<TopSantri>,
-    @SerializedName("top_obat") val topObat: List<TopObat>
+    @SerializedName("top_obat") val topObat: List<TopObat>,
+    @SerializedName("monthly_trend") val monthlyTrend: List<MonthlyTrend>? = null
+)
+
+data class MonthlyTrend(
+    val month: String,
+    val count: Int
 )
 
 data class LaporanSummary(
@@ -309,6 +316,7 @@ data class SantriRequest(
     @SerializedName("jurusan_id") val jurusanId: Int? = null,
     @SerializedName("tempat_lahir") val tempatLahir: String? = null,
     @SerializedName("tanggal_lahir") val tanggalLahir: String? = null,
+    @SerializedName("tahun_masuk") val tahunMasuk: Int? = null,
     @SerializedName("jenis_kelamin") val jenisKelamin: String = "L",
     val alamat: String? = null,
     @SerializedName("status_kesehatan") val statusKesehatan: String = "Sehat",

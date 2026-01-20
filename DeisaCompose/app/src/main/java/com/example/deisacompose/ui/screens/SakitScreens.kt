@@ -105,7 +105,7 @@ fun SakitScreen(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     items(sakitList) { sakit ->
-                        SakitItem(sakit) {
+                        SakitItem(sakit, viewModel) {
                             navController.navigate("sakit_form?id=${sakit.id}")
                         }
                     }
@@ -116,7 +116,37 @@ fun SakitScreen(
 }
 
 @Composable
-fun SakitItem(sakit: Sakit, onClick: () -> Unit) {
+fun SakitItem(
+    sakit: Sakit, 
+    viewModel: SakitViewModel,
+    onClick: () -> Unit
+) {
+    var showConfirmDialog by remember { mutableStateOf(false) }
+    
+    if (showConfirmDialog) {
+        AlertDialog(
+            onDismissRequest = { showConfirmDialog = false },
+            title = { Text("Konfirmasi") },
+            text = { Text("Tandai ${sakit.santri?.displayName() ?: "santri"} sebagai sembuh?") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        viewModel.markAsSembuh(sakit.id, {}, {})
+                        showConfirmDialog = false
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = SuccessGreen)
+                ) {
+                    Text("Ya, Sembuh")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showConfirmDialog = false }) {
+                    Text("Batal")
+                }
+            }
+        )
+    }
+    
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -153,19 +183,21 @@ fun SakitItem(sakit: Sakit, onClick: () -> Unit) {
             }
             Spacer(modifier = Modifier.height(12.dp))
             Text(
-                text = "Keluhan: ${sakit.keluhan ?: "-"}",
+                text = "Keluhan: ${sakit.keluhan ?: sakit.gejala ?: "-"}",
                 fontSize = 14.sp,
                 color = Slate700
             )
-            if (sakit.status != "Sembuh") {
+            if (sakit.status != "Sembuh" && sakit.tingkatKondisi != "Sembuh") {
                 Spacer(modifier = Modifier.height(12.dp))
                 Button(
-                    onClick = { /* Mark as Sembuh */ },
+                    onClick = { showConfirmDialog = true },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = SuccessGreen),
                     shape = RoundedCornerShape(8.dp),
-                    contentPadding = PaddingValues(0.dp)
+                    contentPadding = PaddingValues(vertical = 8.dp)
                 ) {
+                    Icon(Icons.Default.CheckCircle, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text("Tandai Sembuh", fontSize = 12.sp)
                 }
             }

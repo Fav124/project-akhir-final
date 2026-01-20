@@ -78,4 +78,20 @@ dependencies {
     implementation(libs.credentials)
     implementation(libs.credentials.play.services.auth)
     implementation(libs.googleid)
+
+    // Chart Library (Vico)
+    implementation(libs.vico.compose)
+    implementation(libs.vico.compose.m3)
+    implementation(libs.vico.core)
+
+    // Image Loading (Coil)
+    implementation(libs.coil.compose)
+
+    // Swipe Refresh & System UI
+    implementation(libs.accompanist.swiperefresh)
+    implementation(libs.accompanist.systemuicontroller)
+
+    // Coroutines
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.android)
 }

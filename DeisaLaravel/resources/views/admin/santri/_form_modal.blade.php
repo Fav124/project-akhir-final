@@ -86,9 +86,10 @@
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Status Kesehatan Awal</label>
                     <select name="status_kesehatan" required
                         class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500/20 focus:border-deisa-blue outline-none transition-all bg-white">
-                        <option value="sehat" {{ (isset($santri) && $santri->status_kesehatan == 'sehat') ? 'selected' : '' }}>Sehat</option>
-                        <option value="sakit" {{ (isset($santri) && $santri->status_kesehatan == 'sakit') ? 'selected' : '' }}>Sakit</option>
-                        <option value="pemulihan" {{ (isset($santri) && $santri->status_kesehatan == 'pemulihan') ? 'selected' : '' }}>Pemulihan</option>
+                        <option value="Sehat" {{ (isset($santri) && $santri->status_kesehatan == 'Sehat') ? 'selected' : '' }}>Sehat</option>
+                        <option value="Sakit" {{ (isset($santri) && $santri->status_kesehatan == 'Sakit') ? 'selected' : '' }}>Sakit</option>
+                        <option value="Rawat Inap" {{ (isset($santri) && $santri->status_kesehatan == 'Rawat Inap') ? 'selected' : '' }}>Rawat Inap</option>
+                        <option value="Pulang" {{ (isset($santri) && $santri->status_kesehatan == 'Pulang') ? 'selected' : '' }}>Pulang</option>
                     </select>
                 </div>
             </div>
@@ -106,6 +107,13 @@
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Tanggal Lahir</label>
                     <input type="date" name="tanggal_lahir" value="{{ $santri->tanggal_lahir ?? '' }}"
                         class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500/20 focus:border-deisa-blue outline-none transition-all">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Tahun Masuk Sekolah</label>
+                    <input type="number" name="tahun_masuk" value="{{ $santri->tahun_masuk ?? '' }}" min="1990" max="{{ date('Y') + 1 }}"
+                        class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500/20 focus:border-deisa-blue outline-none transition-all"
+                        placeholder="Contoh: {{ date('Y') }}">
+                    <p class="text-xs text-slate-400 mt-1">Tahun santri mulai sekolah di institusi ini</p>
                 </div>
                 <div class="md:col-span-2">
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Riwayat Alergi</label>

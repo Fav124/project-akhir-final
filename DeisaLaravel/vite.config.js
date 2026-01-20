@@ -6,13 +6,32 @@ export default defineConfig({
     plugins: [
         laravel({
             input: ['resources/css/app.css', 'resources/css/health-theme.css', 'resources/js/app.js'],
-            refresh: true,
+            refresh: [
+                'resources/views/**',
+                'app/**',
+                'routes/**',
+            ],
         }),
         tailwindcss(),
     ],
     server: {
+        host: '0.0.0.0',
+        port: 5173,
+        hmr: {
+            host: 'localhost',
+        },
         watch: {
-            ignored: ['**/storage/framework/views/**'],
+            usePolling: true,
+            ignored: ['**/storage/framework/views/**', '**/node_modules/**', '**/vendor/**'],
+        },
+    },
+    build: {
+        outDir: 'public/build',
+        manifest: true,
+        rollupOptions: {
+            input: {
+                app: 'resources/js/app.js',
+            },
         },
     },
 });

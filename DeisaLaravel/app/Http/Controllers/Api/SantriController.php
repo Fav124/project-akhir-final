@@ -79,6 +79,7 @@ class SantriController extends Controller
                     'jenis_kelamin' => $request->jenis_kelamin,
                     'tempat_lahir' => $request->tempat_lahir,
                     'tanggal_lahir' => $request->tanggal_lahir,
+                    'tahun_masuk' => $request->tahun_masuk ?? date('Y'),
                     'alamat' => $request->alamat,
                     'golongan_darah' => $request->golongan_darah,
                     'riwayat_alergi' => $request->riwayat_alergi,
@@ -109,9 +110,54 @@ class SantriController extends Controller
     public function update(Request $request, $id)
     {
         $santri = Santri::findOrFail($id);
-        // Similar update logic...
-        $santri->update($request->all());
-        return response()->json($santri);
+        
+        try {
+            return DB::transaction(function () use ($request, $santri) {
+                $santri->update([
+                    'nis' => $request->nis ?? $santri->nis,
+                    'nama_lengkap' => $request->nama_lengkap ?? $santri->nama_lengkap,
+                    'nama' => $request->nama ?? explode(' ', $request->nama_lengkap ?? $santri->nama_lengkap)[0],
+                    'kelas_id' => $request->kelas_id ?? $santri->kelas_id,
+                    'jurusan_id' => $request->jurusan_id ?? $santri->jurusan_id,
+                    'jenis_kelamin' => $request->jenis_kelamin ?? $santri->jenis_kelamin,
+                    'tempat_lahir' => $request->tempat_lahir ?? $santri->tempat_lahir,
+                    'tanggal_lahir' => $request->tanggal_lahir ?? $santri->tanggal_lahir,
+                    'tahun_masuk' => $request->tahun_masuk ?? $santri->tahun_masuk,
+                    'alamat' => $request->alamat ?? $santri->alamat,
+                    'golongan_darah' => $request->golongan_darah ?? $santri->golongan_darah,
+                    'riwayat_alergi' => $request->riwayat_alergi ?? $santri->riwayat_alergi,
+                    'status_kesehatan' => $request->status_kesehatan ?? $santri->status_kesehatan
+                ]);
+
+                // Update WaliSantri if exists
+                if ($santri->wali) {
+                    $santri->wali->update([
+                        'nama_wali' => $request->nama_wali ?? $santri->wali->nama_wali,
+                        'hubungan' => $request->hubungan_wali ?? $santri->wali->hubungan,
+                        'no_hp' => $request->no_telp_wali ?? $request->no_hp_wali ?? $santri->wali->no_hp,
+                        'pekerjaan' => $request->pekerjaan_wali ?? $santri->wali->pekerjaan,
+                        'alamat' => $request->alamat_wali ?? $santri->wali->alamat
+                    ]);
+                } elseif ($request->nama_wali) {
+                    WaliSantri::create([
+                        'santri_id' => $santri->id,
+                        'nama_wali' => $request->nama_wali ?? 'Belum Diisi',
+                        'hubungan' => $request->hubungan_wali ?? 'Wali',
+                        'no_hp' => $request->no_telp_wali ?? $request->no_hp_wali ?? '',
+                        'pekerjaan' => $request->pekerjaan_wali,
+                        'alamat' => $request->alamat_wali ?? $request->alamat
+                    ]);
+                }
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Data santri berhasil diperbarui',
+                    'data' => $santri->load(['kelas', 'jurusan', 'wali'])
+                ]);
+            });
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
     }
 
     public function destroy($id)

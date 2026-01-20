@@ -1,7 +1,5 @@
 package com.example.deisacompose.ui.screens
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -11,13 +9,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -28,9 +26,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.deisacompose.data.models.Santri
 import com.example.deisacompose.data.models.SantriRequest
+import com.example.deisacompose.ui.global.*
 import com.example.deisacompose.ui.theme.*
 import com.example.deisacompose.viewmodels.ManagementViewModel
 import com.example.deisacompose.viewmodels.SantriViewModel
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,9 +39,9 @@ fun SantriScreen(
     navController: NavHostController,
     viewModel: SantriViewModel = viewModel()
 ) {
-    var searchQuery by remember { mutableStateOf("") }
     val santriList by viewModel.santriList.observeAsState(emptyList())
     val isLoading by viewModel.isLoading.observeAsState(false)
+    val swipeRefreshState = rememberSwipeRefreshState(isLoading)
 
     LaunchedEffect(Unit) {
         viewModel.fetchSantri()
@@ -52,7 +53,7 @@ fun SantriScreen(
                 title = { Text("Data Santri", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
@@ -74,45 +75,67 @@ fun SantriScreen(
                 .padding(padding)
                 .fillMaxSize()
         ) {
-            // Search Bar
-            OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { 
-                    searchQuery = it
-                    viewModel.fetchSantri(it)
+            // Realtime Search Bar with debounce
+            RealtimeSearchBar(
+                placeholder = "Cari nama atau NIS...",
+                onSearchChange = { query ->
+                    viewModel.fetchSantri(query.ifBlank { null })
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                placeholder = { Text("Cari nama atau NIS...") },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedBorderColor = Color.Transparent,
-                    focusedBorderColor = DeisaBlue,
-                    unfocusedContainerColor = Color.White,
-                    focusedContainerColor = Color.White
-                ),
-                singleLine = true
+                modifier = Modifier.padding(16.dp),
+                focusedBorderColor = DeisaBlue
             )
 
-            if (isLoading) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = DeisaBlue)
-                }
-            } else if (santriList.isEmpty()) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Tidak ada data santri", color = Slate500)
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(santriList) { santri ->
-                        SantriItem(santri) {
-                            navController.navigate("santri_form?id=${santri.id}")
+            SwipeRefresh(
+                state = swipeRefreshState,
+                onRefresh = { viewModel.fetchSantri() }
+            ) {
+                if (isLoading && santriList.isEmpty()) {
+                    ListSkeleton(
+                        itemCount = 5,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                    )
+                } else if (santriList.isEmpty()) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            Icon(
+                                Icons.Default.People,
+                                contentDescription = null,
+                                modifier = Modifier.size(64.dp),
+                                tint = Slate500
+                            )
+                            Text(
+                                text = "Tidak ada data santri",
+                                color = Slate500,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        }
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(
+                            items = santriList,
+                            key = { it.id }
+                        ) { santri ->
+                            AnimatedCardItem(
+                                item = santri,
+                                onClick = {
+                                    navController.navigate("santri_form?id=${santri.id}")
+                                }
+                            ) {
+                                SantriItemContent(santri = santri)
+                            }
                         }
                     }
                 }
@@ -122,59 +145,74 @@ fun SantriScreen(
 }
 
 @Composable
-fun SantriItem(santri: Santri, onClick: () -> Unit) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() },
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+fun SantriItemContent(santri: Santri) {
+    Row(
+        modifier = Modifier.padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+        Surface(
+            shape = CircleShape,
+            color = DeisaBlue.copy(alpha = 0.1f),
+            modifier = Modifier.size(56.dp)
         ) {
-            Surface(
-                shape = CircleShape,
-                color = DeisaBlue.copy(alpha = 0.1f),
-                modifier = Modifier.size(48.dp)
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Text(
-                        text = (santri.displayName().firstOrNull() ?: '?').toString(),
-                        color = DeisaBlue,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.width(16.dp))
-            Column(modifier = Modifier.weight(1f)) {
+            Box(contentAlignment = Alignment.Center) {
                 Text(
-                    text = santri.displayName(),
+                    text = (santri.displayName().firstOrNull() ?: '?').toString(),
+                    color = DeisaBlue,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
-                    color = Slate900
+                    fontSize = 20.sp
                 )
+            }
+        }
+        Spacer(modifier = Modifier.width(16.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = santri.displayName(),
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                color = Slate900,
+                style = MaterialTheme.typography.titleMedium
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Text(
                     text = "NIS: ${santri.nis ?: '-'}",
                     fontSize = 13.sp,
-                    color = Slate500
+                    color = Slate500,
+                    style = MaterialTheme.typography.bodySmall
                 )
-                Text(
-                    text = santri.displayKelas(),
-                    fontSize = 12.sp,
-                    color = DeisaBlue,
-                    fontWeight = FontWeight.Medium
-                )
+                santri.tahunMasuk?.let { tahun ->
+                    Surface(
+                        shape = RoundedCornerShape(4.dp),
+                        color = DeisaBlue.copy(alpha = 0.1f)
+                    ) {
+                        Text(
+                            text = "Angkatan $tahun",
+                            fontSize = 10.sp,
+                            color = DeisaBlue,
+                            fontWeight = FontWeight.Medium,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                        )
+                    }
+                }
             }
-            Icon(
-                Icons.Default.ChevronRight,
-                contentDescription = null,
-                tint = Slate500
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = santri.displayKelas(),
+                fontSize = 12.sp,
+                color = DeisaBlue,
+                fontWeight = FontWeight.Medium,
+                style = MaterialTheme.typography.bodySmall
             )
         }
+        Icon(
+            Icons.Default.ChevronRight,
+            contentDescription = null,
+            tint = Slate500
+        )
     }
 }
 
@@ -207,12 +245,17 @@ fun SantriFormScreen(
     var noTelpWali by remember { mutableStateOf("") }
     var pekerjaanWali by remember { mutableStateOf("") }
     var alamatWali by remember { mutableStateOf("") }
+    var tahunMasuk by remember { mutableStateOf<Int?>(null) }
 
     var expandedKelas by remember { mutableStateOf(false) }
     var expandedJurusan by remember { mutableStateOf(false) }
     var expandedGender by remember { mutableStateOf(false) }
     var expandedStatus by remember { mutableStateOf(false) }
     var expandedHubungan by remember { mutableStateOf(false) }
+    var expandedTahunMasuk by remember { mutableStateOf(false) }
+    
+    val currentYear = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)
+    val tahunMasukOptions = (2010..currentYear).toList().reversed()
 
     LaunchedEffect(Unit) {
         mgmtViewModel.fetchKelas()
@@ -235,7 +278,8 @@ fun SantriFormScreen(
             tempatLahir = it.tempatLahir ?: ""
             tanggalLahir = it.tanggalLahir ?: ""
             alamat = it.alamat ?: ""
-            
+            tahunMasuk = it.tahunMasuk
+
             // From Wali
             it.wali?.let { w ->
                 namaWali = w.namaWali
@@ -251,7 +295,7 @@ fun SantriFormScreen(
                 title = { Text(if (santriId == null) "Tambah Santri" else "Edit Santri", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
                 actions = {
@@ -439,6 +483,36 @@ fun SantriFormScreen(
                 }
             }
 
+            // Tahun Masuk Selection
+            ExposedDropdownMenuBox(
+                expanded = expandedTahunMasuk,
+                onExpandedChange = { expandedTahunMasuk = !expandedTahunMasuk }
+            ) {
+                OutlinedTextField(
+                    value = tahunMasuk?.toString() ?: "Pilih Tahun Masuk",
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Tahun Masuk (Angkatan)") },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedTahunMasuk) },
+                    modifier = Modifier.menuAnchor().fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp)
+                )
+                ExposedDropdownMenu(
+                    expanded = expandedTahunMasuk,
+                    onDismissRequest = { expandedTahunMasuk = false }
+                ) {
+                    tahunMasukOptions.forEach { year ->
+                        DropdownMenuItem(
+                            text = { Text(year.toString()) },
+                            onClick = {
+                                tahunMasuk = year
+                                expandedTahunMasuk = false
+                            }
+                        )
+                    }
+                }
+            }
+
             OutlinedTextField(
                 value = riwayatAlergi,
                 onValueChange = { riwayatAlergi = it },
@@ -456,7 +530,7 @@ fun SantriFormScreen(
                 maxLines = 3
             )
 
-            Divider(modifier = Modifier.padding(vertical = 8.dp))
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
             Text("Data Wali", fontWeight = FontWeight.Bold, color = DeisaBlue)
 
             OutlinedTextField(
@@ -537,6 +611,7 @@ fun SantriFormScreen(
                         namaLengkap = namaLengkap,
                         kelasId = selectedKelasId ?: 0,
                         jurusanId = selectedJurusanId,
+                        tahunMasuk = tahunMasuk,
                         jenisKelamin = jenisKelamin,
                         statusKesehatan = statusKesehatan,
                         tempatLahir = tempatLahir,
