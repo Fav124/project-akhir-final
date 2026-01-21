@@ -37,8 +37,14 @@ fun HomeScreen(
     val stats by viewModel.stats.observeAsState()
     val isLoading by viewModel.isLoading.observeAsState(false)
 
+    val swipeRefreshState = com.google.accompanist.swiperefresh.rememberSwipeRefreshState(isRefreshing = isLoading)
+
+    // Auto-refresh every 30 seconds
     LaunchedEffect(Unit) {
-        viewModel.fetchStats()
+        while(true) {
+            viewModel.fetchStats()
+            kotlinx.coroutines.delay(30_000)
+        }
     }
 
     Scaffold(
@@ -81,69 +87,74 @@ fun HomeScreen(
         },
         containerColor = Slate50
     ) { padding ->
-        Column(
-            modifier = Modifier
-                .padding(padding)
-                .padding(16.dp)
-                .fillMaxSize()
+        com.google.accompanist.swiperefresh.SwipeRefresh(
+            state = swipeRefreshState,
+            onRefresh = { viewModel.fetchStats() },
+            modifier = Modifier.padding(padding)
         ) {
-            // Stats Row
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            Column(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxSize()
             ) {
-                StatCard(
-                    title = "Sedang Sakit",
-                    value = if (isLoading) "-" else (stats?.currentlySick?.toString() ?: "0"),
-                    icon = Icons.Default.MedicalServices,
-                    color = DangerRed,
-                    modifier = Modifier.weight(1f)
+                // Stats Row
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    StatCard(
+                        title = "Sedang Sakit",
+                        value = if (isLoading && stats == null) "-" else (stats?.currentlySick?.toString() ?: "0"),
+                        icon = Icons.Default.MedicalServices,
+                        color = DangerRed,
+                        modifier = Modifier.weight(1f)
+                    )
+                    StatCard(
+                        title = "Obat",
+                        value = if (isLoading && stats == null) "-" else (stats?.obatCount?.toString() ?: "0"),
+                        icon = Icons.Default.Inventory,
+                        color = SuccessGreen,
+                        modifier = Modifier.weight(1f)
+                    )
+                    StatCard(
+                        title = "Santri",
+                        value = if (isLoading && stats == null) "-" else (stats?.santriCount?.toString() ?: "0"),
+                        icon = Icons.Default.Groups,
+                        color = DeisaBlue,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Text(
+                    text = "Main Menu",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = Slate900
                 )
-                StatCard(
-                    title = "Obat",
-                    value = if (isLoading) "-" else (stats?.obatCount?.toString() ?: "0"),
-                    icon = Icons.Default.Inventory,
-                    color = SuccessGreen,
-                    modifier = Modifier.weight(1f)
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                val menuItems = listOf(
+                    MenuItem("Santri", "Master Data Santri", Icons.Default.Groups, "santri", DeisaBlue),
+                    MenuItem("Sakit", "Data Santri Sakit", Icons.Default.Sick, "sakit", DangerRed),
+                    MenuItem("Obat", "Inventory & Stok Obat", Icons.Default.Medication, "obat", SuccessGreen),
+                    MenuItem("Laporan", "Statistik & Laporan", Icons.Default.Assessment, "laporan", WarningOrange),
+                    MenuItem("Management", "Pengaturan App", Icons.Default.Settings, "management_list", Slate700),
+                    MenuItem("Users", "User Management", Icons.Default.ManageAccounts, "admin_users", Color.DarkGray)
                 )
-                StatCard(
-                    title = "Santri",
-                    value = if (isLoading) "-" else (stats?.santriCount?.toString() ?: "0"),
-                    icon = Icons.Default.Groups,
-                    color = DeisaBlue,
-                    modifier = Modifier.weight(1f)
-                )
-            }
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Text(
-                text = "Main Menu",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = Slate900
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            val menuItems = listOf(
-                MenuItem("Santri", "Master Data Santri", Icons.Default.Groups, "santri", DeisaBlue),
-                MenuItem("Sakit", "Data Santri Sakit", Icons.Default.Sick, "sakit", DangerRed),
-                MenuItem("Obat", "Inventory & Stok Obat", Icons.Default.Medication, "obat", SuccessGreen),
-                MenuItem("Laporan", "Statistik & Laporan", Icons.Default.Assessment, "laporan", WarningOrange),
-                MenuItem("Management", "Pengaturan App", Icons.Default.Settings, "management_list", Slate700),
-                MenuItem("Users", "User Management", Icons.Default.ManageAccounts, "admin_users", Color.DarkGray)
-            )
-
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.fillMaxSize()
-            ) {
-                items(menuItems) { item ->
-                    MenuCard(item) {
-                        navController.navigate(item.route)
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items(menuItems) { item ->
+                        MenuCard(item) {
+                            navController.navigate(item.route)
+                        }
                     }
                 }
             }

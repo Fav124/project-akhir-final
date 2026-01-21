@@ -8,20 +8,20 @@
 @endsection
 
 @section('admin-content')
-    <div class="space-y-6">
+    <div class="space-y-6" data-realtime-stats="/admin/dashboard/stats">
         <!-- Stats Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <x-stats-card title="Total Pasien Hari Ini" value="{{ $totalPasienHariIni ?? 0 }}" trend="0%"
-                trendType="neutral"
+                trendType="neutral" id="stats-patient-today" data-stat="totalPasienHariIni"
                 icon='<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>' />
 
-            <x-stats-card title="Menunggu Pemeriksaan" value="{{ $menungguPemeriksaan ?? 0 }}" trend="" trendType="neutral"
+            <x-stats-card title="Menunggu Pemeriksaan" value="{{ $menungguPemeriksaan ?? 0 }}" trend="" trendType="neutral" id="stats-waiting" data-stat="menungguPemeriksaan"
                 icon='<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>' />
 
-            <x-stats-card title="Obat Keluar" value="{{ $obatKeluarHariIni ?? 0 }}" trend="" trendType="neutral"
+            <x-stats-card title="Obat Keluar" value="{{ $obatKeluarHariIni ?? 0 }}" trend="" trendType="neutral" id="stats-medicine-out" data-stat="obatKeluarHariIni"
                 icon='<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>' />
 
-            <x-stats-card title="Santri Sakit (Total)" value="{{ $totalSakit ?? 0 }}" trend="" trendType="neutral"
+            <x-stats-card title="Santri Sakit (Total)" value="{{ $totalSakit ?? 0 }}" trend="" trendType="neutral" id="stats-total-sick" data-stat="totalSakit"
                 icon='<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>' />
         </div>
 
@@ -86,44 +86,10 @@
                 <table class="w-full text-left text-sm text-slate-600">
                     <thead class="bg-slate-50 text-slate-900 border-b border-slate-200">
                         <tr>
-                            <th class="px-4 py-3 font-semibold">Nama Santri</th>
-                            <th class="px-4 py-3 font-semibold">Kelas</th>
-                            <th class="px-4 py-3 font-semibold">Keluhan</th>
-                            <th class="px-4 py-3 font-semibold">Status</th>
-                            <th class="px-4 py-3 font-semibold">Waktu</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        @forelse($recentPatients as $sakit)
-                            <tr class="hover:bg-slate-50 transition-colors">
-                                <td class="px-4 py-3 font-medium text-slate-900">
-                                    {{ $sakit->santri?->nama_lengkap ?? 'Unknown' }}</td>
-                                <td class="px-4 py-3">{{ $sakit->santri?->kelas?->nama_kelas ?? 'N/A' }}</td>
-                                <td class="px-4 py-3">{{ Str::limit($sakit->keluhan, 30) }}</td>
-                                <td class="px-4 py-3">
-                                    @php
-                                        $statusClasses = [
-                                            'darurat' => 'bg-red-100 text-red-700',
-                                            'rawat_jalan' => 'bg-blue-100 text-blue-700',
-                                            'sakit' => 'bg-amber-100 text-amber-700',
-                                            'selesai' => 'bg-emerald-100 text-emerald-700'
-                                        ];
-                                        $cls = $statusClasses[$sakit->status] ?? 'bg-slate-100 text-slate-700';
-                                    @endphp
-                                    <span
-                                        class="px-2 py-1 rounded-full text-xs font-semibold {{ $cls }}">{{ ucfirst(str_replace('_', ' ', $sakit->status)) }}</span>
-                                </td>
-                                <td class="px-4 py-3 text-slate-500">{{ $sakit->created_at->format('H:i') }}</td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="5" class="px-4 py-8 text-center text-slate-500 italic">Belum ada pasien hari ini.
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
+                    @endforelse
+                </tbody>
                 </table>
-            </div>
+        </div>
         </x-card>
     </div>
 @endsection
