@@ -3,13 +3,15 @@ package com.example.deisacompose.viewmodels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import androidx.compose.runtime.mutableIntStateOf
 import kotlinx.coroutines.launch
 
 data class HomeStats(
     val santriCount: Int = 0,
     val sakitCount: Int = 0,
     val obatCount: Int = 0,
-    val currentlySick: Int = 0
+    val currentlySick: Int = 0,
+    val pendingApprovalCount: Int = 0
 )
 
 class HomeViewModel : BaseViewModel() {
@@ -19,6 +21,13 @@ class HomeViewModel : BaseViewModel() {
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
+
+    private val _sickThreshold = mutableIntStateOf(3)
+    val sickThreshold: Int get() = _sickThreshold.intValue
+
+    fun setSickThreshold(value: Int) {
+        _sickThreshold.intValue = value
+    }
 
     fun fetchStats() {
         _isLoading.postValue(true)
@@ -37,12 +46,17 @@ class HomeViewModel : BaseViewModel() {
                 val currentlySick = laporanResponse.body()?.data?.summary?.currentlySick ?: 0
                 val totalSakit = laporanResponse.body()?.data?.summary?.totalSakit ?: 0
 
+                // Fetch pending registrations
+                val pendingResponse = apiService.getPendingRegistrations()
+                val pendingCount = pendingResponse.body()?.data?.size ?: 0
+
                 _stats.postValue(
                     HomeStats(
                         santriCount = santriCount,
                         sakitCount = totalSakit,
                         obatCount = obatCount,
-                        currentlySick = currentlySick
+                        currentlySick = currentlySick,
+                        pendingApprovalCount = pendingCount
                     )
                 )
             } catch (e: Exception) {

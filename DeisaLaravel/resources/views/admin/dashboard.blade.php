@@ -86,8 +86,31 @@
                 <table class="w-full text-left text-sm text-slate-600">
                     <thead class="bg-slate-50 text-slate-900 border-b border-slate-200">
                         <tr>
-                    @endforelse
-                </tbody>
+                            <th class="px-4 py-3 font-semibold">Nama Santri</th>
+                            <th class="px-4 py-3 font-semibold">Status</th>
+                            <th class="px-4 py-3 font-semibold">Waktu</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        @forelse($recentPatients as $patient)
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="px-4 py-3 font-medium text-slate-900">{{ $patient->santri->nama_lengkap ?? '-' }}</td>
+                            <td class="px-4 py-3">
+                                <span class="px-2 py-1 rounded-full text-xs font-semibold
+                                    {{ $patient->status === 'Sakit' ? 'bg-red-100 text-red-700' :
+                                      ($patient->status === 'Pulang' ? 'bg-orange-100 text-orange-700' :
+                                      ($patient->status === 'Sembuh' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700')) }}">
+                                    {{ $patient->status }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-3 text-slate-500">{{ $patient->created_at->format('d M H:i') }}</td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="3" class="px-4 py-8 text-center text-slate-400">Belum ada data pasien.</td>
+                        </tr>
+                        @endforelse
+                    </tbody>
                 </table>
         </div>
         </x-card>

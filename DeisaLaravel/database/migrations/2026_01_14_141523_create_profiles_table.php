@@ -1,3 +1,4 @@
+php artisan reverb:install
 <?php
 
 use Illuminate\Database\Migrations\Migration;

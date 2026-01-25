@@ -103,7 +103,9 @@ data class Santri(
     @SerializedName("jenis_kelamin") val jenisKelamin: String? = null,
     @SerializedName("tempat_lahir") val tempatLahir: String? = null,
     @SerializedName("tanggal_lahir") val tanggalLahir: String? = null,
-    @SerializedName("tahun_masuk") val tahunMasuk: Int? = null,
+    @SerializedName("tahun_masuk") val tahunMasuk: Int? = null, // Deprecated?
+    @SerializedName("angkatan_id") val angkatanId: Int? = null,
+    val angkatan: Angkatan? = null,
     val alamat: String? = null,
     @SerializedName("golongan_darah") val golonganDarah: String? = null,
     val wali: Wali? = null
@@ -316,7 +318,7 @@ data class SantriRequest(
     @SerializedName("jurusan_id") val jurusanId: Int? = null,
     @SerializedName("tempat_lahir") val tempatLahir: String? = null,
     @SerializedName("tanggal_lahir") val tanggalLahir: String? = null,
-    @SerializedName("tahun_masuk") val tahunMasuk: Int? = null,
+    @SerializedName("angkatan_id") val angkatanId: Int? = null, // Replaces tahunMasuk
     @SerializedName("jenis_kelamin") val jenisKelamin: String = "L",
     val alamat: String? = null,
     @SerializedName("status_kesehatan") val statusKesehatan: String = "Sehat",

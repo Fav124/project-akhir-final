@@ -24,7 +24,7 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Administrator',
                 'password' => Hash::make('password'),
                 'role' => 'admin',
-                'status' => 'approved'
+                'status' => 'active'
             ]
         );
 
@@ -34,7 +34,7 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Petugas UKS',
                 'password' => Hash::make('password'),
                 'role' => 'petugas',
-                'status' => 'approved'
+                'status' => 'active'
             ]
         );
 

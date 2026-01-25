@@ -14,8 +14,8 @@ class Santri extends Model
     use HasFactory;
 
     protected $fillable = [
-        'nis', 'nama_lengkap', 'nama', 'foto', 'jenis_kelamin', 'kelas_id', 'jurusan_id',
-        'tempat_lahir', 'tanggal_lahir', 'tahun_masuk', 'alamat', 'golongan_darah', 'riwayat_alergi',
+        'nis', 'nama_lengkap', 'foto', 'jenis_kelamin', 'kelas_id', 'jurusan_id',
+        'tempat_lahir', 'tanggal_lahir', 'angkatan_id', 'alamat', 'golongan_darah', 'riwayat_alergi',
         'status_kesehatan'
     ];
 
@@ -26,6 +26,7 @@ class Santri extends Model
 
     public function kelas() { return $this->belongsTo(Kelas::class); }
     public function jurusan() { return $this->belongsTo(Jurusan::class); }
+    public function angkatan() { return $this->belongsTo(Angkatan::class); }
     public function wali() { return $this->hasOne(WaliSantri::class); }
     public function sakit() { return $this->hasMany(SantriSakit::class); }
 }

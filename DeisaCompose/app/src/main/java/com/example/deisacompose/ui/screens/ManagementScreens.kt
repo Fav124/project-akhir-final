@@ -113,12 +113,13 @@ fun ManagementScreen(
     type: String,
     viewModel: ManagementViewModel = viewModel()
 ) {
-    val items = when (type) {
-        "kelas" -> viewModel.kelasList.observeAsState(emptyList()).value.map { it.namaKelas ?: "" }
-        "jurusan" -> viewModel.jurusanList.observeAsState(emptyList()).value.map { it.namaJurusan ?: "" }
-        "diagnosis" -> viewModel.diagnosisList.observeAsState(emptyList()).value.map { it.namaPenyakit ?: "" }
-        else -> emptyList()
-    }
+    var searchQuery by remember { mutableStateOf("") }
+    val historyList by viewModel.historyList.observeAsState(emptyList())
+
+    // Simple CRUD Lists
+    val kelasList by viewModel.kelasList.observeAsState(emptyList())
+    val jurusanList by viewModel.jurusanList.observeAsState(emptyList())
+    val diagnosisList by viewModel.diagnosisList.observeAsState(emptyList())
 
     LaunchedEffect(type) {
         when (type) {
@@ -126,6 +127,15 @@ fun ManagementScreen(
             "jurusan" -> viewModel.fetchJurusan()
             "diagnosis" -> viewModel.fetchDiagnosis()
             "history" -> viewModel.fetchHistory()
+        }
+    }
+
+    val filteredHistory = remember(historyList, searchQuery) {
+        if (searchQuery.isBlank()) historyList
+        else historyList.filter { 
+            it.description?.contains(searchQuery, ignoreCase = true) == true || 
+            it.action?.contains(searchQuery, ignoreCase = true) == true ||
+            it.user?.name?.contains(searchQuery, ignoreCase = true) == true
         }
     }
 
@@ -146,28 +156,109 @@ fun ManagementScreen(
                     Icon(Icons.Default.Add, contentDescription = "Add")
                 }
             }
-        }
+        },
+        containerColor = Slate50
     ) { padding ->
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .padding(padding)
-                .fillMaxSize(),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+                .fillMaxSize()
         ) {
-            items(items) { item ->
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
+            if (type == "history") {
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    placeholder = { Text("Cari aktivitas...") },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                     shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White)
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = Color.Transparent,
+                        focusedBorderColor = DeisaBlue,
+                        unfocusedContainerColor = Color.White,
+                        focusedContainerColor = Color.White
+                    )
+                )
+
+                LazyColumn(
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Row(
-                        modifier = Modifier.padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(text = item, modifier = Modifier.weight(1f), fontWeight = FontWeight.Medium)
-                        IconButton(onClick = { /* Delete Item */ }) {
-                            Icon(Icons.Default.Delete, contentDescription = "Delete", tint = DangerRed)
+                    items(filteredHistory) { log ->
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Surface(
+                                        color = if (log.action == "CREATE") SuccessGreen.copy(alpha=0.1f) else DeisaBlue.copy(alpha=0.1f),
+                                        shape = RoundedCornerShape(4.dp)
+                                    ) {
+                                        Text(
+                                            text = log.action ?: "-",
+                                            fontSize = 10.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = if (log.action == "CREATE") SuccessGreen else DeisaBlue,
+                                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = log.user?.name ?: "System",
+                                        fontSize = 12.sp,
+                                        color = Slate500
+                                    )
+                                    Spacer(modifier = Modifier.weight(1f))
+                                    Text(
+                                        text = log.createdAt ?: "-",
+                                        fontSize = 10.sp,
+                                        color = Slate500
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = log.description ?: "-",
+                                    fontSize = 14.sp,
+                                    color = Slate900
+                                )
+                            }
+                        }
+                    }
+                }
+            } else {
+                // ... Existing logic for other types can be preserved or simplified ...
+                // For brevity, using simple list for now
+                val list = when (type) {
+                    "kelas" -> kelasList.map { it.namaKelas ?: "" }
+                    "jurusan" -> jurusanList.map { it.namaJurusan ?: "" }
+                    "diagnosis" -> diagnosisList.map { it.namaPenyakit ?: "" }
+                    else -> emptyList()
+                }
+
+                LazyColumn(
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(list) { item ->
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color.White)
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(text = item, modifier = Modifier.weight(1f), fontWeight = FontWeight.Medium)
+                                IconButton(onClick = { /* Delete Item */ }) {
+                                    Icon(Icons.Default.Delete, contentDescription = "Delete", tint = DangerRed)
+                                }
+                            }
                         }
                     }
                 }

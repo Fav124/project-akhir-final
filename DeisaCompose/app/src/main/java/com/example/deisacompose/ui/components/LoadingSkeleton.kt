@@ -1,10 +1,21 @@
 package com.example.deisacompose.ui.components
 
-import androidx.compose.animation.core.*
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -13,19 +24,20 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun ShimmerBox(
     modifier: Modifier = Modifier,
-    shape: androidx.compose.foundation.shape.Shape = RoundedCornerShape(8.dp)
+    shape: Shape = RoundedCornerShape(8.dp)
 ) {
     val shimmerColors = listOf(
         Color.Gray.copy(alpha = 0.3f),
         Color.Gray.copy(alpha = 0.1f),
         Color.Gray.copy(alpha = 0.3f)
     )
-    
+
     val transition = rememberInfiniteTransition(label = "shimmer")
     val translateAnim by transition.animateFloat(
         initialValue = 0f,
@@ -39,13 +51,13 @@ fun ShimmerBox(
         ),
         label = "translate"
     )
-    
+
     val brush = Brush.linearGradient(
         colors = shimmerColors,
         start = Offset(translateAnim, translateAnim),
         end = Offset(translateAnim + 100f, translateAnim + 100f)
     )
-    
+
     Box(
         modifier = modifier
             .background(brush, shape)
@@ -123,8 +135,8 @@ fun CardSkeleton(
 
 @Composable
 fun ListSkeleton(
-    itemCount: Int = 5,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    itemCount: Int = 5
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -141,4 +153,3 @@ fun ListSkeleton(
         }
     }
 }
-

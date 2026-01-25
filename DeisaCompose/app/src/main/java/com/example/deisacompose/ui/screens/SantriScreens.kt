@@ -1,6 +1,19 @@
 package com.example.deisacompose.ui.screens
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -10,10 +23,41 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AddAPhoto
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.People
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,8 +70,16 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.deisacompose.data.models.Santri
 import com.example.deisacompose.data.models.SantriRequest
-import com.example.deisacompose.ui.global.*
-import com.example.deisacompose.ui.theme.*
+import com.example.deisacompose.ui.components.AnimatedCardItem
+import com.example.deisacompose.ui.components.PulsingLoader
+import com.example.deisacompose.ui.components.RealtimeSearchBar
+import com.example.deisacompose.ui.components.StepIndicator
+import com.example.deisacompose.ui.theme.DangerRed
+import com.example.deisacompose.ui.theme.DeisaBlue
+import com.example.deisacompose.ui.theme.Slate100
+import com.example.deisacompose.ui.theme.Slate50
+import com.example.deisacompose.ui.theme.Slate500
+import com.example.deisacompose.ui.theme.Slate900
 import com.example.deisacompose.viewmodels.ManagementViewModel
 import com.example.deisacompose.viewmodels.SantriViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
@@ -79,7 +131,7 @@ fun SantriScreen(
             RealtimeSearchBar(
                 placeholder = "Cari nama atau NIS...",
                 onSearchChange = { query ->
-                    viewModel.fetchSantri(query.ifBlank { null })
+                    viewModel.fetchSantri(if (query.isBlank()) null else query)
                 },
                 modifier = Modifier.padding(16.dp),
                 focusedBorderColor = DeisaBlue
@@ -90,12 +142,7 @@ fun SantriScreen(
                 onRefresh = { viewModel.fetchSantri() }
             ) {
                 if (isLoading && santriList.isEmpty()) {
-                    ListSkeleton(
-                        itemCount = 5,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                    )
+                    PulsingLoader()
                 } else if (santriList.isEmpty()) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
@@ -224,10 +271,14 @@ fun SantriFormScreen(
     viewModel: SantriViewModel = viewModel(),
     mgmtViewModel: ManagementViewModel = viewModel()
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
     val santriDetail by viewModel.santriDetail.observeAsState()
     val kelasList by mgmtViewModel.kelasList.observeAsState(emptyList())
     val jurusanList by mgmtViewModel.jurusanList.observeAsState(emptyList())
+    val angkatanList by mgmtViewModel.angkatanList.observeAsState(emptyList())
 
+    // Form States
+    var currentStep by remember { mutableIntStateOf(1) }
     var nis by remember { mutableStateOf("") }
     var namaLengkap by remember { mutableStateOf("") }
     var selectedKelasId by remember { mutableStateOf<Int?>(null) }
@@ -245,28 +296,50 @@ fun SantriFormScreen(
     var noTelpWali by remember { mutableStateOf("") }
     var pekerjaanWali by remember { mutableStateOf("") }
     var alamatWali by remember { mutableStateOf("") }
-    var tahunMasuk by remember { mutableStateOf<Int?>(null) }
+    var tahunMasuk by remember { mutableStateOf<Int?>(null) } // This is now angkatan_id
 
+    // Photo
+    var selectedImageUri by remember { mutableStateOf<android.net.Uri?>(null) }
+    var photoFile by remember { mutableStateOf<java.io.File?>(null) }
+
+    val photoLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+        contract = androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri ->
+            uri?.let {
+                selectedImageUri = it
+                // Convert Uri to File
+                val inputStream = context.contentResolver.openInputStream(it)
+                val file = java.io.File(context.cacheDir, "temp_image_${System.currentTimeMillis()}.jpg")
+                inputStream?.use { input ->
+                    file.outputStream().use { output ->
+                        input.copyTo(output)
+                    }
+                }
+                photoFile = file
+            }
+        }
+    )
+
+    // Dropdown States
     var expandedKelas by remember { mutableStateOf(false) }
     var expandedJurusan by remember { mutableStateOf(false) }
     var expandedGender by remember { mutableStateOf(false) }
     var expandedStatus by remember { mutableStateOf(false) }
     var expandedHubungan by remember { mutableStateOf(false) }
     var expandedTahunMasuk by remember { mutableStateOf(false) }
-    
-    val currentYear = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)
-    val tahunMasukOptions = (2010..currentYear).toList().reversed()
+
+    // Removed old Year logic
 
     LaunchedEffect(Unit) {
         mgmtViewModel.fetchKelas()
         mgmtViewModel.fetchJurusan()
+        mgmtViewModel.fetchAngkatan()
         if (santriId != null) {
             viewModel.fetchSantriById(santriId)
         } else {
             viewModel.clearDetail()
         }
     }
-
     LaunchedEffect(santriDetail) {
         santriDetail?.let {
             nis = it.nis ?: ""
@@ -278,7 +351,7 @@ fun SantriFormScreen(
             tempatLahir = it.tempatLahir ?: ""
             tanggalLahir = it.tanggalLahir ?: ""
             alamat = it.alamat ?: ""
-            tahunMasuk = it.tahunMasuk
+            tahunMasuk = it.angkatanId
 
             // From Wali
             it.wali?.let { w ->
@@ -288,6 +361,8 @@ fun SantriFormScreen(
             }
         }
     }
+
+    val isLoadingData = kelasList.isEmpty() || jurusanList.isEmpty() || angkatanList.isEmpty()
 
     Scaffold(
         topBar = {
@@ -310,333 +385,422 @@ fun SantriFormScreen(
             )
         }
     ) { padding ->
-        Column(
-            modifier = Modifier
-                .padding(padding)
-                .padding(16.dp)
+        if (isLoadingData) {
+            Box(modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            OutlinedTextField(
-                value = nis,
-                onValueChange = { nis = it },
-                label = { Text("NIS") },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next)
-            )
-
-            OutlinedTextField(
-                value = namaLengkap,
-                onValueChange = { namaLengkap = it },
-                label = { Text("Nama Lengkap") },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next)
-            )
-
-            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                // Gender Selection
-                ExposedDropdownMenuBox(
-                    expanded = expandedGender,
-                    onExpandedChange = { expandedGender = !expandedGender },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    OutlinedTextField(
-                        value = if (jenisKelamin == "L") "Laki-laki" else "Perempuan",
-                        onValueChange = {},
-                        readOnly = true,
-                        label = { Text("Jenis Kelamin") },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedGender) },
-                        modifier = Modifier.menuAnchor().fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp)
-                    )
-                    ExposedDropdownMenu(
-                        expanded = expandedGender,
-                        onDismissRequest = { expandedGender = false }
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text("Laki-laki") },
-                            onClick = {
-                                jenisKelamin = "L"
-                                expandedGender = false
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Perempuan") },
-                            onClick = {
-                                jenisKelamin = "P"
-                                expandedGender = false
-                            }
-                        )
-                    }
-                }
-
-                // Status Selection
-                ExposedDropdownMenuBox(
-                    expanded = expandedStatus,
-                    onExpandedChange = { expandedStatus = !expandedStatus },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    OutlinedTextField(
-                        value = statusKesehatan,
-                        onValueChange = {},
-                        readOnly = true,
-                        label = { Text("Status") },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedStatus) },
-                        modifier = Modifier.menuAnchor().fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp)
-                    )
-                    ExposedDropdownMenu(
-                        expanded = expandedStatus,
-                        onDismissRequest = { expandedStatus = false }
-                    ) {
-                        listOf("Sehat", "Sakit", "Pemulihan").forEach { s ->
-                            DropdownMenuItem(
-                                text = { Text(s) },
-                                onClick = {
-                                    statusKesehatan = s
-                                    expandedStatus = false
-                                }
-                            )
-                        }
+                .padding(padding), contentAlignment = Alignment.Center) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    CircularProgressIndicator(modifier = Modifier.size(100.dp))
+                    Text("Memuat data formulir...", color = Slate500, fontSize = 12.sp)
+                    // Fallback refresh button if stuck
+                    TextButton(onClick = {
+                        mgmtViewModel.fetchKelas()
+                        mgmtViewModel.fetchJurusan()
+                        mgmtViewModel.fetchAngkatan()
+                    }) {
+                        Text("Refresh Data")
                     }
                 }
             }
-
-            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                OutlinedTextField(
-                    value = tempatLahir,
-                    onValueChange = { tempatLahir = it },
-                    label = { Text("Tempat Lahir") },
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp)
-                )
-                OutlinedTextField(
-                    value = tanggalLahir,
-                    onValueChange = { tanggalLahir = it },
-                    label = { Text("Tgl Lahir (YYYY-MM-DD)") },
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                )
-            }
-
-            // Kelas Selection
-            ExposedDropdownMenuBox(
-                expanded = expandedKelas,
-                onExpandedChange = { expandedKelas = !expandedKelas }
-            ) {
-                OutlinedTextField(
-                    value = kelasList.find { it.id == selectedKelasId }?.namaKelas ?: "",
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text("Pilih Kelas") },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedKelas) },
-                    modifier = Modifier.menuAnchor().fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
-                )
-                ExposedDropdownMenu(
-                    expanded = expandedKelas,
-                    onDismissRequest = { expandedKelas = false }
-                ) {
-                    kelasList.forEach { kelas ->
-                        DropdownMenuItem(
-                            text = { Text(kelas.namaKelas ?: "-") },
-                            onClick = {
-                                selectedKelasId = kelas.id
-                                expandedKelas = false
-                            }
-                        )
-                    }
-                }
-            }
-
-            // Jurusan Selection
-            ExposedDropdownMenuBox(
-                expanded = expandedJurusan,
-                onExpandedChange = { expandedJurusan = !expandedJurusan }
-            ) {
-                OutlinedTextField(
-                    value = jurusanList.find { it.id == selectedJurusanId }?.namaJurusan ?: "",
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text("Pilih Jurusan (Opsional)") },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedJurusan) },
-                    modifier = Modifier.menuAnchor().fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
-                )
-                ExposedDropdownMenu(
-                    expanded = expandedJurusan,
-                    onDismissRequest = { expandedJurusan = false }
-                ) {
-                    jurusanList.forEach { jurusan ->
-                        DropdownMenuItem(
-                            text = { Text(jurusan.namaJurusan ?: "-") },
-                            onClick = {
-                                selectedJurusanId = jurusan.id
-                                expandedJurusan = false
-                            }
-                        )
-                    }
-                }
-            }
-
-            // Tahun Masuk Selection
-            ExposedDropdownMenuBox(
-                expanded = expandedTahunMasuk,
-                onExpandedChange = { expandedTahunMasuk = !expandedTahunMasuk }
-            ) {
-                OutlinedTextField(
-                    value = tahunMasuk?.toString() ?: "Pilih Tahun Masuk",
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text("Tahun Masuk (Angkatan)") },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedTahunMasuk) },
-                    modifier = Modifier.menuAnchor().fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
-                )
-                ExposedDropdownMenu(
-                    expanded = expandedTahunMasuk,
-                    onDismissRequest = { expandedTahunMasuk = false }
-                ) {
-                    tahunMasukOptions.forEach { year ->
-                        DropdownMenuItem(
-                            text = { Text(year.toString()) },
-                            onClick = {
-                                tahunMasuk = year
-                                expandedTahunMasuk = false
-                            }
-                        )
-                    }
-                }
-            }
-
-            OutlinedTextField(
-                value = riwayatAlergi,
-                onValueChange = { riwayatAlergi = it },
-                label = { Text("Riwayat Alergi") },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
-            )
-
-            OutlinedTextField(
-                value = alamat,
-                onValueChange = { alamat = it },
-                label = { Text("Alamat") },
-                modifier = Modifier.fillMaxWidth().height(100.dp),
-                shape = RoundedCornerShape(12.dp),
-                maxLines = 3
-            )
-
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-            Text("Data Wali", fontWeight = FontWeight.Bold, color = DeisaBlue)
-
-            OutlinedTextField(
-                value = namaWali,
-                onValueChange = { namaWali = it },
-                label = { Text("Nama Wali") },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
-            )
-
-            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                ExposedDropdownMenuBox(
-                    expanded = expandedHubungan,
-                    onExpandedChange = { expandedHubungan = !expandedHubungan },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    OutlinedTextField(
-                        value = hubunganWali,
-                        onValueChange = {},
-                        readOnly = true,
-                        label = { Text("Hubungan") },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedHubungan) },
-                        modifier = Modifier.menuAnchor().fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp)
-                    )
-                    ExposedDropdownMenu(
-                        expanded = expandedHubungan,
-                        onDismissRequest = { expandedHubungan = false }
-                    ) {
-                        listOf("Ayah", "Ibu", "Wali", "Saudara").forEach { h ->
-                            DropdownMenuItem(
-                                text = { Text(h) },
-                                onClick = {
-                                    hubunganWali = h
-                                    expandedHubungan = false
-                                }
-                            )
-                        }
-                    }
-                }
-
-                OutlinedTextField(
-                    value = noTelpWali,
-                    onValueChange = { noTelpWali = it },
-                    label = { Text("No. HP Wali") },
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
-                )
-            }
-
-            OutlinedTextField(
-                value = pekerjaanWali,
-                onValueChange = { pekerjaanWali = it },
-                label = { Text("Pekerjaan Wali") },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
-            )
-
-            OutlinedTextField(
-                value = alamatWali,
-                onValueChange = { alamatWali = it },
-                label = { Text("Alamat Wali (Jika Beda)") },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Button(
-                onClick = {
-                    if (nis.isBlank() || namaLengkap.isBlank() || selectedKelasId == null) {
-                        // Show error or toast
-                        return@Button
-                    }
-                    val request = SantriRequest(
-                        nis = nis,
-                        namaLengkap = namaLengkap,
-                        kelasId = selectedKelasId ?: 0,
-                        jurusanId = selectedJurusanId,
-                        tahunMasuk = tahunMasuk,
-                        jenisKelamin = jenisKelamin,
-                        statusKesehatan = statusKesehatan,
-                        tempatLahir = tempatLahir,
-                        tanggalLahir = tanggalLahir,
-                        riwayatAlergi = riwayatAlergi,
-                        alamat = alamat,
-                        namaWali = namaWali,
-                        hubunganWali = hubunganWali,
-                        noTelpWali = noTelpWali,
-                        pekerjaanWali = pekerjaanWali,
-                        alamatWali = alamatWali
-                    )
-                    if (santriId == null) {
-                        viewModel.createSantri(request, { navController.navigateUp() }, {})
-                    } else {
-                        viewModel.updateSantri(santriId, request, { navController.navigateUp() }, {})
-                    }
-                },
+        } else {
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = DeisaBlue)
+                    .padding(padding)
+                    .fillMaxSize()
             ) {
-                Text("SIMPAN", fontWeight = FontWeight.Bold)
+                // Stepper Indicator
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    StepIndicator(step = 1, currentStep = currentStep, label = "Data Diri")
+                    HorizontalDivider(modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 8.dp), color = Slate100)
+                    StepIndicator(step = 2, currentStep = currentStep, label = "Wali & Detail")
+                }
+
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    if (currentStep == 1) {
+                        // === STEP 1: BASIC INFO & PHOTO ===
+
+                        // Photo Picker
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Surface(
+                                    shape = CircleShape,
+                                    color = Slate100,
+                                    modifier = Modifier
+                                        .size(100.dp)
+                                        .clickable {
+                                            photoLauncher.launch(
+                                                androidx.activity.result.PickVisualMediaRequest(
+                                                    androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly
+                                                )
+                                            )
+                                        },
+                                    border = BorderStroke(2.dp, DeisaBlue)
+                                ) {
+                                    if (selectedImageUri != null) {
+                                        coil.compose.AsyncImage(
+                                            model = selectedImageUri,
+                                            contentDescription = "Selected Photo",
+                                            contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                                            modifier = Modifier.fillMaxSize()
+                                        )
+                                    } else if (santriDetail?.foto != null) {
+                                        coil.compose.AsyncImage(
+                                            model = "http://10.0.2.2:8000/storage/${santriDetail?.foto}",
+                                            contentDescription = "Current Photo",
+                                            contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                                            modifier = Modifier.fillMaxSize()
+                                        )
+                                    } else {
+                                        Box(contentAlignment = Alignment.Center) {
+                                            Icon(Icons.Default.AddAPhoto, contentDescription = null, tint = Slate500, modifier = Modifier.size(32.dp))
+                                        }
+                                    }
+                                }
+                                Text("Foto Santri", fontSize = 12.sp, color = Slate500, modifier = Modifier.padding(top = 8.dp))
+                            }
+                        }
+
+                        OutlinedTextField(
+                            value = nis,
+                            onValueChange = { nis = it },
+                            label = { Text("NIS") },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next)
+                        )
+
+                        OutlinedTextField(
+                            value = namaLengkap,
+                            onValueChange = { namaLengkap = it },
+                            label = { Text("Nama Lengkap") },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next)
+                        )
+
+                        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                            ExposedDropdownMenuBox(
+                                expanded = expandedGender,
+                                onExpandedChange = { expandedGender = !expandedGender },
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                OutlinedTextField(
+                                    value = if (jenisKelamin == "L") "Laki-laki" else "Perempuan",
+                                    onValueChange = {},
+                                    readOnly = true,
+                                    label = { Text("JK") },
+                                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedGender) },
+                                    modifier = Modifier
+                                        .menuAnchor()
+                                        .fillMaxWidth(),
+                                    shape = RoundedCornerShape(12.dp)
+                                )
+                                ExposedDropdownMenu(
+                                    expanded = expandedGender,
+                                    onDismissRequest = { expandedGender = false }
+                                ) {
+                                    DropdownMenuItem(text = { Text("Laki-laki") }, onClick = { jenisKelamin = "L"; expandedGender = false })
+                                    DropdownMenuItem(text = { Text("Perempuan") }, onClick = { jenisKelamin = "P"; expandedGender = false })
+                                }
+                            }
+
+                            ExposedDropdownMenuBox(
+                                expanded = expandedStatus,
+                                onExpandedChange = { expandedStatus = !expandedStatus },
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                OutlinedTextField(
+                                    value = statusKesehatan,
+                                    onValueChange = {},
+                                    readOnly = true,
+                                    label = { Text("Status") },
+                                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedStatus) },
+                                    modifier = Modifier
+                                        .menuAnchor()
+                                        .fillMaxWidth(),
+                                    shape = RoundedCornerShape(12.dp)
+                                )
+                                ExposedDropdownMenu(
+                                    expanded = expandedStatus,
+                                    onDismissRequest = { expandedStatus = false }
+                                ) {
+                                    listOf("Sehat", "Sakit", "Pemulihan").forEach { s ->
+                                        DropdownMenuItem(text = { Text(s) }, onClick = { statusKesehatan = s; expandedStatus = false })
+                                    }
+                                }
+                            }
+                        }
+
+                        ExposedDropdownMenuBox(
+                            expanded = expandedKelas,
+                            onExpandedChange = { expandedKelas = !expandedKelas }
+                        ) {
+                            OutlinedTextField(
+                                value = kelasList.find { it.id == selectedKelasId }?.namaKelas ?: "",
+                                onValueChange = {},
+                                readOnly = true,
+                                label = { Text("Pilih Kelas") },
+                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedKelas) },
+                                modifier = Modifier
+                                    .menuAnchor()
+                                    .fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp)
+                            )
+                            ExposedDropdownMenu(
+                                expanded = expandedKelas,
+                                onDismissRequest = { expandedKelas = false }
+                            ) {
+                                kelasList.forEach { kelas ->
+                                    DropdownMenuItem(
+                                        text = { Text(kelas.namaKelas ?: "-") },
+                                        onClick = { selectedKelasId = kelas.id; expandedKelas = false }
+                                    )
+                                }
+                            }
+                        }
+
+                        ExposedDropdownMenuBox(
+                            expanded = expandedJurusan,
+                            onExpandedChange = { expandedJurusan = !expandedJurusan }
+                        ) {
+                            OutlinedTextField(
+                                value = jurusanList.find { it.id == selectedJurusanId }?.namaJurusan ?: "",
+                                onValueChange = {},
+                                readOnly = true,
+                                label = { Text("Pilih Jurusan") },
+                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedJurusan) },
+                                modifier = Modifier
+                                    .menuAnchor()
+                                    .fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp)
+                            )
+                            ExposedDropdownMenu(
+                                expanded = expandedJurusan,
+                                onDismissRequest = { expandedJurusan = false }
+                            ) {
+                                jurusanList.forEach { jurusan ->
+                                    DropdownMenuItem(
+                                        text = { Text(jurusan.namaJurusan ?: "-") },
+                                        onClick = { selectedJurusanId = jurusan.id; expandedJurusan = false }
+                                    )
+                                }
+                            }
+                        }
+
+                    } else {
+                        // === STEP 2: DETAILS & WALI ===
+
+                        Text("Detail Tanggal & Alamat", fontWeight = FontWeight.Bold, color = DeisaBlue)
+
+                        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                            OutlinedTextField(
+                                value = tempatLahir,
+                                onValueChange = { tempatLahir = it },
+                                label = { Text("Tempat Lahir") },
+                                modifier = Modifier.weight(1f),
+                                shape = RoundedCornerShape(12.dp)
+                            )
+                            OutlinedTextField(
+                                value = tanggalLahir,
+                                onValueChange = { tanggalLahir = it },
+                                label = { Text("Tgl Lahir") },
+                                placeholder = { Text("YYYY-MM-DD") },
+                                modifier = Modifier.weight(1f),
+                                shape = RoundedCornerShape(12.dp)
+                            )
+                        }
+
+                        ExposedDropdownMenuBox(
+                            expanded = expandedTahunMasuk,
+                            onExpandedChange = { expandedTahunMasuk = !expandedTahunMasuk }
+                        ) {
+                            OutlinedTextField(
+                                value = angkatanList.find { it.id == tahunMasuk }?.let { "${it.namaAngkatan} (${it.tahun})" } ?: "",
+                                onValueChange = {},
+                                readOnly = true,
+                                label = { Text("Pilih Angkatan") },
+                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedTahunMasuk) },
+                                modifier = Modifier
+                                    .menuAnchor()
+                                    .fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp)
+                            )
+                            ExposedDropdownMenu(
+                                expanded = expandedTahunMasuk,
+                                onDismissRequest = { expandedTahunMasuk = false }
+                            ) {
+                                angkatanList.forEach { angkatan ->
+                                    DropdownMenuItem(
+                                        text = { Text("${angkatan.namaAngkatan} (${angkatan.tahun})") },
+                                        onClick = {
+                                            tahunMasuk = angkatan.id
+                                            expandedTahunMasuk = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+
+                        OutlinedTextField(
+                            value = alamat,
+                            onValueChange = { alamat = it },
+                            label = { Text("Alamat") },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            maxLines = 3
+                        )
+
+                        OutlinedTextField(
+                            value = riwayatAlergi,
+                            onValueChange = { riwayatAlergi = it },
+                            label = { Text("Riwayat Alergi (Opsional)") },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp)
+                        )
+
+                        HorizontalDivider(color = Slate100)
+                        Text("Data Wali", fontWeight = FontWeight.Bold, color = DeisaBlue)
+
+                        OutlinedTextField(
+                            value = namaWali,
+                            onValueChange = { namaWali = it },
+                            label = { Text("Nama Wali") },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp)
+                        )
+
+                        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                            ExposedDropdownMenuBox(
+                                expanded = expandedHubungan,
+                                onExpandedChange = { expandedHubungan = !expandedHubungan },
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                OutlinedTextField(
+                                    value = hubunganWali,
+                                    onValueChange = {},
+                                    readOnly = true,
+                                    label = { Text("Hubungan") },
+                                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedHubungan) },
+                                    modifier = Modifier
+                                        .menuAnchor()
+                                        .fillMaxWidth(),
+                                    shape = RoundedCornerShape(12.dp)
+                                )
+                                ExposedDropdownMenu(
+                                    expanded = expandedHubungan,
+                                    onDismissRequest = { expandedHubungan = false }
+                                ) {
+                                    listOf("Ayah", "Ibu", "Wali", "Saudara").forEach { h ->
+                                        DropdownMenuItem(text = { Text(h) }, onClick = { hubunganWali = h; expandedHubungan = false })
+                                    }
+                                }
+                            }
+
+                            OutlinedTextField(
+                                value = noTelpWali,
+                                onValueChange = { noTelpWali = it },
+                                label = { Text("No. HP") },
+                                modifier = Modifier.weight(1f),
+                                shape = RoundedCornerShape(12.dp),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
+                            )
+                        }
+
+                        OutlinedTextField(
+                            value = pekerjaanWali,
+                            onValueChange = { pekerjaanWali = it },
+                            label = { Text("Pekerjaan") },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
+
+                // Buttons
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    if (currentStep > 1) {
+                        OutlinedButton(
+                            onClick = { currentStep-- },
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(56.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            border = BorderStroke(1.dp, DeisaBlue)
+                        ) {
+                            Text("KEMBALI")
+                        }
+                    }
+
+                    Button(
+                        onClick = {
+                            if (currentStep < 2) {
+                                // Validate Step 1
+                                if (nis.isBlank() || namaLengkap.isBlank() || selectedKelasId == null) {
+                                    // Add validation feedback here
+                                    return@Button
+                                }
+                                currentStep++
+                            } else {
+                                // Submit
+                                val request = SantriRequest(
+                                    nis = nis,
+                                    namaLengkap = namaLengkap,
+                                    kelasId = selectedKelasId ?: 0,
+                                    jurusanId = selectedJurusanId,
+                                    angkatanId = tahunMasuk, // Changed param name
+                                    jenisKelamin = jenisKelamin,
+                                    statusKesehatan = statusKesehatan,
+                                    tempatLahir = tempatLahir,
+                                    tanggalLahir = tanggalLahir,
+                                    riwayatAlergi = riwayatAlergi,
+                                    alamat = alamat,
+                                    namaWali = namaWali,
+                                    hubunganWali = hubunganWali,
+                                    noTelpWali = noTelpWali,
+                                    pekerjaanWali = pekerjaanWali,
+                                    alamatWali = alamatWali
+                                )
+                                if (santriId == null) {
+                                    viewModel.createSantri(request, photoFile, { navController.navigateUp() }, {})
+                                } else {
+                                    viewModel.updateSantri(santriId, request, photoFile, { navController.navigateUp() }, {})
+                                }
+                            }
+                        },
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(56.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = DeisaBlue)
+                    ) {
+                        Text(if (currentStep < 2) "LANJUT" else "SIMPAN")
+                    }
+                }
             }
         }
     }

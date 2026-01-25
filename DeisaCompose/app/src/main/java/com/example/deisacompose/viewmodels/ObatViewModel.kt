@@ -6,6 +6,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.deisacompose.data.models.Obat
 import com.example.deisacompose.data.models.ObatRequest
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 
 class ObatViewModel : BaseViewModel() {
 
@@ -57,12 +60,33 @@ class ObatViewModel : BaseViewModel() {
         }
     }
 
-    fun createObat(request: ObatRequest, onSuccess: () -> Unit, onError: (String) -> Unit) {
+    private fun createPartFromString(string: String): okhttp3.RequestBody {
+        return string.toRequestBody(okhttp3.MultipartBody.FORM)
+    }
+
+    fun createObat(request: ObatRequest, photoFile: java.io.File?, onSuccess: () -> Unit, onError: (String) -> Unit) {
         viewModelScope.launch {
             try {
-                val response = apiService.createObat(request)
+                val map = HashMap<String, okhttp3.RequestBody>()
+                map["nama"] = createPartFromString(request.namaObat)
+                if (!request.kategori.isNullOrBlank()) map["kategori"] = createPartFromString(request.kategori)
+                map["stok"] = createPartFromString(request.stok.toString())
+                if (request.stokAwal != null) map["stok_awal"] = createPartFromString(request.stokAwal.toString())
+                if (!request.satuan.isNullOrBlank()) map["satuan"] = createPartFromString(request.satuan)
+                request.stokMinimum?.let { map["stok_min"] = createPartFromString(it.toString()) }
+                request.harga?.let { map["harga"] = createPartFromString(it.toString()) }
+                request.tglKadaluarsa?.let { map["kadaluarsa"] = createPartFromString(it) }
+                request.lokasiPenyimpanan?.let { map["lokasi"] = createPartFromString(it.toString()) }
+                request.deskripsi?.let { map["deskripsi"] = createPartFromString(it) }
+
+                val photoPart = photoFile?.let {
+                    val requestFile = it.asRequestBody("image/*".toMediaTypeOrNull())
+                    okhttp3.MultipartBody.Part.createFormData("foto", it.name, requestFile)
+                }
+
+                val response = apiService.createObat(map, photoPart)
                 if (response.isSuccessful) {
-                    fetchObat() // Refresh list
+                    fetchObat()
                     onSuccess()
                 } else {
                     onError(response.message() ?: "Gagal menambahkan obat")
@@ -73,12 +97,28 @@ class ObatViewModel : BaseViewModel() {
         }
     }
 
-    fun updateObat(id: Int, request: ObatRequest, onSuccess: () -> Unit, onError: (String) -> Unit) {
+    fun updateObat(id: Int, request: ObatRequest, photoFile: java.io.File?, onSuccess: () -> Unit, onError: (String) -> Unit) {
         viewModelScope.launch {
             try {
-                val response = apiService.updateObat(id, request)
+                val map = HashMap<String, okhttp3.RequestBody>()
+                map["_method"] = createPartFromString("PUT")
+                map["nama"] = createPartFromString(request.namaObat)
+                if (!request.kategori.isNullOrBlank()) map["kategori"] = createPartFromString(request.kategori)
+                map["stok"] = createPartFromString(request.stok.toString())
+                request.stokMinimum?.let { map["stok_min"] = createPartFromString(it.toString()) }
+                if (!request.satuan.isNullOrBlank()) map["satuan"] = createPartFromString(request.satuan)
+                request.harga?.let { map["harga"] = createPartFromString(it.toString()) }
+                request.tglKadaluarsa?.let { map["kadaluarsa"] = createPartFromString(it) }
+                request.lokasiPenyimpanan?.let { map["lokasi"] = createPartFromString(it) }
+
+                val photoPart = photoFile?.let {
+                    val requestFile = it.asRequestBody("image/*".toMediaTypeOrNull())
+                    okhttp3.MultipartBody.Part.createFormData("foto", it.name, requestFile)
+                }
+
+                val response = apiService.updateObat(id, map, photoPart)
                 if (response.isSuccessful) {
-                    getObatById(id) // Refresh detail
+                    getObatById(id)
                     onSuccess()
                 } else {
                     onError(response.message() ?: "Gagal memperbarui obat")
@@ -99,7 +139,7 @@ class ObatViewModel : BaseViewModel() {
                 } else {
                     onError(response.message() ?: "Gagal menghapus obat")
                 }
-            } catch (e: Exception) { 
+            } catch (e: Exception) {
                 onError(e.message ?: "Terjadi kesalahan")
             }
         }

@@ -25,6 +25,7 @@ import com.example.deisacompose.data.models.Obat
 import com.example.deisacompose.data.models.ObatRequest
 import com.example.deisacompose.ui.theme.*
 import com.example.deisacompose.viewmodels.ObatViewModel
+import com.example.deisacompose.ui.components.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -90,9 +91,7 @@ fun ObatScreen(
             )
 
             if (isLoading) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = SuccessGreen)
-                }
+                CircularProgressIndicator()
             } else if (obatList.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text("Tidak ada data obat", color = Slate500)
@@ -166,17 +165,48 @@ fun ObatFormScreen(
     obatId: Int? = null,
     viewModel: ObatViewModel = viewModel()
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
     val obatDetail by viewModel.obatDetail.observeAsState()
 
+    // Stepper State
+    var currentStep by remember { mutableIntStateOf(1) }
+
+    // Form Data
     var namaObat by remember { mutableStateOf("") }
-    var kategori by remember { mutableStateOf("") }
+    var kategori by remember { mutableStateOf("Tablet") }
     var stok by remember { mutableStateOf("") }
-    var satuan by remember { mutableStateOf("") }
-    var stokMinimum by remember { mutableStateOf("") }
+    var satuan by remember { mutableStateOf("Tablet") }
+    var stokMinimum by remember { mutableStateOf("10") }
     var deskripsi by remember { mutableStateOf("") }
     var harga by remember { mutableStateOf("") }
     var kadaluarsa by remember { mutableStateOf("") }
     var lokasi by remember { mutableStateOf("") }
+
+    // Photo
+    var selectedImageUri by remember { mutableStateOf<android.net.Uri?>(null) }
+    var photoFile by remember { mutableStateOf<java.io.File?>(null) }
+
+    val photoLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+        contract = androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri ->
+            uri?.let {
+                selectedImageUri = it
+                // Convert Uri to File
+                val inputStream = context.contentResolver.openInputStream(it)
+                val file = java.io.File(context.cacheDir, "temp_obat_${System.currentTimeMillis()}.jpg")
+                inputStream?.use { input ->
+                    file.outputStream().use { output ->
+                        input.copyTo(output)
+                    }
+                }
+                photoFile = file
+            }
+        }
+    )
+
+    // Dropdowns
+    var expandedKategori by remember { mutableStateOf(false) }
+    var expandedSatuan by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         if (obatId != null) {
@@ -189,10 +219,10 @@ fun ObatFormScreen(
     LaunchedEffect(obatDetail) {
         obatDetail?.let {
             namaObat = it.namaObat
-            kategori = it.kategori ?: ""
+            kategori = it.kategori ?: "Tablet"
             stok = it.stok.toString()
-            satuan = it.satuan ?: ""
-            stokMinimum = it.stokMinimum?.toString() ?: ""
+            satuan = it.satuan ?: "Tablet"
+            stokMinimum = it.stokMinimum?.toString() ?: "10"
             deskripsi = it.deskripsi ?: ""
             harga = it.harga?.toString() ?: ""
             kadaluarsa = it.tglKadaluarsa ?: ""
@@ -215,117 +245,249 @@ fun ObatFormScreen(
         Column(
             modifier = Modifier
                 .padding(padding)
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .fillMaxSize()
         ) {
-            OutlinedTextField(
-                value = namaObat,
-                onValueChange = { namaObat = it },
-                label = { Text("Nama Obat") },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
-            )
-
-            OutlinedTextField(
-                value = kategori,
-                onValueChange = { kategori = it },
-                label = { Text("Kategori") },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
-            )
-
-            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                OutlinedTextField(
-                    value = stok,
-                    onValueChange = { stok = it },
-                    label = { Text("Stok") },
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp)
-                )
-                OutlinedTextField(
-                    value = satuan,
-                    onValueChange = { satuan = it },
-                    label = { Text("Satuan") },
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp)
-                )
-            }
-
-            OutlinedTextField(
-                value = stokMinimum,
-                onValueChange = { stokMinimum = it },
-                label = { Text("Stok Minimum") },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                keyboardOptions =
-                    KeyboardOptions(keyboardType = KeyboardType.Number)
-            )
-
-            OutlinedTextField(
-                value = harga,
-                onValueChange = { harga = it },
-                label = { Text("Harga Satuan (Rp)") },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-            )
-
-            OutlinedTextField(
-                value = kadaluarsa,
-                onValueChange = { kadaluarsa = it },
-                label = { Text("Tanggal Kadaluarsa (YYYY-MM-DD)") },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-            )
-
-            OutlinedTextField(
-                value = lokasi,
-                onValueChange = { lokasi = it },
-                label = { Text("Lokasi Penyimpanan") },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
-            )
-
-            OutlinedTextField(
-                value = deskripsi,
-                onValueChange = { deskripsi = it },
-                label = { Text("Deskripsi") },
-                modifier = Modifier.fillMaxWidth().height(100.dp),
-                shape = RoundedCornerShape(12.dp),
-                maxLines = 3
-            )
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            Button(
-                onClick = {
-                    val request = ObatRequest(
-                        namaObat = namaObat,
-                        kategori = kategori,
-                        stok = stok.toIntOrNull() ?: 0,
-                        stokAwal = if (obatId == null) (stok.toIntOrNull() ?: 0) else null,
-                        satuan = satuan,
-                        stokMinimum = stokMinimum.toIntOrNull(),
-                        deskripsi = deskripsi,
-                        harga = harga.toDoubleOrNull(),
-                        tglKadaluarsa = kadaluarsa,
-                        lokasiPenyimpanan = lokasi
-                    )
-                    if (obatId == null) {
-                        viewModel.createObat(request, { navController.navigateUp() }, {})
-                    } else {
-                        viewModel.updateObat(obatId, request, { navController.navigateUp() }, {})
-                    }
-                },
+            // Stepper Indicator
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = SuccessGreen)
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("SIMPAN", fontWeight = FontWeight.Bold)
+                StepIndicator(step = 1, currentStep = currentStep, label = "Info Obat")
+                HorizontalDivider(modifier = Modifier.weight(1f).padding(horizontal = 8.dp), color = Slate100)
+                StepIndicator(step = 2, currentStep = currentStep, label = "Detail & Stok")
+            }
+
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                if (currentStep == 1) {
+                    // === STEP 1: INFO UTAMA & FOTO ===
+                    
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Surface(
+                                shape = RoundedCornerShape(16.dp),
+                                color = Slate100,
+                                modifier = Modifier
+                                    .size(100.dp)
+                                    .clickable {
+                                        photoLauncher.launch(
+                                            androidx.activity.result.PickVisualMediaRequest(
+                                                androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly
+                                            )
+                                        )
+                                    },
+                                border = BorderStroke(2.dp, SuccessGreen)
+                            ) {
+                                if (selectedImageUri != null) {
+                                    coil.compose.AsyncImage(
+                                        model = selectedImageUri,
+                                        contentDescription = "Selected Photo",
+                                        contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                } else if (obatDetail?.foto != null) {
+                                    coil.compose.AsyncImage(
+                                        model = "http://10.0.2.2:8000/storage/${obatDetail?.foto}",
+                                        contentDescription = "Current Photo",
+                                        contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                } else {
+                                    Box(contentAlignment = Alignment.Center) {
+                                        Icon(Icons.Default.AddPhotoAlternate, contentDescription = null, tint = Slate500, modifier = Modifier.size(32.dp))
+                                    }
+                                }
+                            }
+                            Text("Foto Obat", fontSize = 12.sp, color = Slate500, modifier = Modifier.padding(top = 8.dp))
+                        }
+                    }
+
+                    OutlinedTextField(
+                        value = namaObat,
+                        onValueChange = { namaObat = it },
+                        label = { Text("Nama Obat") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+
+                    ExposedDropdownMenuBox(
+                        expanded = expandedKategori,
+                        onExpandedChange = { expandedKategori = !expandedKategori }
+                    ) {
+                        OutlinedTextField(
+                            value = kategori,
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text("Kategori") },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedKategori) },
+                            modifier = Modifier.menuAnchor().fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        ExposedDropdownMenu(
+                            expanded = expandedKategori,
+                            onDismissRequest = { expandedKategori = false }
+                        ) {
+                            listOf("Tablet", "Sirup", "Kapsul", "Alkes", "Lainnya").forEach { k ->
+                                DropdownMenuItem(text = { Text(k) }, onClick = { kategori = k; expandedKategori = false })
+                            }
+                        }
+                    }
+
+                    OutlinedTextField(
+                        value = deskripsi,
+                        onValueChange = { deskripsi = it },
+                        label = { Text("Deskripsi") },
+                        modifier = Modifier.fillMaxWidth().height(100.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        maxLines = 3
+                    )
+                } else {
+                    // === STEP 2: DETAILS ===
+                    
+                    Text("Manajemen Stok", fontWeight = FontWeight.Bold, color = SuccessGreen)
+
+                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                        OutlinedTextField(
+                            value = stok,
+                            onValueChange = { stok = it },
+                            label = { Text("Stok Sekarang") },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(12.dp),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                        )
+                        
+                        ExposedDropdownMenuBox(
+                            expanded = expandedSatuan,
+                            onExpandedChange = { expandedSatuan = !expandedSatuan },
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            OutlinedTextField(
+                                value = satuan,
+                                onValueChange = {},
+                                readOnly = true,
+                                label = { Text("Satuan") },
+                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedSatuan) },
+                                modifier = Modifier.menuAnchor().fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp)
+                            )
+                            ExposedDropdownMenu(
+                                expanded = expandedSatuan,
+                                onDismissRequest = { expandedSatuan = false }
+                            ) {
+                                listOf("Tablet", "Kapsul", "Botol", "Strip", "Box", "Pcs").forEach { s ->
+                                    DropdownMenuItem(text = { Text(s) }, onClick = { satuan = s; expandedSatuan = false })
+                                }
+                            }
+                        }
+                    }
+
+                    OutlinedTextField(
+                        value = stokMinimum,
+                        onValueChange = { stokMinimum = it },
+                        label = { Text("Stok Minimum Alert") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    )
+                    
+                    HorizontalDivider(color = Slate100)
+                    Text("Info Tambahan", fontWeight = FontWeight.Bold, color = SuccessGreen)
+
+                    OutlinedTextField(
+                        value = harga,
+                        onValueChange = { harga = it },
+                        label = { Text("Harga Satuan (Rp)") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    )
+
+                    OutlinedTextField(
+                        value = kadaluarsa,
+                        onValueChange = { kadaluarsa = it },
+                        label = { Text("Tgl Kadaluarsa (YYYY-MM-DD)") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    )
+
+                    OutlinedTextField(
+                        value = lokasi,
+                        onValueChange = { lokasi = it },
+                        label = { Text("Lokasi Penyimpanan") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                }
+                
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+
+            // Buttons
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                if (currentStep > 1) {
+                    OutlinedButton(
+                        onClick = { currentStep-- },
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(56.dp),
+                         shape = RoundedCornerShape(12.dp),
+                         border = BorderStroke(1.dp, SuccessGreen)
+                    ) {
+                        Text("KEMBALI")
+                    }
+                }
+                
+                Button(
+                    onClick = {
+                        if (currentStep < 2) {
+                            if (namaObat.isBlank()) return@Button
+                            currentStep++
+                        } else {
+                            val request = ObatRequest(
+                                namaObat = namaObat,
+                                kategori = kategori,
+                                stok = stok.toIntOrNull() ?: 0,
+                                stokAwal = if (obatId == null) (stok.toIntOrNull() ?: 0) else null,
+                                satuan = satuan,
+                                stokMinimum = stokMinimum.toIntOrNull(),
+                                deskripsi = deskripsi,
+                                harga = harga.toDoubleOrNull(),
+                                tglKadaluarsa = kadaluarsa,
+                                lokasiPenyimpanan = lokasi
+                            )
+                            if (obatId == null) {
+                                viewModel.createObat(request, photoFile, { navController.navigateUp() }, {})
+                            } else {
+                                viewModel.updateObat(obatId, request, photoFile, { navController.navigateUp() }, {})
+                            }
+                        }
+                    },
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(56.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = SuccessGreen)
+                ) {
+                    Text(if (currentStep < 2) "LANJUT" else "SIMPAN")
+                }
             }
         }
     }

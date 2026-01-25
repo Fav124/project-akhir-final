@@ -10,7 +10,7 @@
 
 <form id="santri-stepper-form"
     action="{{ isset($santri) ? route('admin.santri.update', $santri->id) : route('admin.santri.store') }}"
-    method="POST" data-ajax="true">
+    method="POST" data-ajax="true" enctype="multipart/form-data">
     @csrf
     @if(isset($santri))
         @method('PUT')
@@ -35,6 +35,12 @@
         <!-- Step 1: Identitas Dasar -->
         <div id="step-1" class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Foto Santri</label>
+                    <input type="file" name="foto" accept="image/*"
+                        class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500/20 focus:border-deisa-blue outline-none transition-all text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-deisa-blue hover:file:bg-blue-100">
+                    <p class="text-xs text-slate-400 mt-1">Format: JPG, PNG. Max: 2MB</p>
+                </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-1">NIS / ID Santri</label>
                     <input type="text" name="nis" value="{{ $santri->nis ?? '' }}" required
@@ -109,11 +115,33 @@
                         class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500/20 focus:border-deisa-blue outline-none transition-all">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Tahun Masuk Sekolah</label>
-                    <input type="number" name="tahun_masuk" value="{{ $santri->tahun_masuk ?? '' }}" min="1990" max="{{ date('Y') + 1 }}"
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Angkatan</label>
+                    <select name="angkatan_id"
+                        class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500/20 focus:border-deisa-blue outline-none transition-all bg-white">
+                        <option value="">Pilih Angkatan</option>
+                        @foreach($angkatans as $angkatan)
+                            <option value="{{ $angkatan->id }}" {{ (isset($santri) && $santri->angkatan_id == $angkatan->id) ? 'selected' : '' }}>
+                                {{ $angkatan->nama_angkatan }} ({{ $angkatan->tahun }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Golongan Darah</label>
+                    <select name="golongan_darah"
+                        class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500/20 focus:border-deisa-blue outline-none transition-all bg-white">
+                        <option value="">Pilih Golongan Darah</option>
+                        <option value="A" {{ (isset($santri) && $santri->golongan_darah == 'A') ? 'selected' : '' }}>A</option>
+                        <option value="B" {{ (isset($santri) && $santri->golongan_darah == 'B') ? 'selected' : '' }}>B</option>
+                        <option value="AB" {{ (isset($santri) && $santri->golongan_darah == 'AB') ? 'selected' : '' }}>AB</option>
+                        <option value="O" {{ (isset($santri) && $santri->golongan_darah == 'O') ? 'selected' : '' }}>O</option>
+                    </select>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Alamat Lengkap</label>
+                    <textarea name="alamat" rows="2"
                         class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500/20 focus:border-deisa-blue outline-none transition-all"
-                        placeholder="Contoh: {{ date('Y') }}">
-                    <p class="text-xs text-slate-400 mt-1">Tahun santri mulai sekolah di institusi ini</p>
+                        placeholder="Alamat lengkap santri...">{{ $santri->alamat ?? '' }}</textarea>
                 </div>
                 <div class="md:col-span-2">
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Riwayat Alergi</label>

@@ -165,26 +165,33 @@
             <!-- Page Content -->
             <main class="flex-1 overflow-y-auto bg-slate-50 p-6 md:p-8">
                 <!-- Global Alerts -->
+                <!-- Global Alerts -->
                 @if(session('success'))
-                    <x-alert type="success" class="mb-6">
-                        {{ session('success') }}
-                    </x-alert>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            showAlert('success', "{{ session('success') }}");
+                        });
+                    </script>
                 @endif
 
                 @if(session('error'))
-                    <x-alert type="danger" class="mb-6">
-                        {{ session('error') }}
-                    </x-alert>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            showAlert('error', "{{ session('error') }}");
+                        });
+                    </script>
                 @endif
 
                 @if($errors->any())
-                    <x-alert type="danger" class="mb-6">
-                        <ul class="list-disc list-inside">
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            let messages = [];
                             @foreach($errors->all() as $error)
-                                <li>{{ $error }}</li>
+                                messages.push("{{ $error }}");
                             @endforeach
-                        </ul>
-                    </x-alert>
+                            showAlert('error', messages.join('\n'));
+                        });
+                    </script>
                 @endif
 
                 @yield('admin-content')

@@ -23,6 +23,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.*
+import com.example.deisacompose.ui.components.*
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.deisacompose.ui.theme.*
@@ -34,191 +40,263 @@ fun HomeScreen(
     navController: NavHostController,
     viewModel: HomeViewModel = viewModel()
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
     val stats by viewModel.stats.observeAsState()
     val isLoading by viewModel.isLoading.observeAsState(false)
 
-    val swipeRefreshState = com.google.accompanist.swiperefresh.rememberSwipeRefreshState(isRefreshing = isLoading)
-
-    // Auto-refresh every 30 seconds
+    // Notification Logic (Simple Polling)
     LaunchedEffect(Unit) {
+        // Notification Channel Logic should be here/MainActivity
         while(true) {
             viewModel.fetchStats()
+            // Check threshold for sickness
+            stats?.let {
+                if (it.currentlySick > 3) {
+                     // Trigger manual notification if permissions allow
+                     // For now just Log or Snackbar logic could be here
+                }
+            }
             kotlinx.coroutines.delay(30_000)
         }
     }
+    
+    // Animation State
+    var visible by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        visible = true
+    }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Column {
-                        Text(
-                            text = "Deisa Health",
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Text(
-                            text = "Admin Dashboard",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Slate500
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { navController.navigate("profile") }) {
-                        Surface(
-                            shape = CircleShape,
-                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                            modifier = Modifier.size(40.dp)
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Icon(
-                                    Icons.Default.Person,
-                                    contentDescription = "Profile",
-                                    tint = MaterialTheme.colorScheme.primary
-                                )
-                            }
-                        }
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
-            )
-        },
-        containerColor = Slate50
-    ) { padding ->
-        com.google.accompanist.swiperefresh.SwipeRefresh(
-            state = swipeRefreshState,
-            onRefresh = { viewModel.fetchStats() },
-            modifier = Modifier.padding(padding)
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+    ) {
+        // Background Gradient Blob
+        Box(
+            modifier = Modifier
+                .offset(x = (-100).dp, y = (-100).dp)
+                .size(300.dp)
+                .background(BlueStart.copy(alpha = 0.2f), CircleShape)
+        )
+         Box(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .offset(x = 100.dp, y = 100.dp)
+                .size(300.dp)
+                .background(PurpleStart.copy(alpha = 0.2f), CircleShape)
+        )
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(24.dp)
+                .verticalScroll(rememberScrollState())
         ) {
-            Column(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxSize()
+            // Header
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                // Stats Row
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    StatCard(
-                        title = "Sedang Sakit",
-                        value = if (isLoading && stats == null) "-" else (stats?.currentlySick?.toString() ?: "0"),
-                        icon = Icons.Default.MedicalServices,
-                        color = DangerRed,
-                        modifier = Modifier.weight(1f)
+                Column {
+                    Text(
+                        text = "Hello, Admin",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = Slate900
                     )
-                    StatCard(
-                        title = "Obat",
-                        value = if (isLoading && stats == null) "-" else (stats?.obatCount?.toString() ?: "0"),
-                        icon = Icons.Default.Inventory,
-                        color = SuccessGreen,
-                        modifier = Modifier.weight(1f)
-                    )
-                    StatCard(
-                        title = "Santri",
-                        value = if (isLoading && stats == null) "-" else (stats?.santriCount?.toString() ?: "0"),
-                        icon = Icons.Default.Groups,
-                        color = DeisaBlue,
-                        modifier = Modifier.weight(1f)
+                    Text(
+                        text = "Selamat Datang di Deisa Health",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Slate500
                     )
                 }
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Text(
-                    text = "Main Menu",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = Slate900
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                val menuItems = listOf(
-                    MenuItem("Santri", "Master Data Santri", Icons.Default.Groups, "santri", DeisaBlue),
-                    MenuItem("Sakit", "Data Santri Sakit", Icons.Default.Sick, "sakit", DangerRed),
-                    MenuItem("Obat", "Inventory & Stok Obat", Icons.Default.Medication, "obat", SuccessGreen),
-                    MenuItem("Laporan", "Statistik & Laporan", Icons.Default.Assessment, "laporan", WarningOrange),
-                    MenuItem("Management", "Pengaturan App", Icons.Default.Settings, "management_list", Slate700),
-                    MenuItem("Users", "User Management", Icons.Default.ManageAccounts, "admin_users", Color.DarkGray)
-                )
-
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    modifier = Modifier.fillMaxSize()
+                
+                Surface(
+                    shape = CircleShape,
+                    color = Slate100,
+                    modifier = Modifier.size(50.dp).clickable { navController.navigate("profile") },
+                    border = androidx.compose.foundation.BorderStroke(2.dp, Color.White),
+                    shadowElevation = 4.dp
                 ) {
-                    items(menuItems) { item ->
-                        MenuCard(item) {
-                            navController.navigate(item.route)
+                   Box(contentAlignment = Alignment.Center) {
+                        if (isLoading) {
+                            CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+                        } else {
+                            Icon(Icons.Default.Person, contentDescription = null, tint = Slate500)
                         }
+                   }
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Alerts Section
+            if (stats != null && (stats!!.pendingApprovalCount > 0 || stats!!.currentlySick >= viewModel.sickThreshold)) {
+                Text("Active Alerts", style = MaterialTheme.typography.titleMedium, color = DangerRed, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(12.dp))
+                
+                if (stats!!.pendingApprovalCount > 0) {
+                    AlertCard(
+                        title = "Persetujuan User",
+                        desc = "${stats!!.pendingApprovalCount} user baru menunggu persetujuan",
+                        icon = Icons.Default.PersonAdd,
+                        color = PurpleStart,
+                        onClick = { navController.navigate("admin_users") }
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
+
+                if (stats!!.currentlySick >= viewModel.sickThreshold) {
+                    AlertCard(
+                        title = "Outbreak Warning!",
+                        desc = "${stats!!.currentlySick} santri sedang sakit hari ini",
+                        icon = Icons.Default.Warning,
+                        color = DangerRed,
+                        onClick = { navController.navigate("sakit") }
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
+            }
+            
+            // Stats Section
+            AnimatedVisibility(
+                visible = visible,
+                enter = fadeIn() + slideInVertically { it / 2 }
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    GradientCard(
+                        modifier = Modifier.weight(1f).height(140.dp),
+                        colors = if (stats != null && stats!!.currentlySick >= viewModel.sickThreshold) 
+                                    listOf(DangerRed, Color(0xFF991B1B)) 
+                                 else listOf(DangerRed, OrangeEnd),
+                        onClick = { navController.navigate("sakit") }
+                    ) {
+                        Icon(Icons.Default.LocalHospital, contentDescription = null, tint = Color.White, modifier = Modifier.size(32.dp))
+                        Spacer(modifier = Modifier.weight(1f))
+                        Text("Sedang Sakit", color = Color.White.copy(alpha = 0.8f), fontSize = 12.sp)
+                        AnimatedNumber(
+                            number = stats?.currentlySick ?: 0,
+                            style = MaterialTheme.typography.displaySmall,
+                            color = Color.White
+                        )
+                    }
+
+                    GradientCard(
+                        modifier = Modifier.weight(1f).height(140.dp),
+                        colors = listOf(BlueStart, BlueEnd),
+                        onClick = { navController.navigate("santri") }
+                    ) {
+                        Icon(Icons.Default.School, contentDescription = null, tint = Color.White, modifier = Modifier.size(32.dp))
+                        Spacer(modifier = Modifier.weight(1f))
+                        Text("Total Santri", color = Color.White.copy(alpha = 0.8f), fontSize = 12.sp)
+                        AnimatedNumber(
+                            number = stats?.santriCount ?: 0,
+                            style = MaterialTheme.typography.displaySmall,
+                            color = Color.White
+                        )
                     }
                 }
             }
+            
+            Spacer(modifier = Modifier.height(24.dp))
+            
+            Text("Main Menu", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Menu Grid
+             val menuItems = listOf(
+                MenuItem("Obat", "Stok & Inventory", Icons.Default.Medication, "obat", SuccessGreen),
+                MenuItem("Laporan", "Analisa Data", Icons.Default.Analytics, "laporan", WarningOrange),
+                MenuItem("Manajemen", "Data Master", Icons.Default.Settings, "management_list", Slate700),
+                MenuItem("Settings", "Threshold & App", Icons.Default.Tune, "settings", PurpleStart)
+            )
+
+            AnimatedVisibility(
+                visible = visible,
+                enter = fadeIn(animationSpec = tween(delayMillis = 300))
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                        MenuCardPremium(menuItems[0], Modifier.weight(1f)) { navController.navigate(menuItems[0].route) }
+                        MenuCardPremium(menuItems[1], Modifier.weight(1f)) { navController.navigate(menuItems[1].route) }
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                        MenuCardPremium(menuItems[2], Modifier.weight(1f)) { navController.navigate(menuItems[2].route) }
+                        MenuCardPremium(menuItems[3], Modifier.weight(1f)) { navController.navigate(menuItems[3].route) }
+                    }
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(30.dp))
+        }
+
+        if (isLoading && stats == null) {
+            PulsingLoader()
         }
     }
 }
 
 @Composable
-fun StatCard(
+fun AlertCard(
     title: String,
-    value: String,
+    desc: String,
     icon: ImageVector,
     color: Color,
-    modifier: Modifier = Modifier
+    onClick: () -> Unit
 ) {
-    Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    Surface(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        color = color.copy(alpha = 0.1f),
+        border = androidx.compose.foundation.BorderStroke(1.dp, color.copy(alpha = 0.2f))
     ) {
-        Column(
-            modifier = Modifier.padding(12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                icon,
-                contentDescription = null,
-                tint = color,
-                modifier = Modifier.size(24.dp)
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = value, fontWeight = FontWeight.Bold, fontSize = 20.sp, color = Slate900)
-            Text(text = title, fontSize = 12.sp, color = Slate500)
+            Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(24.dp))
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(text = title, fontWeight = FontWeight.Bold, color = color, fontSize = 14.sp)
+                Text(text = desc, color = color.copy(alpha = 0.8f), fontSize = 12.sp)
+            }
+            Icon(Icons.Default.ChevronRight, contentDescription = null, tint = color)
         }
     }
 }
 
 @Composable
-fun MenuCard(item: MenuItem, onClick: () -> Unit) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() },
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+fun MenuCardPremium(item: MenuItem, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    Surface(
+        onClick = onClick,
+        modifier = modifier.height(120.dp),
+        shape = RoundedCornerShape(24.dp),
+        color = Slate50,
+        shadowElevation = 2.dp, // Subtle shadow, simpler look
+        border = androidx.compose.foundation.BorderStroke(1.dp, Slate100)
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.Start
         ) {
             Surface(
-                shape = RoundedCornerShape(12.dp),
+                shape = CircleShape,
                 color = item.color.copy(alpha = 0.1f),
-                modifier = Modifier.size(48.dp)
+                modifier = Modifier.size(40.dp)
             ) {
-                Box(contentAlignment = Alignment.Center) {
+                 Box(contentAlignment = Alignment.Center) {
                     Icon(item.icon, contentDescription = null, tint = item.color)
-                }
+                 }
             }
             Spacer(modifier = Modifier.height(12.dp))
-            Text(text = item.title, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Slate900)
-            Text(text = item.subtitle, fontSize = 10.sp, color = Slate500)
+            Text(item.title, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Slate900)
+            Text(item.subtitle, fontSize = 11.sp, color = Slate500, lineHeight = 12.sp)
         }
     }
 }

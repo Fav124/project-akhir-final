@@ -26,6 +26,7 @@ import com.example.deisacompose.data.models.SakitRequest
 import com.example.deisacompose.ui.theme.*
 import com.example.deisacompose.viewmodels.SakitViewModel
 import com.example.deisacompose.viewmodels.SantriViewModel
+import com.example.deisacompose.ui.components.*
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -91,9 +92,7 @@ fun SakitScreen(
             )
 
             if (isLoading) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = DangerRed)
-                }
+                CircularProgressIndicator()
             } else if (sakitList.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text("Tidak ada data santri sakit", color = Slate500)
@@ -241,7 +240,12 @@ fun SakitFormScreen(
     val diagnosisList by viewModel.diagnosisList.observeAsState(emptyList())
     val obatList by viewModel.obatList.observeAsState(emptyList())
 
+    // Stepper
+    var currentStep by remember { mutableIntStateOf(1) }
+
+    // Form Data
     var selectedSantriId by remember { mutableStateOf<Int?>(null) }
+    var searchQuery by remember { mutableStateOf("") }
     var keluhan by remember { mutableStateOf("") }
     var gejala by remember { mutableStateOf("") }
     var tindakan by remember { mutableStateOf("") }
@@ -254,11 +258,18 @@ fun SakitFormScreen(
     var selectedObatUsage by remember { mutableStateOf(mapOf<Int, Int>()) } // ID to Quantity
 
     var expandedSantri by remember { mutableStateOf(false) }
-    var expandedDiagnosis by remember { mutableStateOf(false) }
-    var expandedObat by remember { mutableStateOf(false) }
+    
+    // Filtered Santri List
+    val filteredSantriList = remember(searchQuery, santriList) {
+        if (searchQuery.isBlank()) santriList
+        else santriList.filter { 
+            it.displayName().contains(searchQuery, ignoreCase = true) || 
+            (it.nis?.contains(searchQuery) == true)
+        }
+    }
 
     LaunchedEffect(Unit) {
-        santriViewModel.fetchSantri()
+        santriViewModel.fetchSantri() // Ideally fetch all or handle pagination/search
         viewModel.fetchDiagnosis()
         viewModel.fetchObat()
         if (sakitId != null) {
@@ -271,6 +282,7 @@ fun SakitFormScreen(
     LaunchedEffect(sakitDetail) {
         sakitDetail?.let {
             selectedSantriId = it.santriId
+            searchQuery = it.santri?.displayName() ?: ""
             keluhan = it.keluhan ?: ""
             gejala = it.gejala ?: ""
             tindakan = it.tindakan ?: ""
@@ -294,147 +306,207 @@ fun SakitFormScreen(
         Column(
             modifier = Modifier
                 .padding(padding)
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .fillMaxSize()
         ) {
-            Text("Pilih Santri", fontWeight = FontWeight.Medium)
-            ExposedDropdownMenuBox(
-                expanded = expandedSantri,
-                onExpandedChange = { expandedSantri = !expandedSantri }
-            ) {
-                OutlinedTextField(
-                    value = santriList.find { it.id == selectedSantriId }?.displayName() ?: "Pilih Santri",
-                    onValueChange = {},
-                    readOnly = true,
-                    modifier = Modifier.menuAnchor().fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedSantri) }
-                )
-                ExposedDropdownMenu(
-                    expanded = expandedSantri,
-                    onDismissRequest = { expandedSantri = false }
-                ) {
-                    santriList.forEach { santri ->
-                        DropdownMenuItem(
-                            text = { Text(santri.displayName()) },
-                            onClick = {
-                                selectedSantriId = santri.id
-                                expandedSantri = false
-                            }
-                        )
-                    }
-                }
-            }
-
-            OutlinedTextField(
-                value = gejala,
-                onValueChange = { gejala = it },
-                label = { Text("Gejala / Keluhan") },
-                modifier = Modifier.fillMaxWidth(),
-                minLines = 3,
-                shape = RoundedCornerShape(12.dp)
-            )
-
-            OutlinedTextField(
-                value = tindakan,
-                onValueChange = { tindakan = it },
-                label = { Text("Tindakan") },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
-            )
-
-            Text("Diagnosis", fontWeight = FontWeight.Medium)
-            FlowRow(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                diagnosisList.forEach { diag ->
-                    FilterChip(
-                        selected = selectedDiagnosisIds.contains(diag.id),
-                        onClick = {
-                            selectedDiagnosisIds = if (selectedDiagnosisIds.contains(diag.id)) {
-                                selectedDiagnosisIds - diag.id
-                            } else {
-                                selectedDiagnosisIds + diag.id
-                            }
-                        },
-                        label = { Text(diag.namaPenyakit ?: "-") }
-                    )
-                }
-            }
-
-            Text("Tingkat Kondisi", fontWeight = FontWeight.Medium)
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                listOf("Ringan", "Sedang", "Berat").forEach { level ->
-                    FilterChip(
-                        selected = status == level,
-                        onClick = { status = level },
-                        label = { Text(level) }
-                    )
-                }
-            }
-
-            Text("Obat yang Digunakan", fontWeight = FontWeight.Medium)
-            obatList.forEach { obat ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(
-                        checked = selectedObatUsage.containsKey(obat.id),
-                        onCheckedChange = { checked ->
-                            selectedObatUsage = if (checked) {
-                                selectedObatUsage + (obat.id to 1)
-                            } else {
-                                selectedObatUsage - obat.id
-                            }
-                        }
-                    )
-                    Text(obat.namaObat, modifier = Modifier.weight(1f))
-                    if (selectedObatUsage.containsKey(obat.id)) {
-                        OutlinedTextField(
-                            value = selectedObatUsage[obat.id].toString(),
-                            onValueChange = { 
-                                val qty = it.toIntOrNull() ?: 1
-                                selectedObatUsage = selectedObatUsage + (obat.id to qty)
-                            },
-                            modifier = Modifier.width(60.dp),
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Button(
-                onClick = {
-                    val request = SakitRequest(
-                        santriId = selectedSantriId ?: 0,
-                        tglMasuk = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(java.util.Date()),
-                        status = status,
-                        jenisPerawatan = jenisPerawatan,
-                        tujuanRujukan = null,
-                        gejala = gejala,
-                        tindakan = tindakan,
-                        catatan = catatan,
-                        diagnosisIds = selectedDiagnosisIds.toList(),
-                        obatUsage = selectedObatUsage.map { 
-                            com.example.deisacompose.data.models.ObatUsageRequest(it.key, it.value) 
-                        }
-                    )
-                    if (sakitId == null) {
-                        viewModel.submitSakit(request, { navController.navigateUp() }, {})
-                    } else {
-                        viewModel.updateSakit(sakitId, request, { navController.navigateUp() }, {})
-                    }
-                },
+            // Stepper Indicator
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = DangerRed)
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("LAPORKAN", fontWeight = FontWeight.Bold)
+                StepIndicator(step = 1, currentStep = currentStep, label = "Santri & Gejala")
+                HorizontalDivider(modifier = Modifier.weight(1f).padding(horizontal = 8.dp), color = Slate100)
+                StepIndicator(step = 2, currentStep = currentStep, label = "Tindakan & Obat")
+            }
+
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                if (currentStep == 1) {
+                    // === STEP 1: SANTRI SELECT & GEJALA ===
+                    Text("Pilih Santri", fontWeight = FontWeight.Medium, color = DangerRed)
+                    
+                    ExposedDropdownMenuBox(
+                        expanded = expandedSantri,
+                        onExpandedChange = { expandedSantri = !expandedSantri }
+                    ) {
+                        OutlinedTextField(
+                            value = searchQuery,
+                            onValueChange = { 
+                                searchQuery = it
+                                expandedSantri = true 
+                            },
+                            label = { Text("Ketik Nama / NIS Santri") },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedSantri) },
+                            modifier = Modifier.menuAnchor().fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        ExposedDropdownMenu(
+                            expanded = expandedSantri,
+                            onDismissRequest = { expandedSantri = false }
+                        ) {
+                            if (filteredSantriList.isEmpty()) {
+                                DropdownMenuItem(text = { Text("Tidak ditemukan") }, onClick = {})
+                            } else {
+                                filteredSantriList.take(5).forEach { santri ->
+                                    val angkatanInfo = if (santri.angkatan?.tahun != null) " (${santri.angkatan.tahun})" else ""
+                                    DropdownMenuItem(
+                                        text = { 
+                                            Column {
+                                                Text(santri.displayName() + angkatanInfo, fontWeight = FontWeight.Bold)
+                                                Text(santri.nis ?: "-", fontSize = 12.sp, color = Slate500)
+                                            }
+                                        },
+                                        onClick = {
+                                            selectedSantriId = santri.id
+                                            searchQuery = santri.displayName()
+                                            expandedSantri = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    OutlinedTextField(
+                        value = gejala,
+                        onValueChange = { gejala = it },
+                        label = { Text("Gejala / Keluhan") },
+                        modifier = Modifier.fillMaxWidth(),
+                        minLines = 3,
+                        shape = RoundedCornerShape(12.dp)
+                    )
+
+                    Text("Tingkat Kondisi", fontWeight = FontWeight.Medium)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        listOf("Ringan", "Sedang", "Berat").forEach { level ->
+                            FilterChip(
+                                selected = status == level,
+                                onClick = { status = level },
+                                label = { Text(level) }
+                            )
+                        }
+                    }
+
+                } else {
+                    // === STEP 2: TINDAKAN & OBAT ===
+                    
+                    OutlinedTextField(
+                        value = tindakan,
+                        onValueChange = { tindakan = it },
+                        label = { Text("Tindakan") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+
+                    Text("Diagnosis", fontWeight = FontWeight.Medium)
+                    FlowRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        diagnosisList.forEach { diag ->
+                            FilterChip(
+                                selected = selectedDiagnosisIds.contains(diag.id),
+                                onClick = {
+                                    selectedDiagnosisIds = if (selectedDiagnosisIds.contains(diag.id)) {
+                                        selectedDiagnosisIds - diag.id
+                                    } else {
+                                        selectedDiagnosisIds + diag.id
+                                    }
+                                },
+                                label = { Text(diag.namaPenyakit ?: "-") }
+                            )
+                        }
+                    }
+
+                    Text("Obat yang Digunakan", fontWeight = FontWeight.Medium)
+                    obatList.forEach { obat ->
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Checkbox(
+                                checked = selectedObatUsage.containsKey(obat.id),
+                                onCheckedChange = { checked ->
+                                    selectedObatUsage = if (checked) {
+                                        selectedObatUsage + (obat.id to 1)
+                                    } else {
+                                        selectedObatUsage - obat.id
+                                    }
+                                }
+                            )
+                            Text(obat.namaObat, modifier = Modifier.weight(1f))
+                            if (selectedObatUsage.containsKey(obat.id)) {
+                                OutlinedTextField(
+                                    value = selectedObatUsage[obat.id].toString(),
+                                    onValueChange = { 
+                                        val qty = it.toIntOrNull() ?: 1
+                                        selectedObatUsage = selectedObatUsage + (obat.id to qty)
+                                    },
+                                    modifier = Modifier.width(60.dp),
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                                )
+                            }
+                        }
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+
+            // Buttons
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                if (currentStep > 1) {
+                    OutlinedButton(
+                        onClick = { currentStep-- },
+                        modifier = Modifier.weight(1f).height(56.dp),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text("KEMBALI")
+                    }
+                }
+                
+                Button(
+                    onClick = {
+                        if (currentStep < 2) {
+                            if (selectedSantriId == null) return@Button
+                            currentStep++
+                        } else {
+                            val request = SakitRequest(
+                                santriId = selectedSantriId ?: 0,
+                                tglMasuk = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(java.util.Date()),
+                                status = status,
+                                jenisPerawatan = jenisPerawatan,
+                                tujuanRujukan = null,
+                                gejala = gejala,
+                                tindakan = tindakan,
+                                catatan = catatan,
+                                diagnosisIds = selectedDiagnosisIds.toList(),
+                                obatUsage = selectedObatUsage.map { 
+                                    com.example.deisacompose.data.models.ObatUsageRequest(it.key, it.value) 
+                                }
+                            )
+                            if (sakitId == null) {
+                                viewModel.submitSakit(request, { navController.navigateUp() }, {})
+                            } else {
+                                viewModel.updateSakit(sakitId, request, { navController.navigateUp() }, {})
+                            }
+                        }
+                    },
+                    modifier = Modifier.weight(1f).height(56.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = DangerRed)
+                ) {
+                    Text(if (currentStep < 2) "LANJUT" else "LAPORKAN")
+                }
             }
         }
     }

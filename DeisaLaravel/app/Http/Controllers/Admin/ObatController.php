@@ -136,6 +136,7 @@ class ObatController extends Controller
                 'harga' => 'nullable|numeric',
                 'kadaluarsa' => 'nullable|date',
                 'lokasi' => 'nullable|string',
+                'foto' => 'nullable|image|max:2048',
             ]);
 
             $obat->nama_obat = $validated['nama'];
@@ -145,6 +146,15 @@ class ObatController extends Controller
             $obat->harga_satuan = $validated['harga'] ?? 0;
             $obat->tanggal_kadaluarsa = $validated['kadaluarsa'];
             $obat->lokasi_penyimpanan = $validated['lokasi'];
+
+            if ($request->hasFile('foto')) {
+                // Delete old photo if exists
+                if ($obat->foto && \Storage::disk('public')->exists($obat->foto)) {
+                    \Storage::disk('public')->delete($obat->foto);
+                }
+                $path = $request->file('foto')->store('obat-photos', 'public');
+                $obat->foto = $path;
+            }
 
             $obat->save();
 

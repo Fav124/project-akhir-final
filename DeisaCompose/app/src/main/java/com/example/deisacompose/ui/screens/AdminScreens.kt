@@ -23,6 +23,7 @@ import com.example.deisacompose.data.models.RegistrationRequest
 import com.example.deisacompose.data.models.User
 import com.example.deisacompose.ui.theme.*
 import com.example.deisacompose.viewmodels.AdminViewModel
+import com.example.deisacompose.ui.components.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,9 +52,7 @@ fun AdminRegistrationsScreen(
         containerColor = Slate50
     ) { padding ->
         if (isLoading) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = DeisaBlue)
-            }
+            PulsingLoader()
         } else if (registrations.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text("Tidak ada pendaftaran pending", color = Slate500)
@@ -152,9 +151,7 @@ fun AdminUsersScreen(
         containerColor = Slate50
     ) { padding ->
         if (isLoading) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = DeisaBlue)
-            }
+            PulsingLoader()
         } else {
             LazyColumn(
                 modifier = Modifier

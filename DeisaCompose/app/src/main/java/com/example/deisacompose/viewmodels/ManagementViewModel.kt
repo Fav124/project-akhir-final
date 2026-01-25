@@ -141,6 +141,22 @@ class ManagementViewModel : BaseViewModel() {
         }
     }
 
+    private val _angkatanList = MutableLiveData<List<Angkatan>>()
+    val angkatanList: LiveData<List<Angkatan>> = _angkatanList
+
+    fun fetchAngkatan() {
+        viewModelScope.launch {
+            try {
+                val response = apiService.getAngkatan()
+                if (response.isSuccessful) {
+                    _angkatanList.postValue(response.body()?.data)
+                }
+            } catch (e: Exception) {
+                // Handle error
+            }
+        }
+    }
+
     fun fetchHistory() {
         viewModelScope.launch {
             try {

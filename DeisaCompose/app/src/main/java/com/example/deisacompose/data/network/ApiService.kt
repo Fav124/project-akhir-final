@@ -3,6 +3,8 @@ package com.example.deisacompose.data.network
 import com.example.deisacompose.data.models.*
 import retrofit2.Response
 import retrofit2.http.*
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 
 interface ApiService {
 
@@ -26,11 +28,13 @@ interface ApiService {
     @GET("santri/{id}")
     suspend fun getSantriById(@Path("id") id: Int): Response<SantriDetailResponse>
 
+    @Multipart
     @POST("santri")
-    suspend fun createSantri(@Body santri: SantriRequest): Response<ApiResponse>
+    suspend fun createSantri(@PartMap partMap: Map<String, @JvmSuppressWildcards RequestBody>, @Part foto: MultipartBody.Part? = null): Response<ApiResponse>
 
-    @PUT("santri/{id}")
-    suspend fun updateSantri(@Path("id") id: Int, @Body santri: SantriRequest): Response<ApiResponse>
+    @Multipart
+    @POST("santri/{id}")
+    suspend fun updateSantri(@Path("id") id: Int, @PartMap partMap: Map<String, @JvmSuppressWildcards RequestBody>, @Part foto: MultipartBody.Part? = null): Response<ApiResponse>
 
     @DELETE("santri/{id}")
     suspend fun deleteSantri(@Path("id") id: Int): Response<ApiResponse>
@@ -42,11 +46,13 @@ interface ApiService {
     @GET("v1/obat/{id}")
     suspend fun getObatById(@Path("id") id: Int): Response<ObatDetailResponse>
 
+    @Multipart
     @POST("v1/obat")
-    suspend fun createObat(@Body obat: ObatRequest): Response<ApiResponse>
+    suspend fun createObat(@PartMap partMap: Map<String, @JvmSuppressWildcards RequestBody>, @Part foto: MultipartBody.Part? = null): Response<ApiResponse>
 
-    @PUT("v1/obat/{id}")
-    suspend fun updateObat(@Path("id") id: Int, @Body obat: ObatRequest): Response<ApiResponse>
+    @Multipart
+    @POST("v1/obat/{id}")
+    suspend fun updateObat(@Path("id") id: Int, @PartMap partMap: Map<String, @JvmSuppressWildcards RequestBody>, @Part foto: MultipartBody.Part? = null): Response<ApiResponse>
 
     @DELETE("v1/obat/{id}")
     suspend fun deleteObat(@Path("id") id: Int): Response<ApiResponse>
@@ -116,6 +122,9 @@ interface ApiService {
     @GET("management/history")
     suspend fun getHistory(): Response<HistoryResponse>
     
+    @GET("management/angkatan")
+    suspend fun getAngkatan(): Response<DataResponse<List<Angkatan>>>
+
     // ================= LAPORAN =================
     @GET("laporan/summary")
     suspend fun getLaporanSummary(): Response<LaporanSummaryResponse>

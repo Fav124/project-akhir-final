@@ -32,6 +32,7 @@ class SantriController extends Controller
         $santris = $query->latest()->paginate(10);
         $classes = Kelas::all();
         $jurusans = \App\Models\Jurusan::all();
+        $angkatans = \App\Models\Angkatan::orderBy('tahun', 'desc')->get();
 
         if ($request->ajax() && $request->has('search')) {
             return "<div id=\"table-container\">" . view('admin.santri._table', compact('santris'))->render() . "</div>";
@@ -41,7 +42,7 @@ class SantriController extends Controller
             return view('admin.santri._table', compact('santris'));
         }
 
-        return view('admin.santri.index', compact('santris', 'classes', 'jurusans'));
+        return view('admin.santri.index', compact('santris', 'classes', 'jurusans', 'angkatans'));
     }
 
     public function show($id)
@@ -57,10 +58,11 @@ class SantriController extends Controller
     {
         $classes = Kelas::all();
         $jurusans = \App\Models\Jurusan::all();
+        $angkatans = \App\Models\Angkatan::orderBy('tahun', 'desc')->get();
         if (request()->ajax()) {
-            return view('admin.santri._form_modal', compact('classes', 'jurusans'));
+            return view('admin.santri._form_modal', compact('classes', 'jurusans', 'angkatans'));
         }
-        return view('admin.santri.create', compact('classes', 'jurusans'));
+        return view('admin.santri.create', compact('classes', 'jurusans', 'angkatans'));
     }
 
     public function store(Request $request)
@@ -74,20 +76,27 @@ class SantriController extends Controller
             'status_kesehatan' => 'required|in:Sehat,Sakit,Rawat Inap,Pulang',
             'tempat_lahir' => 'nullable|string|max:255',
             'tanggal_lahir' => 'nullable|date',
-            'tahun_masuk' => 'nullable|integer|min:1990|max:' . (date('Y') + 1),
+            'angkatan_id' => 'nullable|exists:angkatans,id',
             'alamat' => 'nullable|string|max:500',
             'golongan_darah' => 'nullable|in:A,B,AB,O',
             'riwayat_alergi' => 'nullable|string',
             // Wali fields
             'nama_wali' => 'nullable|string|max:255',
-            'hubungan' => 'nullable|string|max:100',
-            'no_hp' => 'nullable|string|max:20',
+            'hubungan' => 'nullable|required_with:nama_wali|string|max:100',
+            'no_hp' => 'nullable|required_with:nama_wali|string|max:20',
             'pekerjaan' => 'nullable|string|max:255',
+            'foto' => 'nullable|image|max:2048',
         ]);
 
         try {
             \DB::beginTransaction();
             $santri = Santri::create($validated);
+
+            if ($request->hasFile('foto')) {
+                $path = $request->file('foto')->store('santri-photos', 'public');
+                $santri->foto = $path;
+                $santri->save();
+            }
 
             if ($request->filled('nama_wali')) {
                 $santri->wali()->create([
@@ -123,13 +132,14 @@ class SantriController extends Controller
 
     public function edit($id)
     {
-        $santri = Santri::with(['kelas', 'jurusan', 'wali'])->findOrFail($id);
+        $santri = Santri::with(['kelas', 'jurusan', 'wali', 'angkatan'])->findOrFail($id);
         $classes = Kelas::all();
         $jurusans = \App\Models\Jurusan::all();
+        $angkatans = \App\Models\Angkatan::orderBy('tahun', 'desc')->get();
         if (request()->ajax()) {
-            return view('admin.santri._form_modal', compact('santri', 'classes', 'jurusans'));
+            return view('admin.santri._form_modal', compact('santri', 'classes', 'jurusans', 'angkatans'));
         }
-        return view('admin.santri.edit', compact('santri', 'classes', 'jurusans'));
+        return view('admin.santri.edit', compact('santri', 'classes', 'jurusans', 'angkatans'));
     }
 
     public function update(Request $request, $id)
@@ -144,20 +154,31 @@ class SantriController extends Controller
             'status_kesehatan' => 'required|in:Sehat,Sakit,Rawat Inap,Pulang',
             'tempat_lahir' => 'nullable|string|max:255',
             'tanggal_lahir' => 'nullable|date',
-            'tahun_masuk' => 'nullable|integer|min:1990|max:' . (date('Y') + 1),
+            'angkatan_id' => 'nullable|exists:angkatans,id',
             'alamat' => 'nullable|string|max:500',
             'golongan_darah' => 'nullable|in:A,B,AB,O',
             'riwayat_alergi' => 'nullable|string',
             // Wali fields
             'nama_wali' => 'nullable|string|max:255',
-            'hubungan' => 'nullable|string|max:100',
-            'no_hp' => 'nullable|string|max:20',
+            'hubungan' => 'nullable|required_with:nama_wali|string|max:100',
+            'no_hp' => 'nullable|required_with:nama_wali|string|max:20',
             'pekerjaan' => 'nullable|string|max:255',
+            'foto' => 'nullable|image|max:2048',
         ]);
 
         try {
             \DB::beginTransaction();
             $santri->update($validated);
+
+            if ($request->hasFile('foto')) {
+                // Delete old photo if exists
+                if ($santri->foto && \Storage::disk('public')->exists($santri->foto)) {
+                    \Storage::disk('public')->delete($santri->foto);
+                }
+                $path = $request->file('foto')->store('santri-photos', 'public');
+                $santri->foto = $path;
+                $santri->save();
+            }
 
             if ($request->filled('nama_wali')) {
                 $santri->wali()->updateOrCreate(

@@ -6,6 +6,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.deisacompose.data.models.Santri
 import com.example.deisacompose.data.models.SantriRequest
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 
 class SantriViewModel : BaseViewModel() {
 
@@ -57,10 +60,36 @@ class SantriViewModel : BaseViewModel() {
         }
     }
 
-    fun createSantri(request: SantriRequest, onSuccess: () -> Unit, onError: (String) -> Unit) {
+    private fun createPartFromString(string: String): okhttp3.RequestBody {
+        return string.toRequestBody(okhttp3.MultipartBody.FORM)
+    }
+
+    fun createSantri(request: SantriRequest, photoFile: java.io.File?, onSuccess: () -> Unit, onError: (String) -> Unit) {
         viewModelScope.launch {
             try {
-                val response = apiService.createSantri(request)
+                val map = HashMap<String, okhttp3.RequestBody>()
+                map["nis"] = createPartFromString(request.nis)
+                map["nama_lengkap"] = createPartFromString(request.namaLengkap)
+                map["jenis_kelamin"] = createPartFromString(request.jenisKelamin)
+                map["kelas_id"] = createPartFromString(request.kelasId.toString())
+                request.jurusanId?.let { map["jurusan_id"] = createPartFromString(it.toString()) }
+                map["status_kesehatan"] = createPartFromString(request.statusKesehatan)
+                request.tempatLahir?.let { map["tempat_lahir"] = createPartFromString(it) }
+                request.tanggalLahir?.let { map["tanggal_lahir"] = createPartFromString(it) }
+                request.angkatanId?.let { map["angkatan_id"] = createPartFromString(it.toString()) }
+                request.alamat?.let { map["alamat"] = createPartFromString(it) }
+                request.riwayatAlergi?.let { map["riwayat_alergi"] = createPartFromString(it) }
+                request.namaWali?.let { map["nama_wali"] = createPartFromString(it) }
+                request.hubunganWali?.let { map["hubungan"] = createPartFromString(it) }
+                request.noTelpWali?.let { map["no_hp"] = createPartFromString(it) }
+                request.pekerjaanWali?.let { map["pekerjaan"] = createPartFromString(it) }
+
+                val photoPart = photoFile?.let {
+                    val requestFile = it.asRequestBody("image/*".toMediaTypeOrNull())
+                    okhttp3.MultipartBody.Part.createFormData("foto", it.name, requestFile)
+                }
+
+                val response = apiService.createSantri(map, photoPart)
                 if (response.isSuccessful) {
                     fetchSantri()
                     onSuccess()
@@ -73,10 +102,33 @@ class SantriViewModel : BaseViewModel() {
         }
     }
 
-    fun updateSantri(id: Int, request: SantriRequest, onSuccess: () -> Unit, onError: (String) -> Unit) {
+    fun updateSantri(id: Int, request: SantriRequest, photoFile: java.io.File?, onSuccess: () -> Unit, onError: (String) -> Unit) {
         viewModelScope.launch {
             try {
-                val response = apiService.updateSantri(id, request)
+                val map = HashMap<String, okhttp3.RequestBody>()
+                map["_method"] = createPartFromString("PUT") // Method spoofing
+                map["nis"] = createPartFromString(request.nis)
+                map["nama_lengkap"] = createPartFromString(request.namaLengkap)
+                map["jenis_kelamin"] = createPartFromString(request.jenisKelamin)
+                map["kelas_id"] = createPartFromString(request.kelasId.toString())
+                request.jurusanId?.let { map["jurusan_id"] = createPartFromString(it.toString()) }
+                map["status_kesehatan"] = createPartFromString(request.statusKesehatan)
+                request.tempatLahir?.let { map["tempat_lahir"] = createPartFromString(it) }
+                request.tanggalLahir?.let { map["tanggal_lahir"] = createPartFromString(it) }
+                request.angkatanId?.let { map["angkatan_id"] = createPartFromString(it.toString()) }
+                request.alamat?.let { map["alamat"] = createPartFromString(it) }
+                request.riwayatAlergi?.let { map["riwayat_alergi"] = createPartFromString(it) }
+                request.namaWali?.let { map["nama_wali"] = createPartFromString(it) }
+                request.hubunganWali?.let { map["hubungan"] = createPartFromString(it) }
+                request.noTelpWali?.let { map["no_hp"] = createPartFromString(it) }
+                request.pekerjaanWali?.let { map["pekerjaan"] = createPartFromString(it) }
+
+                val photoPart = photoFile?.let {
+                    val requestFile = it.asRequestBody("image/*".toMediaTypeOrNull())
+                    okhttp3.MultipartBody.Part.createFormData("foto", it.name, requestFile)
+                }
+
+                val response = apiService.updateSantri(id, map, photoPart)
                 if (response.isSuccessful) {
                     fetchSantriById(id)
                     onSuccess()
