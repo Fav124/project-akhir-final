@@ -17,6 +17,13 @@ class MainViewModel : BaseViewModel() {
     private val _message = MutableLiveData<String?>()
     val message: LiveData<String?> = _message
 
+    private val _themeColor = MutableLiveData<String>("blue")
+    val themeColor: LiveData<String> = _themeColor
+
+    fun setTheme(colorName: String) {
+        _themeColor.postValue(colorName)
+    }
+
     fun fetchProfile() {
         _isLoading.postValue(true)
         viewModelScope.launch {

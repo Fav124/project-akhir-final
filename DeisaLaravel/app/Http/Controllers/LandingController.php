@@ -10,4 +10,9 @@ class LandingController extends Controller
     {
         return view('landing.index');
     }
+
+    public function features()
+    {
+        return view('landing.features');
+    }
 }

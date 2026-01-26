@@ -42,9 +42,16 @@
 
         <div>
             <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Diagnosis Utama</label>
-            <input type="text" name="diagnosis_utama" value="{{ $record->diagnosis_utama ?? '' }}" required
+            <input type="text" name="diagnosis_utama" value="{{ $record->diagnosis_utama ?? '' }}" 
+                list="diagnosis-list"
+                required
                 class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500/20 focus:border-deisa-blue outline-none transition-all"
-                placeholder="Contoh: Demam, Batuk Pilek, dsb.">
+                placeholder="Pilih atau ketik diagnosa...">
+            <datalist id="diagnosis-list">
+                @foreach($diagnoses as $diag)
+                    <option value="{{ $diag->nama_diagnosis }}">
+                @endforeach
+            </datalist>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

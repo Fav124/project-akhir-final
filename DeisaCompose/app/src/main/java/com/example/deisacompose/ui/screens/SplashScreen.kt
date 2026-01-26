@@ -40,71 +40,20 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun SplashScreen(navController: NavHostController) {
-    // Logo scale animation
-    val logoScale = remember { Animatable(0f) }
-    val logoAlpha = remember { Animatable(0f) }
+    val scale = remember { Animatable(0.8f) }
+    val alpha = remember { Animatable(0f) }
 
-    // Title animations
-    val titleAlpha = remember { Animatable(0f) }
-    val titleOffset = remember { Animatable(50f) }
-
-    // Subtitle animation
-    val subtitleAlpha = remember { Animatable(0f) }
-
-    // Pulsing circle animation
-    val pulseScale = remember { Animatable(1f) }
-    val pulseAlpha = remember { Animatable(0.3f) }
-
-    LaunchedEffect(key1 = true) {
-        // Start logo animation
+    LaunchedEffect(Unit) {
         launch {
-            logoAlpha.animateTo(
-                targetValue = 1f,
+            scale.animateTo(
+                1f,
                 animationSpec = tween(800, easing = FastOutSlowInEasing)
             )
-            logoScale.animateTo(
-                targetValue = 1f,
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioMediumBouncy,
-                    stiffness = Spring.StiffnessLow
-                )
-            )
         }
-
-        delay(300)
-
-        // Start title animation
         launch {
-            titleAlpha.animateTo(1f, animationSpec = tween(600))
-            titleOffset.animateTo(0f, animationSpec = spring(
-                dampingRatio = Spring.DampingRatioMediumBouncy
-            ))
+            alpha.animateTo(1f, animationSpec = tween(800))
         }
-
-        delay(400)
-
-        // Start subtitle animation
-        launch {
-            subtitleAlpha.animateTo(1f, animationSpec = tween(600))
-        }
-
-        // Continuous pulse animation
-        launch {
-            while (true) {
-                pulseScale.animateTo(
-                    1.3f,
-                    animationSpec = tween(1000, easing = FastOutSlowInEasing)
-                )
-                pulseAlpha.animateTo(0f, animationSpec = tween(1000))
-                pulseScale.animateTo(
-                    1f,
-                    animationSpec = tween(1000, easing = FastOutSlowInEasing)
-                )
-                pulseAlpha.animateTo(0.3f, animationSpec = tween(1000))
-            }
-        }
-
-        delay(2500L)
+        delay(2500)
         navController.navigate("login") {
             popUpTo("splash") { inclusive = true }
         }
@@ -113,94 +62,68 @@ fun SplashScreen(navController: NavHostController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                brush = androidx.compose.ui.graphics.Brush.verticalGradient(
-                    colors = listOf(
-                        DeisaBlue,
-                        DeisaBlue.copy(alpha = 0.8f)
-                    )
-                )
-            ),
+            .background(Slate950),
         contentAlignment = Alignment.Center
     ) {
-        // Animated background circles
-        Box(
-            modifier = Modifier
-                .size(200.dp * pulseScale.value)
-                .graphicsLayer { alpha = pulseAlpha.value }
-                .background(Color.White.copy(alpha = 0.1f), CircleShape),
-            contentAlignment = Alignment.Center
-        ) {}
-
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.alpha(logoAlpha.value)
+            modifier = Modifier
+                .scale(scale.value)
+                .alpha(alpha.value)
         ) {
-            // Logo with medical icon
-            Box(
+            // Icon Card
+            Surface(
                 modifier = Modifier
-                    .size(120.dp)
-                    .scale(logoScale.value)
-                    .background(
-                        Color.White,
-                        RoundedCornerShape(28.dp)
-                    )
-                    .graphicsLayer {
-                        rotationY = logoScale.value * 180f
-                    },
-                contentAlignment = Alignment.Center
+                    .size(100.dp)
+                    .shadow(elevation = 40.dp, spotColor = DeisaBlue, shape = RoundedCornerShape(32.dp)),
+                color = DeisaBlue,
+                shape = RoundedCornerShape(32.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Default.MedicalServices,
-                    contentDescription = "DEISA Logo",
-                    tint = DeisaBlue,
-                    modifier = Modifier.size(64.dp)
-                )
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = Icons.Default.MedicalServices,
+                        contentDescription = "Logo",
+                        tint = Color.White,
+                        modifier = Modifier.size(48.dp)
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // App Name with animation
             Text(
                 text = "DEISA",
                 color = Color.White,
-                fontSize = 42.sp,
-                fontWeight = FontWeight.ExtraBold,
-                modifier = Modifier
-                    .alpha(titleAlpha.value)
-                    .graphicsLayer { translationY = titleOffset.value },
-                letterSpacing = 4.sp
+                fontSize = 48.sp,
+                fontWeight = FontWeight.Black,
+                letterSpacing = (-2).sp
             )
-
             Text(
-                text = "Dar El-Ilmi Kesehatan",
-                color = Color.White.copy(alpha = 0.9f),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier
-                    .alpha(subtitleAlpha.value)
-                    .graphicsLayer { translationY = titleOffset.value },
-                letterSpacing = 1.sp
+                text = "MOBILE",
+                color = DeisaBlue,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Black,
+                letterSpacing = 8.sp,
+                modifier = Modifier.offset(y = (-8).dp)
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Sistem Manajemen Kesehatan Santri",
-                color = Color.White.copy(alpha = 0.7f),
-                fontSize = 12.sp,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.alpha(subtitleAlpha.value)
+                text = "DAR EL-ILMI HEALTH ECOSYSTEM",
+                color = Slate500,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 2.sp
             )
         }
 
-        // Loading indicator at bottom
         CircularProgressIndicator(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 80.dp)
-                .alpha(subtitleAlpha.value),
-            color = Color.White,
+                .padding(bottom = 64.dp)
+                .size(24.dp),
+            color = DeisaBlue.copy(alpha = 0.3f),
             strokeWidth = 3.dp
         )
     }

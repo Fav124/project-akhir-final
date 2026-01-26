@@ -10,4 +10,11 @@ class Diagnosis extends Model
     use HasFactory, \Illuminate\Database\Eloquent\SoftDeletes;
     
     protected $fillable = ['nama_diagnosis', 'kategori', 'deskripsi'];
+
+    protected $appends = ['nama_penyakit'];
+
+    public function getNamaPenyakitAttribute()
+    {
+        return $this->nama_diagnosis;
+    }
 }

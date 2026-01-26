@@ -47,10 +47,11 @@ class SantriSakitController extends Controller
     {
         $santris = \App\Models\Santri::with('kelas')->get();
         $obats = \App\Models\Obat::where('stok', '>', 0)->get();
+        $diagnoses = \App\Models\Diagnosis::all();
         if (request()->ajax()) {
-            return view('admin.sakit._form_modal', compact('santris', 'obats'));
+            return view('admin.sakit._form_modal', compact('santris', 'obats', 'diagnoses'));
         }
-        return view('admin.sakit.create', compact('santris', 'obats'));
+        return view('admin.sakit.create', compact('santris', 'obats', 'diagnoses'));
     }
 
     public function store(Request $request)
@@ -128,10 +129,11 @@ class SantriSakitController extends Controller
         $record = \App\Models\SantriSakit::with('obats')->findOrFail($id);
         $santris = \App\Models\Santri::with('kelas')->get();
         $obats = \App\Models\Obat::all();
+        $diagnoses = \App\Models\Diagnosis::all();
         if (request()->ajax()) {
-            return view('admin.sakit._form_modal', compact('record', 'santris', 'obats'));
+            return view('admin.sakit._form_modal', compact('record', 'santris', 'obats', 'diagnoses'));
         }
-        return view('admin.sakit.edit', compact('record', 'santris', 'obats'));
+        return view('admin.sakit.edit', compact('record', 'santris', 'obats', 'diagnoses'));
     }
 
     public function update(Request $request, $id)

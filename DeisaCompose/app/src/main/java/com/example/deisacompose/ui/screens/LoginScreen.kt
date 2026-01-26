@@ -26,15 +26,24 @@ import com.example.deisacompose.ui.theme.*
 @Composable
 fun LoginScreen(
     navController: NavHostController,
-    viewModel: AuthViewModel = viewModel()
+    authViewModel: AuthViewModel = viewModel(),
+    mainViewModel: com.example.deisacompose.viewmodels.MainViewModel = viewModel()
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
-    val isLoading by viewModel.isLoading.observeAsState(false)
-    val error by viewModel.error.observeAsState()
-    val authSuccess by viewModel.authSuccess.observeAsState(false)
+    val isLoading by authViewModel.isLoading.observeAsState(false)
+    val error by authViewModel.error.observeAsState()
+    val authSuccess by authViewModel.authSuccess.observeAsState(false)
+    val themeChoice by mainViewModel.themeColor.observeAsState("blue")
+
+    val primaryColor = when(themeChoice) {
+        "indigo" -> ThemeIndigo
+        "emerald" -> ThemeEmerald
+        "rose" -> ThemeRose
+        else -> DeisaBlue
+    }
 
     LaunchedEffect(authSuccess) {
         if (authSuccess) {
@@ -44,144 +53,132 @@ fun LoginScreen(
         }
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        // Top Header
+    DeisaComposeTheme(primaryColor = primaryColor) {
         Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(200.dp)
-                .background(
-                    MaterialTheme.colorScheme.primary,
-                    RoundedCornerShape(bottomStart = 32.dp, bottomEnd = 32.dp)
-                ),
-            contentAlignment = Alignment.Center
+                .fillMaxSize()
+                .background(Slate50)
         ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Surface(
-                    shape = RoundedCornerShape(16.dp),
-                    color = Color.White,
-                    modifier = Modifier.size(60.dp)
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Text(
-                            text = "D",
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 32.sp
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = "Welcome Back",
-                    color = Color.White,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = "Deisa Health Admin/User",
-                    color = Color.White.copy(alpha = 0.8f),
-                    fontSize = 14.sp
-                )
-            }
-        }
-
-        // Login Card
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-                .padding(top = 160.dp),
-            shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
-            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-        ) {
+            // Background branding circle
+            Box(modifier = Modifier.align(Alignment.TopEnd).offset(x = 100.dp, y = (-100).dp).size(300.dp).background(primaryColor.copy(alpha = 0.05f), CircleShape))
+            
             Column(
                 modifier = Modifier
-                    .padding(24.dp)
-                    .fillMaxWidth(),
+                    .fillMaxSize()
+                    .padding(32.dp)
+                    .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text = "Sign In",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.primary
-                )
+                Spacer(modifier = Modifier.height(48.dp))
+
+                // Branding
+                Surface(
+                    modifier = Modifier.size(64.dp),
+                    shape = RoundedCornerShape(20.dp),
+                    color = primaryColor,
+                    shadowElevation = 10.dp
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Text("D", color = Color.White, fontWeight = FontWeight.Black, fontSize = 32.sp)
+                    }
+                }
                 
                 Spacer(modifier = Modifier.height(24.dp))
-
-                OutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it; viewModel.clearError() },
-                    label = { Text("Email Address") },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
-                    singleLine = true
+                
+                Text(
+                    "Welcome Back",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Black,
+                    color = Slate950,
+                    letterSpacing = (-1).sp
+                )
+                Text(
+                    "Sign in to access medical dashboard",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Slate500,
+                    fontWeight = FontWeight.Bold
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(48.dp))
 
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it; viewModel.clearError() },
-                    label = { Text("Password") },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
-                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                    trailingIcon = {
-                        val image = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
-                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                            Icon(image, null)
-                        }
-                    },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
-                    singleLine = true
-                )
-
-                if (error != null) {
-                    Text(
-                        text = error!!,
-                        color = MaterialTheme.colorScheme.error,
-                        fontSize = 12.sp,
-                        modifier = Modifier.padding(top = 8.dp, start = 4.dp).fillMaxWidth(),
-                        textAlign = TextAlign.Start
+                // Form
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Text("ACCOUNT DETAILS", style = MaterialTheme.typography.labelLarge, color = Slate400, fontWeight = FontWeight.Black, letterSpacing = 2.sp)
+                    
+                    OutlinedTextField(
+                        value = email,
+                        onValueChange = { email = it; authViewModel.clearError() },
+                        placeholder = { Text("Email Address", color = Slate400) },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(24.dp),
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            containerColor = Color.White,
+                            unfocusedBorderColor = Slate100,
+                            focusedBorderColor = primaryColor
+                        ),
+                        leadingIcon = { Icon(Icons.Default.Email, contentDescription = null, tint = Slate400, modifier = Modifier.size(20.dp)) },
+                        singleLine = true
                     )
+
+                    OutlinedTextField(
+                        value = password,
+                        onValueChange = { password = it; authViewModel.clearError() },
+                        placeholder = { Text("Password", color = Slate400) },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(24.dp),
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            containerColor = Color.White,
+                            unfocusedBorderColor = Slate100,
+                            focusedBorderColor = primaryColor
+                        ),
+                        leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = Slate400, modifier = Modifier.size(20.dp)) },
+                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        trailingIcon = {
+                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                Icon(if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility, null, tint = Slate400, modifier = Modifier.size(20.dp))
+                            }
+                        },
+                        singleLine = true
+                    )
+
+                    if (error != null) {
+                        Text(error!!, color = DangerRed, fontSize = 12.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(start = 12.dp))
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(onClick = { navController.navigate("forgot_password") }) {
+                        Text("FORGOT PASSWORD?", color = Slate400, fontWeight = FontWeight.Black, fontSize = 10.sp, letterSpacing = 1.sp)
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))
 
                 Button(
-                    onClick = { viewModel.login(email, password) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    shape = RoundedCornerShape(12.dp),
+                    onClick = { authViewModel.login(email, password, true) },
+                    modifier = Modifier.fillMaxWidth().height(64.dp),
+                    shape = RoundedCornerShape(24.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Slate950),
                     enabled = !isLoading
                 ) {
                     if (isLoading) {
-                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                        CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White, strokeWidth = 3.dp)
                     } else {
-                        Text("LOGIN", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        Text("LOGIN TO ECOSYSTEM", fontWeight = FontWeight.Black, letterSpacing = 1.sp)
                     }
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
-                
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text("Don't have an account? ", color = Slate500, fontSize = 14.sp)
+                Spacer(modifier = Modifier.height(48.dp))
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("Don't have an account? ", color = Slate500, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                     TextButton(onClick = { navController.navigate("register") }) {
-                        Text("Register", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                        Text("SIGN UP", fontWeight = FontWeight.Black, color = primaryColor, fontSize = 14.sp)
                     }
                 }
             }

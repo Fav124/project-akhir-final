@@ -28,84 +28,121 @@ import com.example.deisacompose.viewmodels.SakitViewModel
 import com.example.deisacompose.viewmodels.SantriViewModel
 import com.example.deisacompose.ui.components.*
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SakitScreen(
     navController: NavHostController,
-    viewModel: SakitViewModel = viewModel()
+    viewModel: SakitViewModel = viewModel(),
+    mainViewModel: com.example.deisacompose.viewmodels.MainViewModel = viewModel()
 ) {
     var searchQuery by remember { mutableStateOf("") }
     val sakitList by viewModel.sakitList.observeAsState(emptyList())
     val isLoading by viewModel.isLoading.observeAsState(false)
+    val themeChoice by mainViewModel.themeColor.observeAsState("blue")
+
+    val primaryColor = when(themeChoice) {
+        "indigo" -> ThemeIndigo
+        "emerald" -> ThemeEmerald
+        "rose" -> ThemeRose
+        else -> DeisaBlue
+    }
 
     LaunchedEffect(Unit) {
         viewModel.fetchSakit()
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Santri Sakit", fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+    DeisaComposeTheme(primaryColor = primaryColor) {
+        Scaffold(
+            topBar = {
+                CenterAlignedTopAppBar(
+                    title = { Text("Health Monitoring", fontWeight = FontWeight.Black, fontSize = 16.sp, letterSpacing = 2.sp) },
+                    navigationIcon = {
+                        IconButton(onClick = { navController.navigateUp() }) {
+                            Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        }
+                    },
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Slate50)
+                )
+            },
+            floatingActionButton = {
+                FloatingActionButton(
+                    onClick = { navController.navigate("sakit_form") },
+                    containerColor = DangerRed,
+                    contentColor = Color.White,
+                    shape = RoundedCornerShape(20.dp),
+                    elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 10.dp)
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Report")
+                }
+            },
+            containerColor = Slate50
+        ) { padding ->
+            Column(
+                modifier = Modifier
+                    .padding(padding)
+                    .fillMaxSize()
+            ) {
+                // High-End Search Bar
+                Surface(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 10.dp),
+                    shape = RoundedCornerShape(24.dp),
+                    color = Color.White,
+                    shadowElevation = 2.dp,
+                    border = BorderStroke(1.dp, Slate100)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(Icons.Default.Search, contentDescription = null, tint = Slate400, modifier = Modifier.size(20.dp))
+                        Spacer(modifier = Modifier.width(12.dp))
+                        TextField(
+                            value = searchQuery,
+                            onValueChange = { 
+                                searchQuery = it
+                                viewModel.fetchSakit(it)
+                            },
+                            placeholder = { Text("Cari santri...", color = Slate400, fontWeight = FontWeight.Bold, fontSize = 14.sp) },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = TextFieldDefaults.textFieldColors(
+                                containerColor = Color.Transparent,
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent
+                            ),
+                            singleLine = true
+                        )
                     }
                 }
-            )
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { navController.navigate("sakit_form") },
-                containerColor = DangerRed,
-                contentColor = Color.White
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Report Sickness")
-            }
-        },
-        containerColor = Slate50
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .padding(padding)
-                .fillMaxSize()
-        ) {
-            // Search Bar
-            OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { 
-                    searchQuery = it
-                    viewModel.fetchSakit(it)
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                placeholder = { Text("Cari nama santri...") },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedBorderColor = Color.Transparent,
-                    focusedBorderColor = DangerRed,
-                    unfocusedContainerColor = Color.White,
-                    focusedContainerColor = Color.White
-                ),
-                singleLine = true
-            )
 
-            if (isLoading) {
-                CircularProgressIndicator()
-            } else if (sakitList.isEmpty()) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Tidak ada data santri sakit", color = Slate500)
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    items(sakitList) { sakit ->
-                        SakitItem(sakit, viewModel) {
-                            navController.navigate("sakit_form?id=${sakit.id}")
+                if (isLoading) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(color = primaryColor)
+                    }
+                } else if (sakitList.isEmpty()) {
+                    Column(
+                        modifier = Modifier.fillMaxSize().padding(32.dp),
+                        contentAlignment = Alignment.Center,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Surface(color = Slate100, shape = CircleShape, modifier = Modifier.size(80.dp)) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(Icons.Default.Inbox, contentDescription = null, tint = Slate400, modifier = Modifier.size(32.dp))
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(24.dp))
+                        Text("No active cases found", fontWeight = FontWeight.Black, color = Slate900, fontSize = 16.sp)
+                        Text("All santri are currently healthy in the records.", color = Slate400, fontSize = 12.sp, textAlign = TextAlign.Center)
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(20.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        items(sakitList) { sakit ->
+                            SakitItem(sakit, viewModel, primaryColor) {
+                                navController.navigate("sakit_form?id=${sakit.id}")
+                            }
                         }
                     }
                 }
@@ -118,6 +155,7 @@ fun SakitScreen(
 fun SakitItem(
     sakit: Sakit, 
     viewModel: SakitViewModel,
+    primaryColor: Color,
     onClick: () -> Unit
 ) {
     var showConfirmDialog by remember { mutableStateOf(false) }
@@ -125,79 +163,90 @@ fun SakitItem(
     if (showConfirmDialog) {
         AlertDialog(
             onDismissRequest = { showConfirmDialog = false },
-            title = { Text("Konfirmasi") },
-            text = { Text("Tandai ${sakit.santri?.displayName() ?: "santri"} sebagai sembuh?") },
+            title = { Text("Confirm Recovery", fontWeight = FontWeight.Black) },
+            text = { Text("Tandai ${sakit.santri?.displayName() ?: "santri"} sebagai sembuh?", color = Slate500) },
             confirmButton = {
                 Button(
                     onClick = {
                         viewModel.markAsSembuh(sakit.id, {}, {})
                         showConfirmDialog = false
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = SuccessGreen)
+                    colors = ButtonDefaults.buttonColors(containerColor = SuccessGreen),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("Ya, Sembuh")
+                    Text("YES, RECOVERED")
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showConfirmDialog = false }) {
-                    Text("Batal")
+                    Text("CANCEL", color = Slate400, fontWeight = FontWeight.Black)
                 }
-            }
+            },
+            shape = RoundedCornerShape(24.dp),
+            containerColor = Color.White
         )
     }
     
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() },
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth(),
+        onClick = onClick,
+        shape = RoundedCornerShape(28.dp),
+        colors = CardDefaults.elevatedCardColors(containerColor = Color.White),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(20.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .background(DangerRed.copy(alpha = 0.1f), CircleShape),
-                    contentAlignment = Alignment.Center
+                Surface(
+                    color = DangerRed.copy(alpha = 0.1f),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.size(48.dp)
                 ) {
-                    Icon(Icons.Default.Sick, contentDescription = null, tint = DangerRed, modifier = Modifier.size(20.dp))
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(Icons.Default.Sick, contentDescription = null, tint = DangerRed, modifier = Modifier.size(24.dp))
+                    }
                 }
-                Spacer(modifier = Modifier.width(12.dp))
+                Spacer(modifier = Modifier.width(16.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = sakit.santri?.displayName() ?: "Unknown Santri",
-                        fontWeight = FontWeight.Bold,
+                        text = sakit.santri?.displayName() ?: "Anonymous",
+                        fontWeight = FontWeight.Black,
                         fontSize = 16.sp,
-                        color = Slate900
+                        color = Slate950,
+                        letterSpacing = (-0.5).sp
                     )
                     Text(
                         text = sakit.displayDate(),
-                        fontSize = 12.sp,
-                        color = Slate500
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Slate400
                     )
                 }
                 StatusBadge(sakit.displayStatus())
             }
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(
-                text = "Keluhan: ${sakit.keluhan ?: sakit.gejala ?: "-"}",
-                fontSize = 14.sp,
-                color = Slate700
-            )
+            
+            Spacer(modifier = Modifier.height(20.dp))
+            
+            Surface(color = Slate50, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = sakit.keluhan ?: sakit.gejala ?: "No description provided.",
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Slate700,
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
+
             if (sakit.status != "Sembuh" && sakit.tingkatKondisi != "Sembuh") {
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(16.dp))
                 Button(
                     onClick = { showConfirmDialog = true },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().height(48.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = SuccessGreen),
-                    shape = RoundedCornerShape(8.dp),
-                    contentPadding = PaddingValues(vertical = 8.dp)
+                    shape = RoundedCornerShape(16.dp)
                 ) {
                     Icon(Icons.Default.CheckCircle, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Tandai Sembuh", fontSize = 12.sp)
+                    Text("MARK AS RECOVERED", fontSize = 11.sp, fontWeight = FontWeight.Black, letterSpacing = 1.sp)
                 }
             }
         }
@@ -215,30 +264,41 @@ fun StatusBadge(status: String) {
     }
     Surface(
         color = color.copy(alpha = 0.1f),
-        shape = RoundedCornerShape(8.dp)
+        shape = RoundedCornerShape(8.dp),
+        border = BorderStroke(1.dp, color.copy(alpha = 0.1f))
     ) {
         Text(
-            text = status,
+            text = status.uppercase(),
             color = color,
-            fontSize = 10.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+            fontSize = 9.sp,
+            fontWeight = FontWeight.Black,
+            letterSpacing = 1.sp,
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
         )
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SakitFormScreen(
     navController: NavHostController,
     sakitId: Int? = null,
     viewModel: SakitViewModel = viewModel(),
-    santriViewModel: SantriViewModel = viewModel()
+    santriViewModel: SantriViewModel = viewModel(),
+    mainViewModel: com.example.deisacompose.viewmodels.MainViewModel = viewModel()
 ) {
     val sakitDetail by viewModel.sakitDetail.observeAsState()
     val santriList by santriViewModel.santriList.observeAsState(emptyList())
     val diagnosisList by viewModel.diagnosisList.observeAsState(emptyList())
     val obatList by viewModel.obatList.observeAsState(emptyList())
+    val themeChoice by mainViewModel.themeColor.observeAsState("blue")
+    
+    val primaryColor = when(themeChoice) {
+        "indigo" -> ThemeIndigo
+        "emerald" -> ThemeEmerald
+        "rose" -> ThemeRose
+        else -> DeisaBlue
+    }
 
     // Stepper
     var currentStep by remember { mutableIntStateOf(1) }
@@ -246,20 +306,14 @@ fun SakitFormScreen(
     // Form Data
     var selectedSantriId by remember { mutableStateOf<Int?>(null) }
     var searchQuery by remember { mutableStateOf("") }
-    var keluhan by remember { mutableStateOf("") }
     var gejala by remember { mutableStateOf("") }
     var tindakan by remember { mutableStateOf("") }
     var status by remember { mutableStateOf("Ringan") }
-    var jenisPerawatan by remember { mutableStateOf("Rawat Inap") }
-    var catatan by remember { mutableStateOf("") }
-    
-    // Selection states
     var selectedDiagnosisIds by remember { mutableStateOf(setOf<Int>()) }
-    var selectedObatUsage by remember { mutableStateOf(mapOf<Int, Int>()) } // ID to Quantity
+    var selectedObatUsage by remember { mutableStateOf(mapOf<Int, Int>()) } 
 
     var expandedSantri by remember { mutableStateOf(false) }
     
-    // Filtered Santri List
     val filteredSantriList = remember(searchQuery, santriList) {
         if (searchQuery.isBlank()) santriList
         else santriList.filter { 
@@ -269,243 +323,207 @@ fun SakitFormScreen(
     }
 
     LaunchedEffect(Unit) {
-        santriViewModel.fetchSantri() // Ideally fetch all or handle pagination/search
+        santriViewModel.fetchSantri()
         viewModel.fetchDiagnosis()
         viewModel.fetchObat()
-        if (sakitId != null) {
-            viewModel.getSakitById(sakitId)
-        } else {
-            viewModel.clearDetail()
-        }
+        if (sakitId != null) viewModel.getSakitById(sakitId) else viewModel.clearDetail()
     }
 
     LaunchedEffect(sakitDetail) {
         sakitDetail?.let {
             selectedSantriId = it.santriId
             searchQuery = it.santri?.displayName() ?: ""
-            keluhan = it.keluhan ?: ""
             gejala = it.gejala ?: ""
             tindakan = it.tindakan ?: ""
             status = it.tingkatKondisi ?: it.status ?: "Ringan"
-            catatan = it.catatan ?: ""
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(if (sakitId == null) "Catat Sakit" else "Edit Data Sakit", fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                }
-            )
-        }
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .padding(padding)
-                .fillMaxSize()
-        ) {
-            // Stepper Indicator
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                StepIndicator(step = 1, currentStep = currentStep, label = "Santri & Gejala")
-                HorizontalDivider(modifier = Modifier.weight(1f).padding(horizontal = 8.dp), color = Slate100)
-                StepIndicator(step = 2, currentStep = currentStep, label = "Tindakan & Obat")
-            }
-
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                if (currentStep == 1) {
-                    // === STEP 1: SANTRI SELECT & GEJALA ===
-                    Text("Pilih Santri", fontWeight = FontWeight.Medium, color = DangerRed)
-                    
-                    ExposedDropdownMenuBox(
-                        expanded = expandedSantri,
-                        onExpandedChange = { expandedSantri = !expandedSantri }
-                    ) {
-                        OutlinedTextField(
-                            value = searchQuery,
-                            onValueChange = { 
-                                searchQuery = it
-                                expandedSantri = true 
-                            },
-                            label = { Text("Ketik Nama / NIS Santri") },
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedSantri) },
-                            modifier = Modifier.menuAnchor().fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp)
-                        )
-                        ExposedDropdownMenu(
-                            expanded = expandedSantri,
-                            onDismissRequest = { expandedSantri = false }
-                        ) {
-                            if (filteredSantriList.isEmpty()) {
-                                DropdownMenuItem(text = { Text("Tidak ditemukan") }, onClick = {})
-                            } else {
-                                filteredSantriList.take(5).forEach { santri ->
-                                    val angkatanInfo = if (santri.angkatan?.tahun != null) " (${santri.angkatan.tahun})" else ""
-                                    DropdownMenuItem(
-                                        text = { 
-                                            Column {
-                                                Text(santri.displayName() + angkatanInfo, fontWeight = FontWeight.Bold)
-                                                Text(santri.nis ?: "-", fontSize = 12.sp, color = Slate500)
-                                            }
-                                        },
-                                        onClick = {
-                                            selectedSantriId = santri.id
-                                            searchQuery = santri.displayName()
-                                            expandedSantri = false
-                                        }
-                                    )
-                                }
-                            }
-                        }
-                    }
-
-                    OutlinedTextField(
-                        value = gejala,
-                        onValueChange = { gejala = it },
-                        label = { Text("Gejala / Keluhan") },
-                        modifier = Modifier.fillMaxWidth(),
-                        minLines = 3,
-                        shape = RoundedCornerShape(12.dp)
-                    )
-
-                    Text("Tingkat Kondisi", fontWeight = FontWeight.Medium)
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        listOf("Ringan", "Sedang", "Berat").forEach { level ->
-                            FilterChip(
-                                selected = status == level,
-                                onClick = { status = level },
-                                label = { Text(level) }
-                            )
-                        }
-                    }
-
-                } else {
-                    // === STEP 2: TINDAKAN & OBAT ===
-                    
-                    OutlinedTextField(
-                        value = tindakan,
-                        onValueChange = { tindakan = it },
-                        label = { Text("Tindakan") },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp)
-                    )
-
-                    Text("Diagnosis", fontWeight = FontWeight.Medium)
-                    FlowRow(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        diagnosisList.forEach { diag ->
-                            FilterChip(
-                                selected = selectedDiagnosisIds.contains(diag.id),
-                                onClick = {
-                                    selectedDiagnosisIds = if (selectedDiagnosisIds.contains(diag.id)) {
-                                        selectedDiagnosisIds - diag.id
-                                    } else {
-                                        selectedDiagnosisIds + diag.id
-                                    }
-                                },
-                                label = { Text(diag.namaPenyakit ?: "-") }
-                            )
-                        }
-                    }
-
-                    Text("Obat yang Digunakan", fontWeight = FontWeight.Medium)
-                    obatList.forEach { obat ->
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Checkbox(
-                                checked = selectedObatUsage.containsKey(obat.id),
-                                onCheckedChange = { checked ->
-                                    selectedObatUsage = if (checked) {
-                                        selectedObatUsage + (obat.id to 1)
-                                    } else {
-                                        selectedObatUsage - obat.id
-                                    }
-                                }
-                            )
-                            Text(obat.namaObat, modifier = Modifier.weight(1f))
-                            if (selectedObatUsage.containsKey(obat.id)) {
-                                OutlinedTextField(
-                                    value = selectedObatUsage[obat.id].toString(),
-                                    onValueChange = { 
-                                        val qty = it.toIntOrNull() ?: 1
-                                        selectedObatUsage = selectedObatUsage + (obat.id to qty)
-                                    },
-                                    modifier = Modifier.width(60.dp),
-                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                                )
-                            }
-                        }
-                    }
-                }
-                
-                Spacer(modifier = Modifier.height(24.dp))
-            }
-
-            // Buttons
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                if (currentStep > 1) {
-                    OutlinedButton(
-                        onClick = { currentStep-- },
-                        modifier = Modifier.weight(1f).height(56.dp),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Text("KEMBALI")
-                    }
-                }
-                
-                Button(
-                    onClick = {
-                        if (currentStep < 2) {
-                            if (selectedSantriId == null) return@Button
-                            currentStep++
-                        } else {
-                            val request = SakitRequest(
-                                santriId = selectedSantriId ?: 0,
-                                tglMasuk = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(java.util.Date()),
-                                status = status,
-                                jenisPerawatan = jenisPerawatan,
-                                tujuanRujukan = null,
-                                gejala = gejala,
-                                tindakan = tindakan,
-                                catatan = catatan,
-                                diagnosisIds = selectedDiagnosisIds.toList(),
-                                obatUsage = selectedObatUsage.map { 
-                                    com.example.deisacompose.data.models.ObatUsageRequest(it.key, it.value) 
-                                }
-                            )
-                            if (sakitId == null) {
-                                viewModel.submitSakit(request, { navController.navigateUp() }, {})
-                            } else {
-                                viewModel.updateSakit(sakitId, request, { navController.navigateUp() }, {})
-                            }
+    DeisaComposeTheme(primaryColor = primaryColor) {
+        Scaffold(
+            topBar = {
+                CenterAlignedTopAppBar(
+                    title = { Text(if (sakitId == null) "New Record" else "Edit Record", fontWeight = FontWeight.Black, fontSize = 16.sp, letterSpacing = 2.sp) },
+                    navigationIcon = {
+                        IconButton(onClick = { navController.navigateUp() }) {
+                            Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                         }
                     },
-                    modifier = Modifier.weight(1f).height(56.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = DangerRed)
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Slate50)
+                )
+            },
+            containerColor = Slate50
+        ) { padding ->
+            Column(modifier = Modifier.padding(padding).fillMaxSize()) {
+                // High-End Progress Indicator
+                Row(modifier = Modifier.fillMaxWidth().padding(24.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Box(modifier = Modifier.weight(1f).height(4.dp).background(if (currentStep >= 1) primaryColor else Slate200, RoundedCornerShape(2.dp)))
+                    Box(modifier = Modifier.weight(1f).height(4.dp).background(if (currentStep >= 2) primaryColor else Slate200, RoundedCornerShape(2.dp)))
+                }
+
+                Column(
+                    modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 24.dp),
+                    verticalArrangement = Arrangement.spacedBy(24.dp)
                 ) {
-                    Text(if (currentStep < 2) "LANJUT" else "LAPORKAN")
+                    if (currentStep == 1) {
+                        Text("Selection & Condition", fontWeight = FontWeight.Black, color = Slate950, style = MaterialTheme.typography.titleLarge)
+                        
+                        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                             Text("PATIENT DETAILS", style = MaterialTheme.typography.labelLarge, color = Slate400, fontWeight = FontWeight.Black, letterSpacing = 2.sp)
+                             
+                             ExposedDropdownMenuBox(
+                                expanded = expandedSantri,
+                                onExpandedChange = { expandedSantri = !expandedSantri }
+                            ) {
+                                OutlinedTextField(
+                                    value = searchQuery,
+                                    onValueChange = { searchQuery = it; expandedSantri = true },
+                                    placeholder = { Text("Search by Name or NIS", color = Slate400) },
+                                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedSantri) },
+                                    modifier = Modifier.menuAnchor().fillMaxWidth(),
+                                    shape = RoundedCornerShape(24.dp),
+                                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                                        containerColor = Color.White,
+                                        unfocusedBorderColor = Slate100,
+                                        focusedBorderColor = primaryColor
+                                    ),
+                                    singleLine = true
+                                )
+                                ExposedDropdownMenu(
+                                    expanded = expandedSantri,
+                                    onDismissRequest = { expandedSantri = false },
+                                    modifier = Modifier.background(Color.White)
+                                ) {
+                                    filteredSantriList.take(6).forEach { santri ->
+                                        DropdownMenuItem(
+                                            text = { 
+                                                Column {
+                                                    Text(santri.displayName(), fontWeight = FontWeight.Bold, color = Slate900)
+                                                    Text("NIS: ${santri.nis ?: "-"}", fontSize = 11.sp, color = Slate400)
+                                                }
+                                            },
+                                            onClick = {
+                                                selectedSantriId = santri.id
+                                                searchQuery = santri.displayName()
+                                                expandedSantri = false
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                             Text("SYMPTOMS DESCRIPTION", style = MaterialTheme.typography.labelLarge, color = Slate400, fontWeight = FontWeight.Black, letterSpacing = 2.sp)
+                             OutlinedTextField(
+                                value = gejala,
+                                onValueChange = { gejala = it },
+                                placeholder = { Text("Describe symptoms...", color = Slate400) },
+                                modifier = Modifier.fillMaxWidth().height(120.dp),
+                                shape = RoundedCornerShape(24.dp),
+                                colors = TextFieldDefaults.outlinedTextFieldColors(
+                                    containerColor = Color.White,
+                                    unfocusedBorderColor = Slate100,
+                                    focusedBorderColor = primaryColor
+                                )
+                            )
+                        }
+
+                        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                            Text("SEVERITY LEVEL", style = MaterialTheme.typography.labelLarge, color = Slate400, fontWeight = FontWeight.Black, letterSpacing = 2.sp)
+                            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                                listOf("Ringan", "Sedang", "Berat").forEach { level ->
+                                    val isSel = status == level
+                                    Surface(
+                                        onClick = { status = level },
+                                        color = if (isSel) primaryColor else Color.White,
+                                        shape = RoundedCornerShape(16.dp),
+                                        border = if (isSel) null else BorderStroke(1.dp, Slate100),
+                                        modifier = Modifier.height(44.dp).weight(1f)
+                                    ) {
+                                        Box(contentAlignment = Alignment.Center) {
+                                            Text(level.uppercase(), color = if (isSel) Color.White else Slate900, fontWeight = FontWeight.Black, fontSize = 11.sp)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        Text("Treatment & Prescription", fontWeight = FontWeight.Black, color = Slate950, style = MaterialTheme.typography.titleLarge)
+                        
+                        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                            Text("MEDICAL ACTIONS", style = MaterialTheme.typography.labelLarge, color = Slate400, fontWeight = FontWeight.Black, letterSpacing = 2.sp)
+                            OutlinedTextField(
+                                value = tindakan,
+                                onValueChange = { tindakan = it },
+                                placeholder = { Text("Administered actions...", color = Slate400) },
+                                modifier = Modifier.fillMaxWidth().height(120.dp),
+                                shape = RoundedCornerShape(24.dp),
+                                colors = TextFieldDefaults.outlinedTextFieldColors(
+                                    containerColor = Color.White,
+                                    unfocusedBorderColor = Slate100,
+                                    focusedBorderColor = primaryColor
+                                )
+                            )
+                        }
+
+                        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                            Text("DIAGNOSIS CHIPS", style = MaterialTheme.typography.labelLarge, color = Slate400, fontWeight = FontWeight.Black, letterSpacing = 2.sp)
+                            @OptIn(ExperimentalLayoutApi::class)
+                            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                diagnosisList.forEach { diag ->
+                                    val isSel = selectedDiagnosisIds.contains(diag.id)
+                                    Surface(
+                                        onClick = { selectedDiagnosisIds = if (isSel) selectedDiagnosisIds - diag.id else selectedDiagnosisIds + diag.id },
+                                        color = if (isSel) primaryColor.copy(alpha = 0.1f) else Color.White,
+                                        shape = RoundedCornerShape(12.dp),
+                                        border = BorderStroke(1.dp, if (isSel) primaryColor else Slate100)
+                                    ) {
+                                        Text(diag.namaPenyakit ?: "-", color = if (isSel) primaryColor else Slate900, fontWeight = FontWeight.Bold, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp))
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Footers
+                Surface(color = Color.White, shadowElevation = 10.dp) {
+                    Row(modifier = Modifier.padding(24.dp).fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                        if (currentStep > 1) {
+                            OutlinedButton(onClick = { currentStep-- }, modifier = Modifier.weight(1f).height(64.dp), shape = RoundedCornerShape(20.dp), border = BorderStroke(1.dp, Slate100)) {
+                                Text("PREVIOUS", color = Slate900, fontWeight = FontWeight.Black)
+                            }
+                        }
+                        
+                        Button(
+                            onClick = {
+                                if (currentStep < 2) {
+                                    if (selectedSantriId != null) currentStep++
+                                } else {
+                                    val request = SakitRequest(
+                                        santriId = selectedSantriId ?: 0,
+                                        tglMasuk = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(java.util.Date()),
+                                        status = status,
+                                        jenisPerawatan = "Rawat Inap",
+                                        tujuanRujukan = null,
+                                        gejala = gejala,
+                                        tindakan = tindakan,
+                                        catatan = "",
+                                        diagnosisIds = selectedDiagnosisIds.toList(),
+                                        obatUsage = selectedObatUsage.map { com.example.deisacompose.data.models.ObatUsageRequest(it.key, it.value) }
+                                    )
+                                    if (sakitId == null) viewModel.submitSakit(request, { navController.navigateUp() }, {})
+                                    else viewModel.updateSakit(sakitId, request, { navController.navigateUp() }, {})
+                                }
+                            },
+                            modifier = Modifier.weight(2f).height(64.dp),
+                            shape = RoundedCornerShape(20.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Slate950)
+                        ) {
+                            Text(if (currentStep < 2) "NEXT STEP" else "FINALIZE RECORD", fontWeight = FontWeight.Black)
+                        }
+                    }
                 }
             }
         }

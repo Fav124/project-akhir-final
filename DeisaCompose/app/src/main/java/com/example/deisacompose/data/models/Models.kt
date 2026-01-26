@@ -318,7 +318,7 @@ data class SantriRequest(
     @SerializedName("jurusan_id") val jurusanId: Int? = null,
     @SerializedName("tempat_lahir") val tempatLahir: String? = null,
     @SerializedName("tanggal_lahir") val tanggalLahir: String? = null,
-    @SerializedName("angkatan_id") val angkatanId: Int? = null, // Replaces tahunMasuk
+    @SerializedName("tahun_masuk") val tahunMasuk: Int,
     @SerializedName("jenis_kelamin") val jenisKelamin: String = "L",
     val alamat: String? = null,
     @SerializedName("status_kesehatan") val statusKesehatan: String = "Sehat",
@@ -334,7 +334,16 @@ data class SantriRequest(
 
 data class HistoryResponse(
     val success: Boolean,
+    val summary: HistorySummary?,
     val data: HistoryData
+)
+
+data class HistorySummary(
+    val total: Int,
+    val today: Int,
+    val santri: Int,
+    val sakit: Int,
+    val obat: Int
 )
 
 data class HistoryData(

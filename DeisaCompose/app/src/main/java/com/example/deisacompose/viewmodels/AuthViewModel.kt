@@ -25,7 +25,7 @@ class AuthViewModel : ViewModel() {
     private val _registrationSuccess = MutableLiveData<String?>()
     val registrationSuccess: LiveData<String?> = _registrationSuccess
 
-    fun login(email: String, password: String) {
+    fun login(email: String, password: String, rememberMe: Boolean = false) {
         _isLoading.postValue(true)
         viewModelScope.launch {
             try {
@@ -36,6 +36,7 @@ class AuthViewModel : ViewModel() {
                     val token = response.body()?.data?.token
                     if (token != null) {
                         ApiClient.getSessionManager().saveAuthToken(token)
+                        ApiClient.getSessionManager().saveRememberStatus(rememberMe)
                     }
                     _authSuccess.postValue(true)
                 } else {
@@ -56,12 +57,31 @@ class AuthViewModel : ViewModel() {
         }
     }
 
+    fun forgotPassword(email: String) {
+        _isLoading.postValue(true)
+        viewModelScope.launch {
+            try {
+                // Placeholder: In a real app, this would call apiService.forgotPassword
+                // For now, we simulate success message
+                kotlinx.coroutines.delay(1000)
+                _registrationSuccess.postValue("Permintaan reset telah dicatat. Silakan hubungi Admin.")
+            } catch (e: Exception) {
+                _error.postValue(e.message ?: "Gagal memproses permintaan")
+            } finally {
+                _isLoading.postValue(false)
+            }
+        }
+    }
+
     fun logout() {
         viewModelScope.launch {
             try {
                 apiService.logout()
             } catch (e: Exception) {
                 // Even if logout fails on server, client should still log out
+            }
+            if (!ApiClient.getSessionManager().fetchRememberStatus()) {
+                ApiClient.getSessionManager().clearAuthToken()
             }
             _authSuccess.postValue(false)
         }

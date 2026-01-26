@@ -27,8 +27,8 @@ class SantriSakitController extends Controller
             'diagnosis_awal' => 'required|string',
             'tindakan' => 'required|string',
             'obat' => 'nullable|array',
-            'obat.*.id' => 'required_with:obat|exists:obats,id',
-            'obat.*.jumlah' => 'required_with:obat|integer|min:1'
+            'obat.*.id' => 'nullable|exists:obats,id',
+            'obat.*.jumlah' => 'nullable|integer|min:1'
         ]);
 
         DB::beginTransaction();

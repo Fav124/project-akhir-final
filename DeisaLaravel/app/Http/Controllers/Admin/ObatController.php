@@ -183,7 +183,13 @@ class ObatController extends Controller
             $obat->stok += $request->jumlah;
             $obat->save();
 
-            // Log restock history here if table exists
+            ActivityLog::create([
+                'user_id' => Auth::id(),
+                'action' => 'RESTOCK',
+                'module' => 'Obat',
+                'detail' => "Menambah stok obat {$obat->nama_obat} sebanyak {$request->jumlah}",
+                'ip_address' => $request->ip()
+            ]);
 
             if ($request->wantsJson()) {
                 return response()->json(['message' => 'Stok berhasil ditambahkan', 'reload' => true]);
@@ -194,6 +200,35 @@ class ObatController extends Controller
                 return response()->json(['message' => 'Restock gagal: ' . $e->getMessage()], 500);
             }
             return back()->with('error', 'Restock gagal: ' . $e->getMessage());
+        }
+    }
+
+    public function handleUse(Request $request, $id)
+    {
+        $request->validate([
+            'jumlah' => 'required|integer|min:1',
+        ]);
+
+        try {
+            $obat = Obat::findOrFail($id);
+            if ($obat->stok < $request->jumlah) {
+                throw new \Exception("Stok tidak mencukupi.");
+            }
+
+            $obat->stok -= $request->jumlah;
+            $obat->save();
+
+            ActivityLog::create([
+                'user_id' => Auth::id(),
+                'action' => 'USE',
+                'module' => 'Obat',
+                'detail' => "Menggunakan obat {$obat->nama_obat} sebanyak {$request->jumlah}",
+                'ip_address' => $request->ip()
+            ]);
+
+            return response()->json(['message' => 'Stok obat berhasil dikurangi', 'reload' => true]);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Gagal: ' . $e->getMessage()], 500);
         }
     }
 

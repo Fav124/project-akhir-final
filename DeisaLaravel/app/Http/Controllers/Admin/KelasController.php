@@ -13,45 +13,57 @@ class KelasController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Kelas::with('jurusan');
+        $query = Kelas::with(['jurusans', 'angkatan']);
 
         if ($request->has('search') && $request->search != '') {
             $term = $request->search;
             $query->where('nama_kelas', 'like', "%{$term}%")
-                ->orWhereHas('jurusan', function ($q) use ($term) {
+                ->orWhereHas('jurusans', function ($q) use ($term) {
                     $q->where('nama_jurusan', 'like', "%{$term}%");
                 });
         }
 
         $kelases = $query->latest()->paginate(10);
         $jurusans = Jurusan::all();
+        $angkatans = \App\Models\Angkatan::all();
 
         if ($request->ajax()) {
             return view('admin.kelas._table', compact('kelases'));
         }
 
-        return view('admin.kelas.index', compact('kelases', 'jurusans'));
+        return view('admin.kelas.index', compact('kelases', 'jurusans', 'angkatans'));
     }
 
     public function create()
     {
         $jurusans = Jurusan::all();
+        $angkatans = \App\Models\Angkatan::all();
         if (request()->ajax()) {
-            return view('admin.kelas._form_modal', compact('jurusans'));
+            return view('admin.kelas._form_modal', compact('jurusans', 'angkatans'));
         }
-        return view('admin.kelas.create', compact('jurusans'));
+        return view('admin.kelas.create', compact('jurusans', 'angkatans'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama_kelas' => 'required|string|max:255',
-            'jurusan_id' => 'required|exists:jurusans,id',
+            'nama_kelas' => 'nullable|string|max:255',
+            'jenjang' => 'required|string|in:TK,SD,SMP,SMA,SMK,Kuliah',
+            'tingkat' => 'required|integer|min:1',
+            'jurusan_ids' => 'required|array',
+            'jurusan_ids.*' => 'exists:jurusans,id',
             'tahun_ajaran' => 'nullable|string|max:50',
         ]);
 
         try {
-            $kelas = Kelas::create($validated);
+            $kelas = Kelas::create([
+                'nama_kelas' => $request->nama_kelas,
+                'jenjang' => $request->jenjang,
+                'tingkat' => $request->tingkat,
+                'tahun_ajaran' => $request->tahun_ajaran,
+            ]);
+
+            $kelas->jurusans()->attach($request->jurusan_ids);
 
             ActivityLog::create([
                 'user_id' => Auth::id(),
@@ -75,25 +87,36 @@ class KelasController extends Controller
 
     public function edit($id)
     {
-        $kelas = Kelas::findOrFail($id);
+        $kelas = Kelas::with('jurusans')->findOrFail($id);
         $jurusans = Jurusan::all();
+        $angkatans = \App\Models\Angkatan::all();
         if (request()->ajax()) {
-            return view('admin.kelas._form_modal', compact('kelas', 'jurusans'));
+            return view('admin.kelas._form_modal', compact('kelas', 'jurusans', 'angkatans'));
         }
-        return view('admin.kelas.edit', compact('kelas', 'jurusans'));
+        return view('admin.kelas.edit', compact('kelas', 'jurusans', 'angkatans'));
     }
 
     public function update(Request $request, $id)
     {
         $kelas = Kelas::findOrFail($id);
         $validated = $request->validate([
-            'nama_kelas' => 'required|string|max:255',
-            'jurusan_id' => 'required|exists:jurusans,id',
+            'nama_kelas' => 'nullable|string|max:255',
+            'jenjang' => 'required|string|in:TK,SD,SMP,SMA,SMK,Kuliah',
+            'tingkat' => 'required|integer|min:1',
+            'jurusan_ids' => 'required|array',
+            'jurusan_ids.*' => 'exists:jurusans,id',
             'tahun_ajaran' => 'nullable|string|max:50',
         ]);
 
         try {
-            $kelas->update($validated);
+            $kelas->update([
+                'nama_kelas' => $request->nama_kelas,
+                'jenjang' => $request->jenjang,
+                'tingkat' => $request->tingkat,
+                'tahun_ajaran' => $request->tahun_ajaran,
+            ]);
+
+            $kelas->jurusans()->sync($request->jurusan_ids);
 
             ActivityLog::create([
                 'user_id' => Auth::id(),

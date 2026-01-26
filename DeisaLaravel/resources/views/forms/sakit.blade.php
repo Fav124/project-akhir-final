@@ -31,23 +31,50 @@
                 <div id="step1" class="step-content space-y-6">
                     <h2 class="text-xl font-bold text-slate-800">Identitas Santri</h2>
 
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-2">Cari Santri / ID</label>
+                    <div x-data="{ 
+                        search: '', 
+                        santris: {{ $santris->toJson() }},
+                        showDropdown: false,
+                        selectedName: '',
+                        get filtered() {
+                            if (!this.search) return [];
+                            return this.santris.filter(s => 
+                                s.nama_lengkap.toLowerCase().includes(this.search.toLowerCase()) || 
+                                s.nis.includes(this.search)
+                            ).slice(0, 5);
+                        }
+                    }" class="relative">
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Cari Santri / NIS</label>
                         <div class="relative">
                             <input type="text" name="santri_id_input" required
-                                class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-deisa-blue"
-                                placeholder="Ketik nama atau NIS..." list="santriList">
+                                x-model="search"
+                                @focus="showDropdown = true"
+                                @click.away="showDropdown = false"
+                                class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-deisa-blue transition-all"
+                                placeholder="Ketik nama atau NIS...">
                             <svg class="w-5 h-5 text-slate-400 absolute left-3 top-3.5" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                             </svg>
                         </div>
-                        <datalist id="santriList">
-                            @foreach($santris as $santri)
-                                <option value="{{ $santri->nis }}">{{ $santri->nama_lengkap }}</option>
-                            @endforeach
-                        </datalist>
+
+                        <!-- Predictive Results Dropdown -->
+                        <div x-show="showDropdown && filtered.length > 0" 
+                            class="absolute z-50 w-full mt-2 bg-white rounded-2xl border border-slate-100 shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                            <template x-for="santri in filtered" :key="santri.nis">
+                                <button type="button" @click="search = santri.nis; showDropdown = false"
+                                    class="w-full px-4 py-3 text-left hover:bg-blue-50 transition-colors flex items-center justify-between group border-b border-slate-50 last:border-0">
+                                    <div>
+                                        <div class="font-bold text-slate-800 group-hover:text-deisa-blue" x-text="santri.nama_lengkap"></div>
+                                        <div class="text-xs text-slate-400" x-text="santri.nis"></div>
+                                    </div>
+                                    <svg class="w-4 h-4 text-slate-300 group-hover:text-deisa-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
+                                </button>
+                            </template>
+                        </div>
                     </div>
 
                     <div class="pt-4">
@@ -118,23 +145,27 @@
                         </div>
                     </div>
 
-                    <div>
-                        <div class="flex justify-between items-center mb-2">
-                            <label class="block text-sm font-medium text-slate-700">Obat yang Diberikan</label>
+                    <div class="pt-4 p-5 bg-slate-100/50 rounded-2xl border border-dashed border-slate-200">
+                        <div class="flex justify-between items-center mb-3">
+                            <label class="block text-sm font-bold text-slate-800 tracking-tight uppercase">Obat (Opsional)</label>
+                            <span class="px-2 py-0.5 bg-slate-200 text-slate-500 text-[10px] rounded font-black">OPTIONAL</span>
                         </div>
                         <div class="space-y-3" id="obat-container">
                             <div class="flex gap-2 obat-row">
-                                <select name="obat[0][id]" class="flex-1 px-4 py-2 rounded-lg border border-slate-300 text-sm bg-white">
-                                    <option value="">-- Pilih Obat --</option>
+                                <select name="obat[0][id]" class="flex-1 px-4 py-2 rounded-lg border border-slate-300 text-sm bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-deisa-blue transition-all">
+                                    <option value="">-- Pilih Obat Jika Ada --</option>
                                     @foreach($obats as $obat)
                                         <option value="{{ $obat->id }}">{{ $obat->nama_obat }} (Stok: {{ $obat->stok }})</option>
                                     @endforeach
                                 </select>
-                                <input type="number" name="obat[0][jumlah]" placeholder="Jml"
-                                    class="w-20 px-4 py-2 rounded-lg border border-slate-300 text-sm">
+                                <input type="number" name="obat[0][jumlah]" placeholder="0"
+                                    class="w-20 px-4 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-blue-500/20">
                             </div>
                         </div>
-                        <button type="button" class="mt-2 text-xs text-deisa-blue font-bold" onclick="addObatRow()">+ Tambah Obat</button>
+                        <button type="button" class="mt-4 text-xs text-deisa-blue font-black flex items-center gap-1 group" onclick="addObatRow()">
+                            <svg class="w-4 h-4 group-hover:rotate-90 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4" /></svg>
+                            TAMBAH OBAT LAIN
+                        </button>
                     </div>
 
                     <div class="pt-4 flex gap-4">
@@ -161,7 +192,7 @@
                     </div>
 
                     <div class="bg-white rounded-xl border border-slate-200 divide-y divide-slate-100 p-4 space-y-2">
-                        <p class="text-sm text-slate-600">Tekan tombol di bawah untuk menyimpan laporan kesehatan santri secara permanen ke sistem.</p>
+                        <p class="text-sm text-slate-600 font-medium">Laporan akan disimpan secara resmi ke riwayat UKS. Periksa kembali NIS Santri dan keluhan sebelum mengirim.</p>
                     </div>
 
                     <div class="pt-4 flex gap-4">
@@ -193,16 +224,16 @@
             function addObatRow() {
                 const container = document.getElementById('obat-container');
                 const row = document.createElement('div');
-                row.className = 'flex gap-2 obat-row mt-3';
+                row.className = 'flex gap-2 obat-row mt-3 animate-in slide-in-from-left-2 duration-300';
                 row.innerHTML = `
-                    <select name="obat[${obatCount}][id]" class="flex-1 px-4 py-2 rounded-lg border border-slate-300 text-sm bg-white">
+                    <select name="obat[${obatCount}][id]" class="flex-1 px-4 py-2 rounded-lg border border-slate-300 text-sm bg-white focus:ring-2 focus:ring-blue-500/20 transition-all">
                         <option value="">-- Pilih Obat --</option>
                         @foreach($obats as $obat)
                             <option value="{{ $obat->id }}">{{ $obat->nama_obat }} (Stok: {{ $obat->stok }})</option>
                         @endforeach
                     </select>
-                    <input type="number" name="obat[${obatCount}][jumlah]" placeholder="Jml"
-                        class="w-20 px-4 py-2 rounded-lg border border-slate-300 text-sm">
+                    <input type="number" name="obat[${obatCount}][jumlah]" placeholder="0"
+                        class="w-20 px-4 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-blue-500/20">
                 `;
                 container.appendChild(row);
                 obatCount++;
@@ -212,12 +243,14 @@
                 document.querySelectorAll('.step-content').forEach(el => el.classList.add('hidden'));
                 document.getElementById('step' + step).classList.remove('hidden');
                 updateProgress(step);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
 
             function prevStep(step) {
                 document.querySelectorAll('.step-content').forEach(el => el.classList.add('hidden'));
                 document.getElementById('step' + step).classList.remove('hidden');
                 updateProgress(step);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
 
             function updateProgress(step) {

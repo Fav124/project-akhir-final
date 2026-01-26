@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Route;
 
 // Landing Page
 Route::get('/', [App\Http\Controllers\LandingController::class, 'index'])->name('landing');
+Route::get('/features', [App\Http\Controllers\LandingController::class, 'features'])->name('landing.features');
 
 // Authentication Routes
 Route::get('/login', [App\Http\Controllers\Auth\LoginController::class, 'showLoginForm'])->name('login');
@@ -17,6 +18,10 @@ Route::post('/login', [App\Http\Controllers\Auth\LoginController::class, 'login'
 Route::get('/register', [App\Http\Controllers\Auth\RegisterController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [App\Http\Controllers\Auth\RegisterController::class, 'register']);
 Route::post('/logout', [App\Http\Controllers\Auth\LoginController::class, 'logout'])->name('logout');
+
+// Password Reset Routes
+Route::get('/forgot-password', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+Route::post('/forgot-password', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
 
 // Public/Dev Route for simple access if Auth not fully scaffolded yet
 Route::get('/dev-login', function () {
@@ -36,6 +41,8 @@ Route::middleware(['web'])->prefix('admin')->name('admin.')->group(function () {
         Route::post('/users/{id}/approve', [App\Http\Controllers\Admin\UserController::class, 'approve'])->name('users.approve');
         Route::get('/activity', [App\Http\Controllers\Admin\ActivityController::class, 'index'])->name('activity.index');
         Route::get('/activity/{id}', [App\Http\Controllers\Admin\ActivityController::class, 'show'])->name('activity.show');
+        Route::get('/akademik/kenaikan', [App\Http\Controllers\Admin\AkademikController::class, 'index'])->name('akademik.index');
+        Route::post('/akademik/proses', [App\Http\Controllers\Admin\AkademikController::class, 'process'])->name('akademik.process');
     });
 
     // General Admin Panel Routes (Admin & User roles can access)
@@ -51,18 +58,17 @@ Route::middleware(['web'])->prefix('admin')->name('admin.')->group(function () {
 // User / Petugas Routes
 Route::middleware(['web'])->prefix('user')->name('user.')->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\User\UserDashboardController::class, 'index'])->name('dashboard');
+    Route::post('/logout', [App\Http\Controllers\User\UserDashboardController::class, 'logout'])->name('logout');
 
     Route::get('/obat', function () {
-        // Simple view, could be moved to controller if logic needed later
-        // But for now it's mostly client-side interactive via API or basic list
-        // Let's use a simple controller method or keep closure if data passed
-        // For list.blade.php to work, it needs obats. Let's make a mini controller method inline or use ObatController
         $obats = App\Models\Obat::where('stok', '>', 0)->get();
         return view('user.obat.list', compact('obats'));
     })->name('obat.list');
+    Route::post('/obat/{id}/use', [App\Http\Controllers\Admin\ObatController::class, 'handleUse'])->name('obat.use');
 
     Route::get('/form-sakit', [App\Http\Controllers\User\SantriSakitController::class, 'create'])->name('sakit.create');
     Route::post('/form-sakit', [App\Http\Controllers\User\SantriSakitController::class, 'store'])->name('sakit.store');
+    Route::get('/history', [App\Http\Controllers\Admin\ActivityController::class, 'index'])->name('history');
 });
 
 // Redirect /forms/sakit to the new user route for backward compatibility or remove
@@ -73,8 +79,14 @@ Route::get('/forms/sakit', function () {
 // Remove Preview Routes for Production Launch
 // Route::prefix('preview')->group(...) // Removed per user request "Jangan preview lagi"
 
-// Profile Settings
+// Profile & Shared Features
 Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'index'])->name('profile.index');
     Route::put('/profile', [App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+
+    // Summary & Reminders
+    Route::get('/api/summary', [App\Http\Controllers\Admin\SummaryController::class, 'getSummaryData'])->name('api.summary');
+    Route::get('/api/reminders', [App\Http\Controllers\Admin\ReminderController::class, 'index'])->name('api.reminders.index');
+    Route::post('/api/reminders', [App\Http\Controllers\Admin\ReminderController::class, 'store'])->name('api.reminders.store');
+    Route::post('/api/reminders/{id}/dismiss', [App\Http\Controllers\Admin\ReminderController::class, 'dismiss'])->name('api.reminders.dismiss');
 });

@@ -28,7 +28,7 @@
     /* Deisa Custom Colors */
     --color-deisa-blue: #0B63D6;
     --color-deisa-green: #10B981;
-    --color-deisa-bg: #0B63D6;
+    --color-deisa-bg: var(--color-deisa-blue);
     --color-deisa-surface: #ffffff;
     --color-deisa-muted: #64748b;
 }

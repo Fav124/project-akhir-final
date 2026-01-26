@@ -33,7 +33,15 @@
         </div>
 
         <!-- Step 1: Identitas Dasar -->
-        <div id="step-1" class="space-y-4">
+        <div id="step-1" class="space-y-4" x-data="{ 
+            selectedKelas: '{{ $santri->kelas_id ?? '' }}',
+            classes: {{ $classes->toJson() }},
+            get availableJurusans() {
+                if (!this.selectedKelas) return [];
+                const kelas = this.classes.find(k => k.id == this.selectedKelas);
+                return kelas ? kelas.jurusans : [];
+            }
+        }">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Foto Santri</label>
@@ -47,7 +55,7 @@
                         class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500/20 focus:border-deisa-blue outline-none transition-all"
                         placeholder="Contoh: 2024001">
                 </div>
-                <div>
+                <div class="md:col-span-2">
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Nama Lengkap</label>
                     <input type="text" name="nama_lengkap" value="{{ $santri->nama_lengkap ?? '' }}" required
                         class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500/20 focus:border-deisa-blue outline-none transition-all"
@@ -66,12 +74,12 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Kelas</label>
-                    <select name="kelas_id" required
+                    <select name="kelas_id" required x-model="selectedKelas"
                         class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500/20 focus:border-deisa-blue outline-none transition-all bg-white">
                         <option value="">Pilih Kelas</option>
                         @foreach($classes as $class)
-                            <option value="{{ $class->id }}" {{ (isset($santri) && $santri->kelas_id == $class->id) ? 'selected' : '' }}>
-                                {{ $class->nama_kelas }}
+                            <option value="{{ $class->id }}">
+                                {{ $class->nama_kelas }} {{ $class->angkatan ? '('.$class->angkatan->nama_angkatan.')' : '' }}
                             </option>
                         @endforeach
                     </select>
@@ -79,13 +87,12 @@
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Jurusan</label>
                     <select name="jurusan_id" required
-                        class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500/20 focus:border-deisa-blue outline-none transition-all bg-white">
+                        class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500/20 focus:border-deisa-blue outline-none transition-all bg-white disabled:opacity-50 disabled:bg-slate-50"
+                        :disabled="!selectedKelas">
                         <option value="">Pilih Jurusan</option>
-                        @foreach($jurusans as $jurusan)
-                            <option value="{{ $jurusan->id }}" {{ (isset($santri) && $santri->jurusan_id == $jurusan->id) ? 'selected' : '' }}>
-                                {{ $jurusan->nama_jurusan }}
-                            </option>
-                        @endforeach
+                        <template x-for="jurusan in availableJurusans" :key="jurusan.id">
+                            <option :value="jurusan.id" :selected="jurusan.id == '{{ $santri->jurusan_id ?? '' }}'" x-text="jurusan.nama_jurusan"></option>
+                        </template>
                     </select>
                 </div>
                 <div>
@@ -113,18 +120,6 @@
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Tanggal Lahir</label>
                     <input type="date" name="tanggal_lahir" value="{{ $santri->tanggal_lahir ?? '' }}"
                         class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500/20 focus:border-deisa-blue outline-none transition-all">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Angkatan</label>
-                    <select name="angkatan_id"
-                        class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500/20 focus:border-deisa-blue outline-none transition-all bg-white">
-                        <option value="">Pilih Angkatan</option>
-                        @foreach($angkatans as $angkatan)
-                            <option value="{{ $angkatan->id }}" {{ (isset($santri) && $santri->angkatan_id == $angkatan->id) ? 'selected' : '' }}>
-                                {{ $angkatan->nama_angkatan }} ({{ $angkatan->tahun }})
-                            </option>
-                        @endforeach
-                    </select>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Golongan Darah</label>

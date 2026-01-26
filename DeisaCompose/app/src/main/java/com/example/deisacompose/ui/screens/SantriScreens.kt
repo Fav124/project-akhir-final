@@ -351,7 +351,7 @@ fun SantriFormScreen(
             tempatLahir = it.tempatLahir ?: ""
             tanggalLahir = it.tanggalLahir ?: ""
             alamat = it.alamat ?: ""
-            tahunMasuk = it.angkatanId
+            tahunMasuk = (it.tahunMasuk ?: it.angkatan?.tahun ?: java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)).toString()
 
             // From Wali
             it.wali?.let { w ->
@@ -628,36 +628,15 @@ fun SantriFormScreen(
                             )
                         }
 
-                        ExposedDropdownMenuBox(
-                            expanded = expandedTahunMasuk,
-                            onExpandedChange = { expandedTahunMasuk = !expandedTahunMasuk }
-                        ) {
-                            OutlinedTextField(
-                                value = angkatanList.find { it.id == tahunMasuk }?.let { "${it.namaAngkatan} (${it.tahun})" } ?: "",
-                                onValueChange = {},
-                                readOnly = true,
-                                label = { Text("Pilih Angkatan") },
-                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedTahunMasuk) },
-                                modifier = Modifier
-                                    .menuAnchor()
-                                    .fillMaxWidth(),
-                                shape = RoundedCornerShape(12.dp)
-                            )
-                            ExposedDropdownMenu(
-                                expanded = expandedTahunMasuk,
-                                onDismissRequest = { expandedTahunMasuk = false }
-                            ) {
-                                angkatanList.forEach { angkatan ->
-                                    DropdownMenuItem(
-                                        text = { Text("${angkatan.namaAngkatan} (${angkatan.tahun})") },
-                                        onClick = {
-                                            tahunMasuk = angkatan.id
-                                            expandedTahunMasuk = false
-                                        }
-                                    )
-                                }
-                            }
-                        }
+                        OutlinedTextField(
+                            value = tahunMasuk,
+                            onValueChange = { tahunMasuk = it },
+                            label = { Text("Tahun Masuk") },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
+                            placeholder = { Text("Contoh: 2024") }
+                        )
 
                         OutlinedTextField(
                             value = alamat,
@@ -772,7 +751,7 @@ fun SantriFormScreen(
                                     namaLengkap = namaLengkap,
                                     kelasId = selectedKelasId ?: 0,
                                     jurusanId = selectedJurusanId,
-                                    angkatanId = tahunMasuk, // Changed param name
+                                    tahunMasuk = tahunMasuk.toIntOrNull() ?: java.util.Calendar.getInstance().get(java.util.Calendar.YEAR),
                                     jenisKelamin = jenisKelamin,
                                     statusKesehatan = statusKesehatan,
                                     tempatLahir = tempatLahir,

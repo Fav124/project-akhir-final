@@ -45,6 +45,7 @@ private val LightColorScheme = lightColorScheme(
 @Composable
 fun DeisaComposeTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
+    primaryColor: Color = DeisaBlue,
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
@@ -55,15 +56,15 @@ fun DeisaComposeTheme(
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
 
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+        darkTheme -> DarkColorScheme.copy(primary = primaryColor)
+        else -> LightColorScheme.copy(primary = primaryColor)
     }
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
             window.statusBarColor = colorScheme.primary.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
         }
     }
 

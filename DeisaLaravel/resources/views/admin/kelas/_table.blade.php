@@ -2,6 +2,7 @@
     <thead class="bg-slate-50 text-slate-900 border-b border-slate-200">
         <tr>
             <th class="px-4 py-3 font-semibold">Nama Kelas</th>
+            <th class="px-4 py-3 font-semibold">Angkatan</th>
             <th class="px-4 py-3 font-semibold">Jurusan</th>
             <th class="px-4 py-3 font-semibold">Tahun Ajaran</th>
             <th class="px-4 py-3 font-semibold">Jumlah Santri</th>
@@ -12,15 +13,28 @@
         @forelse($kelases as $kelas)
             <tr class="hover:bg-slate-50 transition-colors">
                 <td class="px-4 py-3">
-                    <span class="font-medium text-slate-900">{{ $kelas->nama_kelas }}</span>
+                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600 mr-2">
+                        {{ $kelas->jenjang ?? '-' }}
+                    </span>
+                    <span class="font-bold text-slate-900">{{ $kelas->nama_kelas }}</span>
                 </td>
                 <td class="px-4 py-3">
-                    <span
-                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-deisa-blue">
-                        {{ $kelas->jurusan->nama_jurusan ?? 'N/A' }}
+                    <span class="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                        {{ $kelas->angkatan->nama_angkatan ?? 'N/A' }}
                     </span>
                 </td>
-                <td class="px-4 py-3 text-slate-500 italic">{{ $kelas->tahun_ajaran ?? '-' }}</td>
+                <td class="px-4 py-3">
+                    <div class="flex flex-wrap gap-1">
+                        @forelse($kelas->jurusans as $jurusan)
+                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-deisa-blue border border-blue-100">
+                                {{ $jurusan->nama_jurusan }}
+                            </span>
+                        @empty
+                            <span class="text-slate-300 text-xs">-</span>
+                        @endforelse
+                    </div>
+                </td>
+                <td class="px-4 py-3 text-slate-500 italic text-xs">{{ $kelas->tahun_ajaran ?? '-' }}</td>
                 <td class="px-4 py-3">
                     <div class="flex items-center gap-2">
                         <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -36,7 +50,7 @@
                         <x-button variant="outline" class="px-2 py-1 text-xs h-8"
                             data-form-url="{{ route('admin.kelas.edit', $kelas->id) }}">Edit</x-button>
                         <form action="{{ route('admin.kelas.destroy', $kelas->id) }}" method="POST" data-ajax="true"
-                            data-reload="true">
+                            data-reload="true" data-confirm-required="true" data-confirm="Menghapus kelas akan berdampak pada relasi data santri aktif. Lanjutkan?">
                             @csrf
                             @method('DELETE')
                             <x-button variant="danger" type="submit" class="px-2 py-1 text-xs h-8"

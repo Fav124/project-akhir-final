@@ -29,7 +29,7 @@
                     <div>
                         <div class="flex justify-between items-center mb-1.5">
                             <label class="block text-sm font-medium text-slate-700">Password</label>
-                            <a href="#" class="text-sm text-deisa-blue hover:text-blue-700 font-medium">Lupa Password?</a>
+                            <a href="{{ route('password.request') }}" class="text-sm text-deisa-blue hover:text-blue-700 font-medium">Lupa Password?</a>
                         </div>
                         <input type="password" name="password"
                             class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-deisa-blue transition-all"

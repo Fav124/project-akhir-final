@@ -76,7 +76,7 @@ class SantriViewModel : BaseViewModel() {
                 map["status_kesehatan"] = createPartFromString(request.statusKesehatan)
                 request.tempatLahir?.let { map["tempat_lahir"] = createPartFromString(it) }
                 request.tanggalLahir?.let { map["tanggal_lahir"] = createPartFromString(it) }
-                request.angkatanId?.let { map["angkatan_id"] = createPartFromString(it.toString()) }
+                map["tahun_masuk"] = createPartFromString(request.tahunMasuk.toString())
                 request.alamat?.let { map["alamat"] = createPartFromString(it) }
                 request.riwayatAlergi?.let { map["riwayat_alergi"] = createPartFromString(it) }
                 request.namaWali?.let { map["nama_wali"] = createPartFromString(it) }
@@ -115,7 +115,7 @@ class SantriViewModel : BaseViewModel() {
                 map["status_kesehatan"] = createPartFromString(request.statusKesehatan)
                 request.tempatLahir?.let { map["tempat_lahir"] = createPartFromString(it) }
                 request.tanggalLahir?.let { map["tanggal_lahir"] = createPartFromString(it) }
-                request.angkatanId?.let { map["angkatan_id"] = createPartFromString(it.toString()) }
+                map["tahun_masuk"] = createPartFromString(request.tahunMasuk.toString())
                 request.alamat?.let { map["alamat"] = createPartFromString(it) }
                 request.riwayatAlergi?.let { map["riwayat_alergi"] = createPartFromString(it) }
                 request.namaWali?.let { map["nama_wali"] = createPartFromString(it) }

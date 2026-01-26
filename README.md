@@ -85,7 +85,15 @@ Open the `DeisaCompose` folder in Android Studio.
 3.  Sync Gradle and Run.
 
 ## 📱 Features
-See [FEATURES.md](FEATURES.md) for a detailed breakdown of all capabilities.
+Untuk detail lengkap mengenai seluruh fitur, peran pengguna, dan alur kerja sistem, silakan baca **[DOCUMENTATION.md](DOCUMENTATION.md)**.
+
+### Ringkasan Fitur Utama:
+-   **Dashboard & Analytics**: Statistik real-time dan tren kesehatan santri.
+-   **Electronic Health Records (EHR)**: Pencatatan diagnosa dan status kesehatan santri secara digital.
+-   **Real-time Inventory**: Pelacakan stok obat otomatis dengan pemberitahuan stok rendah via Laravel Reverb.
+-   **Mobile Integration**: Pelaporan cepat dan pencarian data santri melalui aplikasi Android Jetpack Compose.
+-   **User Management**: Sistem persetujuan pendaftaran petugas oleh admin.
+-   **Reporting**: Ekspor laporan kesehatan bulanan ke format PDF.
 
 ## 🤝 Project Structure
 -   `DeisaLaravel/app/Models`: Eloquent Models.

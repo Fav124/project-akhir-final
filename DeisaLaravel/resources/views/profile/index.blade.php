@@ -4,9 +4,15 @@
 
 @section('content')
     @if(auth()->user()->role != 'admin')
-        <div class="bg-slate-50 min-h-screen pb-24">
+        <div class="bg-slate-50 min-h-screen pb-24 max-w-7xl mx-auto">
             <header class="bg-deisa-blue px-6 pt-8 pb-20 rounded-b-[2.5rem] relative overflow-hidden">
-                <h2 class="text-xl font-bold text-white relative z-10">Profil Saya</h2>
+                <div class="flex items-center gap-4 relative z-10">
+                    <a href="{{ auth()->user()->role == 'admin' ? route('admin.dashboard') : route('user.dashboard') }}" 
+                       class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/30 transition-all">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" /></svg>
+                    </a>
+                    <h2 class="text-xl font-bold text-white">Profil Saya</h2>
+                </div>
             </header>
 
             <div class="px-6 -mt-12 relative z-10">
@@ -48,7 +54,14 @@
     @endsection
 
     @section('header')
-        <h2 class="text-xl font-bold text-slate-900">Profil Saya</h2>
-        <p class="text-sm text-slate-500">Kelola informasi pribadi dan akun</p>
+        <div class="flex items-center gap-4">
+            <a href="{{ route('admin.dashboard') }}" class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-all">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" /></svg>
+            </a>
+            <div>
+                <h2 class="text-xl font-bold text-slate-900">Profil Saya</h2>
+                <p class="text-sm text-slate-500">Kelola informasi pribadi dan akun</p>
+            </div>
+        </div>
     @endsection
 @endif

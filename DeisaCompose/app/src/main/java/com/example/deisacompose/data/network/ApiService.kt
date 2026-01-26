@@ -121,6 +121,9 @@ interface ApiService {
     
     @GET("management/history")
     suspend fun getHistory(): Response<HistoryResponse>
+
+    @GET("management/history")
+    suspend fun getActivityLogs(@Query("page") page: Int = 1, @Query("limit") limit: Int = 50): Response<HistoryResponse>
     
     @GET("management/angkatan")
     suspend fun getAngkatan(): Response<DataResponse<List<Angkatan>>>

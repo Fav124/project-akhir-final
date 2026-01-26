@@ -35,7 +35,12 @@
                 </div>
                 <div>
                     <label class="text-slate-400 uppercase text-[10px] font-bold">Kelas</label>
-                    <div class="font-medium text-slate-900">{{ $santri->kelas->nama_kelas ?? '-' }}</div>
+                    <div class="font-medium text-slate-900">
+                        {{ $santri->kelas->nama_kelas ?? '-' }}
+                        @if($santri->kelas && $santri->kelas->angkatan)
+                            <span class="text-[10px] text-slate-400 font-bold ml-1">({{ $santri->kelas->angkatan->nama_angkatan }})</span>
+                        @endif
+                    </div>
                 </div>
                 <div>
                     <label class="text-slate-400 uppercase text-[10px] font-bold">Jurusan</label>
@@ -70,7 +75,7 @@
                     @forelse($santri->sakit->take(3) as $s)
                         <div class="flex items-center justify-between p-2 bg-slate-50 rounded-lg border border-slate-100 text-xs">
                             <div>
-                                <div class="font-bold text-slate-800">{{ $s->diagnosis ?? 'Diagnosa tidak tersedia' }}</div>
+                                <div class="font-bold text-slate-800">{{ $s->diagnosis ?? 'Diagnosis tidak tersedia' }}</div>
                                 <div class="text-slate-500">{{ \Carbon\Carbon::parse($s->tanggal_sakit)->format('d/m/Y') }}</div>
                             </div>
                             <span class="px-2 py-0.5 rounded-full {{ $s->status == 'sembuh' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800' }}">

@@ -12,7 +12,10 @@ class ActivityController extends Controller
     {
         $query = ActivityLog::with('user');
 
-        if ($request->has('user_id') && $request->user_id != '') {
+        // If not admin, only show own logs
+        if (auth()->user()->role !== 'admin') {
+            $query->where('user_id', auth()->id());
+        } elseif ($request->has('user_id') && $request->user_id != '') {
             $query->where('user_id', $request->user_id);
         }
 
@@ -27,11 +30,26 @@ class ActivityController extends Controller
         $logs = $query->latest()->paginate(20);
         $users = \App\Models\User::all();
 
+        // Summary Stats (Ringkasan)
+        $summaryQuery = ActivityLog::query();
+        if (auth()->user()->role !== 'admin') {
+            $summaryQuery->where('user_id', auth()->id());
+        }
+        
+        $summary = [
+            'total' => (clone $summaryQuery)->count(),
+            'today' => (clone $summaryQuery)->whereDate('created_at', today())->count(),
+            'akademik' => (clone $summaryQuery)->where('module', 'Akademik')->count(),
+            'santri' => (clone $summaryQuery)->where('module', 'Santri')->count(),
+            'sakit' => (clone $summaryQuery)->where('module', 'Sakit')->count(),
+            'obat' => (clone $summaryQuery)->where('module', 'Obat')->count(),
+        ];
+
         if ($request->ajax()) {
             return view('admin.activity._table', compact('logs'));
         }
 
-        return view('admin.activity.index', compact('logs', 'users'));
+        return view('admin.activity.index', compact('logs', 'users', 'summary'));
     }
 
     public function show($id)

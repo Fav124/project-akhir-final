@@ -13,7 +13,7 @@ class SantriController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Santri::with(['kelas', 'jurusan']);
+        $query = Santri::with(['kelas', 'jurusan', 'angkatan'])->where('status_akademik', 'Aktif');
 
         if ($request->has('search') && $request->search != '') {
             $term = $request->search;
@@ -56,7 +56,7 @@ class SantriController extends Controller
 
     public function create()
     {
-        $classes = Kelas::all();
+        $classes = Kelas::with('jurusans')->get();
         $jurusans = \App\Models\Jurusan::all();
         $angkatans = \App\Models\Angkatan::orderBy('tahun', 'desc')->get();
         if (request()->ajax()) {
@@ -71,12 +71,12 @@ class SantriController extends Controller
             'nis' => 'required|unique:santris,nis',
             'nama_lengkap' => 'required|string|max:255',
             'jenis_kelamin' => 'required|in:L,P',
-            'kelas_id' => 'required|exists:kelases,id',
+            'kelas_id' => 'required|exists:kelas,id',
             'jurusan_id' => 'required|exists:jurusans,id',
             'status_kesehatan' => 'required|in:Sehat,Sakit,Rawat Inap,Pulang',
             'tempat_lahir' => 'nullable|string|max:255',
             'tanggal_lahir' => 'nullable|date',
-            'angkatan_id' => 'nullable|exists:angkatans,id',
+            'tahun_masuk' => 'nullable|integer|min:1900|max:' . (date('Y') + 1),
             'alamat' => 'nullable|string|max:500',
             'golongan_darah' => 'nullable|in:A,B,AB,O',
             'riwayat_alergi' => 'nullable|string',
@@ -133,7 +133,7 @@ class SantriController extends Controller
     public function edit($id)
     {
         $santri = Santri::with(['kelas', 'jurusan', 'wali', 'angkatan'])->findOrFail($id);
-        $classes = Kelas::all();
+        $classes = Kelas::with('jurusans')->get();
         $jurusans = \App\Models\Jurusan::all();
         $angkatans = \App\Models\Angkatan::orderBy('tahun', 'desc')->get();
         if (request()->ajax()) {
@@ -149,12 +149,12 @@ class SantriController extends Controller
             'nis' => 'required|unique:santris,nis,' . $id,
             'nama_lengkap' => 'required|string|max:255',
             'jenis_kelamin' => 'required|in:L,P',
-            'kelas_id' => 'required|exists:kelases,id',
+            'kelas_id' => 'required|exists:kelas,id',
             'jurusan_id' => 'required|exists:jurusans,id',
             'status_kesehatan' => 'required|in:Sehat,Sakit,Rawat Inap,Pulang',
             'tempat_lahir' => 'nullable|string|max:255',
             'tanggal_lahir' => 'nullable|date',
-            'angkatan_id' => 'nullable|exists:angkatans,id',
+            'tahun_masuk' => 'nullable|integer|min:1900|max:' . (date('Y') + 1),
             'alamat' => 'nullable|string|max:500',
             'golongan_darah' => 'nullable|in:A,B,AB,O',
             'riwayat_alergi' => 'nullable|string',

@@ -11,12 +11,32 @@ class ActivityLogController extends Controller
     public function index(Request $request)
     {
         $limit = $request->query('limit', 50);
-        $logs = ActivityLog::with('user')
-            ->orderBy('created_at', 'desc')
-            ->paginate($limit);
+        $query = ActivityLog::with('user');
+
+        // Role filtering
+        if ($request->user()->role !== 'admin') {
+            $query->where('user_id', $request->user()->id);
+        }
+
+        $logs = $query->orderBy('created_at', 'desc')->paginate($limit);
+
+        // Summary stats
+        $summaryQuery = ActivityLog::query();
+        if ($request->user()->role !== 'admin') {
+            $summaryQuery->where('user_id', $request->user()->id);
+        }
+
+        $summary = [
+            'total' => (clone $summaryQuery)->count(),
+            'today' => (clone $summaryQuery)->whereDate('created_at', now())->count(),
+            'santri' => (clone $summaryQuery)->where('module', 'Santri')->count(),
+            'sakit' => (clone $summaryQuery)->where('module', 'Sakit')->count(),
+            'obat' => (clone $summaryQuery)->where('module', 'Obat')->count(),
+        ];
 
         return response()->json([
             'success' => true,
+            'summary' => $summary,
             'data' => $logs
         ]);
     }

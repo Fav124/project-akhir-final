@@ -12,6 +12,7 @@
             </div>
 
             <nav class="flex-1 overflow-y-auto p-4 space-y-1">
+                <div class="px-4 py-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">Main Menu</div>
                 <a href="{{ route('admin.dashboard') }}"
                     class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-colors group {{ request()->routeIs('admin.dashboard') ? 'bg-blue-50 text-deisa-blue' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
                     <svg class="w-5 h-5 mr-3 {{ request()->routeIs('admin.dashboard') ? 'text-deisa-blue' : 'text-slate-400 group-hover:text-slate-500' }}"
@@ -33,6 +34,7 @@
                 </a>
 
                 @if(auth()->user()->role == 'admin')
+                <div class="px-4 py-2 mt-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Master Data</div>
                 <a href="{{ route('admin.kelas.index') }}"
                     class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-colors group {{ request()->routeIs('admin.kelas.*') ? 'bg-blue-50 text-deisa-blue' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
                     <svg class="w-5 h-5 mr-3 {{ request()->routeIs('admin.kelas.*') ? 'text-deisa-blue' : 'text-slate-400 group-hover:text-slate-500' }}"
@@ -51,8 +53,17 @@
                     </svg>
                     Data Jurusan
                 </a>
+                <a href="{{ route('admin.akademik.index') }}"
+                    class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-colors group {{ request()->routeIs('admin.akademik.*') ? 'bg-blue-50 text-deisa-blue' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
+                    <svg class="w-5 h-5 mr-3 {{ request()->routeIs('admin.akademik.*') ? 'text-deisa-blue' : 'text-slate-400 group-hover:text-slate-500' }}"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                    </svg>
+                    Kenaikan Kelas
+                </a>
                 @endif
 
+                <div class="px-4 py-2 mt-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Operation</div>
                 <a href="{{ route('admin.sakit.index') }}"
                     class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-colors group {{ request()->routeIs('admin.sakit.*') ? 'bg-blue-50 text-deisa-blue' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
                     <svg class="w-5 h-5 mr-3 {{ request()->routeIs('admin.sakit.*') ? 'text-deisa-blue' : 'text-slate-400 group-hover:text-slate-500' }}"
@@ -84,6 +95,7 @@
                 </a>
 
                 @if(auth()->user()->role == 'admin')
+                <div class="px-4 py-2 mt-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">System Management</div>
                 <a href="{{ route('admin.users.index') }}"
                     class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-colors group {{ request()->routeIs('admin.users.*') ? 'bg-blue-50 text-deisa-blue' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
                     <svg class="w-5 h-5 mr-3 {{ request()->routeIs('admin.users.*') ? 'text-deisa-blue' : 'text-slate-400 group-hover:text-slate-500' }}"
@@ -105,6 +117,12 @@
                 </a>
                 @endif
             </nav>
+
+            <style>
+                [x-cloak] {
+                    display: none !important;
+                }
+            </style>
 
             <div class="p-4 border-t border-slate-200">
                 <form method="POST" action="{{ route('logout') }}" id="logout-form">
@@ -137,35 +155,106 @@
                         @yield('header')
                     </div>
                 </div>
-                <div class="flex items-center gap-4">
-                    <button class="p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 relative">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9">
-                            </path>
+                <div class="flex items-center gap-4" x-data="{}">
+                    <!-- Daily Summary Global Trigger -->
+                    <button @click="$dispatch('open-focus-mode')" class="flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-slate-900/10 group">
+                        <svg class="w-4 h-4 text-blue-400 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                         </svg>
-                        <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
+                        <span class="hidden lg:inline">Summary Harian</span>
                     </button>
+
+                    <!-- Notification Bell -->
+                    <div x-data="notifications()" @refresh-reminders.window="fetchReminders()" class="relative">
+                        <button @click="open = !open" class="p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 relative transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9">
+                                </path>
+                            </svg>
+                            <span x-show="count > 0" class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
+                        </button>
+
+                        <!-- Notification Dropdown -->
+                        <div x-show="open" @click.away="open = false" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0"
+                            class="absolute right-0 mt-4 w-80 bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden z-50">
+                            <div class="p-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+                                <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Reminders</span>
+                                <span class="bg-blue-100 text-deisa-blue text-[10px] px-2 py-0.5 rounded-full font-bold" x-text="count + ' Active'"></span>
+                            </div>
+                            <div class="max-h-96 overflow-y-auto">
+                                <template x-if="items.length === 0">
+                                    <div class="p-8 text-center">
+                                        <div class="text-2xl mb-2 text-slate-300">✨</div>
+                                        <p class="text-slate-400 text-xs font-medium">All clear! No reminders.</p>
+                                    </div>
+                                </template>
+                                <template x-for="item in items" :key="item.id">
+                                    <div class="p-4 border-b border-slate-50 hover:bg-slate-50 transition-colors flex gap-3">
+                                        <div class="flex-1">
+                                            <div class="text-sm font-bold text-slate-900" x-text="item.title"></div>
+                                            <div class="text-[10px] text-slate-400 mt-1" x-text="item.message"></div>
+                                        </div>
+                                        <button @click="dismiss(item.id)" class="text-slate-300 hover:text-emerald-500">
+                                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                        </button>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+
+                    <script>
+                        function notifications() {
+                            return {
+                                open: false,
+                                items: [],
+                                count: 0,
+                                async fetchReminders() {
+                                    try {
+                                        const res = await fetch('{{ route('api.reminders.index') }}');
+                                        const json = await res.json();
+                                        this.items = json.data;
+                                        this.count = this.items.length;
+                                    } catch (e) { console.error(e); }
+                                },
+                                async dismiss(id) {
+                                    try {
+                                        const res = await fetch('{{ route('api.reminders.dismiss', ':id') }}'.replace(':id', id), {
+                                            method: 'POST',
+                                            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                                        });
+                                        if(res.ok) this.fetchReminders();
+                                    } catch (e) { console.error(e); }
+                                },
+                                init() {
+                                    this.fetchReminders();
+                                    setInterval(() => this.fetchReminders(), 30000); // Check every 30s
+                                }
+                            }
+                        }
+                    </script>
+
                     <div class="flex items-center gap-3 pl-4 border-l border-slate-200">
                         <div class="text-right hidden sm:block">
                             <div class="text-sm font-medium text-slate-900">{{ auth()->user()->name }}</div>
                             <div class="text-xs text-slate-500">{{ ucfirst(auth()->user()->role) }}</div>
                         </div>
-                        <div class="w-10 h-10 rounded-full bg-slate-200 border-2 border-white shadow-sm overflow-hidden">
-                            <!-- Avatar placeholder -->
-                            <svg class="w-full h-full text-slate-400" fill="currentColor" viewBox="0 0 24 24">
-                                <path
-                                    d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
-                            </svg>
-                        </div>
+                        <a href="{{ route('profile.index') }}" class="w-10 h-10 rounded-full bg-slate-200 border-2 border-white shadow-sm overflow-hidden">
+                            @if(auth()->user()->profile?->avatar)
+                                <img src="{{ Storage::url(auth()->user()->profile->avatar) }}" class="w-full h-full object-cover">
+                            @else
+                                <svg class="w-full h-full text-slate-400" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
+                                </svg>
+                            @endif
+                        </a>
                     </div>
                 </div>
             </header>
 
             <!-- Page Content -->
             <main class="flex-1 overflow-y-auto bg-slate-50 p-6 md:p-8">
-                <!-- Global Alerts -->
-                <!-- Global Alerts -->
                 @if(session('success'))
                     <script>
                         document.addEventListener('DOMContentLoaded', function() {
@@ -198,4 +287,6 @@
             </main>
         </div>
     </div>
+
+    @include('components.focus-mode')
 @endsection

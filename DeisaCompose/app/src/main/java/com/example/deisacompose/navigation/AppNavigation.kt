@@ -14,6 +14,8 @@ fun AppNavigation(navController: NavHostController) {
         composable("splash") { SplashScreen(navController) }
         composable("login") { LoginScreen(navController) }
         composable("register") { RegisterScreen(navController) }
+        composable("forgot_password") { ForgotPasswordScreen(navController) }
+        composable("history") { HistoryScreen(navController) }
         composable("home") { HomeScreen(navController) }
         
         // Features
@@ -45,6 +47,7 @@ fun AppNavigation(navController: NavHostController) {
         }
 
         composable("laporan") { LaporanScreen(navController) }
+        composable("focus_mode") { FocusModeScreen(navController) }
         
         // Admin Management
         composable("management_list") { ManagementListScreen(navController) }
