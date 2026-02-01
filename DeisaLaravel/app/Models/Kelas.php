@@ -8,51 +8,40 @@ use Illuminate\Database\Eloquent\Model;
 class Kelas extends Model
 {
     use HasFactory;
-    
-    protected $fillable = ['nama_kelas', 'jenjang', 'tingkat', 'angkatan_id', 'tahun_ajaran'];
+
+    protected $fillable = ['kode_kelas', 'nama_kelas', 'jenjang', 'tingkat', 'tahun_ajaran'];
 
     protected static function booted()
     {
-        static::saving(function ($kelas) {
-            if ($kelas->tingkat && $kelas->tahun_ajaran) {
-                // Extract start year from "2024/2025" -> 2024
-                preg_match('/^\d{4}/', $kelas->tahun_ajaran, $matches);
-                if (!empty($matches)) {
-                    $startYear = intval($matches[0]);
-                    
-                    // Calculation for Angkatan:
-                    // Entry Year = Start Year of current academic year - (Tingkat - 1)
-                    // If Tingkat 1 in 2024/2025 -> Entry year is 2024
-                    // If Tingkat 3 in 2024/2025 -> Entry year is 2022
-                    $cohortYear = $startYear - ($kelas->tingkat - 1);
+        static::creating(function ($kelas) {
+            if (empty($kelas->kode_kelas)) {
+                $lastKelas = self::where('kode_kelas', 'like', 'K-%')
+                    ->orderBy('id', 'desc')
+                    ->first();
 
-                    $angkatan = \App\Models\Angkatan::firstOrCreate(
-                        ['tahun' => $cohortYear],
-                        ['nama_angkatan' => 'Temporary Name']
-                    );
-                    
-                    $kelas->angkatan_id = $angkatan->id;
-                    \App\Models\Angkatan::syncNames();
-
-                    // Auto-generate name if empty
-                    if (empty($kelas->nama_kelas)) {
-                        $kelas->nama_kelas = ($kelas->jenjang ?? 'Kelas') . ' ' . $kelas->tingkat;
-                    }
+                if ($lastKelas && preg_match('/K-(\d+)/', $lastKelas->kode_kelas, $matches)) {
+                    $lastSequence = intval($matches[1]);
+                    $newSequence = str_pad($lastSequence + 1, 4, '0', STR_PAD_LEFT);
+                } else {
+                    $newSequence = '0001';
                 }
+
+                $kelas->kode_kelas = 'K-' . $newSequence;
             }
         });
-    }
-    
-    public function angkatan()
-    {
-        return $this->belongsTo(Angkatan::class);
+
+        static::saving(function ($kelas) {
+            if (empty($kelas->nama_kelas) && $kelas->tingkat) {
+                $kelas->nama_kelas = ($kelas->jenjang ?? 'Kelas') . ' ' . $kelas->tingkat;
+            }
+        });
     }
 
     public function jurusans()
     {
         return $this->belongsToMany(Jurusan::class, 'kelas_jurusan');
     }
-    
+
     public function santri()
     {
         return $this->hasMany(Santri::class);

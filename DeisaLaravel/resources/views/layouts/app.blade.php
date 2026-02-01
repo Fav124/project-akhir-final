@@ -13,6 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <!-- Scripts & Styles -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -21,7 +22,11 @@
             @php
                 $themeColor = '#0B63D6';
                 if(auth()->check() && auth()->user()->profile && isset(auth()->user()->profile->settings['theme_color'])) {
-                    $pref = auth()->user()->profile->settings['theme_color'];
+                    $settings = auth()->user()->profile->settings;
+                    if (is_string($settings)) {
+                        $settings = json_decode($settings, true);
+                    }
+                    $pref = $settings['theme_color'] ?? 'deisa-blue';
                     $map = [
                         'deisa-blue' => '#0B63D6',
                         'indigo-600' => '#4f46e5',
@@ -37,26 +42,42 @@
 
         body {
             font-family: 'Outfit', sans-serif;
+            background-color: #ffffff;
         }
 
         .glass-effect {
-            background: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         }
-
+        
         [x-cloak] { display: none !important; }
+
+        /* SweetAlert Custom Styling */
+        .swal2-popup {
+            border-radius: 20px !important;
+            padding: 2rem !important;
+            font-family: 'Outfit', sans-serif !important;
+        }
+        .swal2-title {
+            font-weight: 700 !important;
+            color: #0f172a !important;
+        }
     </style>
+    <script>
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('theme', 'light');
+    </script>
 </head>
 
-<body class="bg-gray-50 text-slate-800 antialiased h-full">
-    <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+<body class="bg-white text-slate-900 antialiased h-full ">
+    <div class="min-h-screen bg-white">
         <!-- Global Alerts -->
         @if(session('success'))
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
-                    if(typeof showAlert === 'function') showAlert('success', "{{ session('success') }}");
+                    showAlert('success', "{{ session('success') }}");
                 });
             </script>
         @endif
@@ -64,7 +85,15 @@
         @if(session('error'))
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
-                    if(typeof showAlert === 'function') showAlert('error', "{{ session('error') }}");
+                    showAlert('error', "{{ session('error') }}");
+                });
+            </script>
+        @endif
+        
+        @if(session('warning'))
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    showAlert('warning', "{{ session('warning') }}");
                 });
             </script>
         @endif
@@ -76,9 +105,48 @@
 
     @stack('scripts')
     <script>
-        // Placeholder for showAlert if app.js hasn't loaded it yet
-        window.showAlert = window.showAlert || function(type, message) {
-            alert(type.toUpperCase() + ": " + message);
+        window.showAlert = function(type, message) {
+            const config = {
+                icon: type,
+                title: type.charAt(0).toUpperCase() + type.slice(1),
+                text: message,
+                showConfirmButton: (type === 'error' || type === 'warning'),
+                timer: (type === 'success' || type === 'info') ? 3000 : null,
+                timerProgressBar: true,
+                customClass: {
+                    popup: 'rounded-2xl shadow-xl border-0',
+                    confirmButton: 'bg-deisa-blue hover:bg-blue-700 px-6 py-2 rounded-xl text-white font-bold transition-all outline-none border-0'
+                }
+            };
+
+            if (type === 'success') config.iconColor = '#10b981';
+            else if (type === 'error') config.iconColor = '#ef4444';
+            else if (type === 'warning') config.iconColor = '#f59e0b';
+
+            Swal.fire(config);
+        }
+
+        window.showConfirm = function(title, text, onConfirm) {
+            Swal.fire({
+                title: title,
+                text: text,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#0B63D6',
+                cancelButtonColor: '#f8fafc',
+                confirmButtonText: 'Ya, Lanjutkan',
+                cancelButtonText: 'Batal',
+                customClass: {
+                    popup: 'rounded-2xl',
+                    confirmButton: 'rounded-xl font-bold px-6',
+                    cancelButton: 'rounded-xl font-bold px-6 text-slate-600 border border-slate-200'
+                },
+                buttonsStyling: false
+            }).then((result) => {
+                if (result.isConfirmed && typeof onConfirm === 'function') {
+                    onConfirm();
+                }
+            });
         }
     </script>
 </body>

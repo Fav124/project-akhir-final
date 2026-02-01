@@ -3,8 +3,6 @@ package com.example.deisacompose.data.network
 import com.example.deisacompose.data.models.*
 import retrofit2.Response
 import retrofit2.http.*
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
 
 interface ApiService {
 
@@ -12,123 +10,157 @@ interface ApiService {
     @POST("login")
     suspend fun login(@Body request: LoginRequest): Response<LoginResponse>
 
-    @POST("logout")
-    suspend fun logout(): Response<ApiResponse>
-
     @POST("register")
-    suspend fun register(@Body request: RegisterRequest): Response<MessageResponse>
+    suspend fun register(@Body request: RegisterRequest): Response<LoginResponse>
+
+    @POST("logout")
+    suspend fun logout(): Response<ApiResponse<Unit>>
 
     @GET("user")
-    suspend fun getProfile(): Response<UserResponse>
+    suspend fun getCurrentUser(): Response<ApiResponse<User>>
+
+    @POST("forgot-password")
+    suspend fun forgotPassword(@Body email: Map<String, String>): Response<ApiResponse<Unit>>
+
+    @POST("reset-password")
+    suspend fun resetPassword(@Body request: Map<String, String>): Response<ApiResponse<Unit>>
+
+    // ================= ADMIN =================
+    @GET("admin/dashboard")
+    suspend fun getAdminDashboard(): Response<ApiResponse<DashboardData>>
+
+    @GET("admin/users/pending")
+    suspend fun getPendingUsers(): Response<ApiResponse<List<PendingUser>>>
+
+    @POST("admin/users/{id}/approve")
+    suspend fun approveUser(@Path("id") id: Int): Response<ApiResponse<Unit>>
+
+    @DELETE("admin/users/{id}")
+    suspend fun deleteUser(@Path("id") id: Int): Response<ApiResponse<Unit>>
+
+    @GET("admin/activities")
+    suspend fun getActivities(
+        @Query("per_page") perPage: Int = 20,
+        @Query("page") page: Int = 1
+    ): Response<ApiResponse<Unit>>
+
+    @GET("admin/notifications")
+    suspend fun getNotifications(): Response<ApiResponse<Unit>>
 
     // ================= SANTRI =================
     @GET("santri")
-    suspend fun getSantri(@Query("page") page: Int = 1, @Query("per_page") perPage: Int = 10, @Query("search") search: String? = null): Response<SantriListResponse>
+    suspend fun getSantri(
+        @Query("search") search: String? = null,
+        @Query("kelas_id") kelasId: Int? = null,
+        @Query("jurusan_id") jurusanId: Int? = null,
+        @Query("per_page") perPage: Int = 20,
+        @Query("page") page: Int = 1
+    ): Response<ApiResponse<List<Santri>>>
 
     @GET("santri/{id}")
-    suspend fun getSantriById(@Path("id") id: Int): Response<SantriDetailResponse>
+    suspend fun getSantriById(@Path("id") id: Int): Response<ApiResponse<Santri>>
 
-    @Multipart
     @POST("santri")
-    suspend fun createSantri(@PartMap partMap: Map<String, @JvmSuppressWildcards RequestBody>, @Part foto: MultipartBody.Part? = null): Response<ApiResponse>
+    suspend fun createSantri(@Body santri: Map<String, Any>): Response<ApiResponse<Santri>>
 
-    @Multipart
-    @POST("santri/{id}")
-    suspend fun updateSantri(@Path("id") id: Int, @PartMap partMap: Map<String, @JvmSuppressWildcards RequestBody>, @Part foto: MultipartBody.Part? = null): Response<ApiResponse>
+    @PUT("santri/{id}")
+    suspend fun updateSantri(
+        @Path("id") id: Int,
+        @Body santri: Map<String, Any>
+    ): Response<ApiResponse<Santri>>
 
     @DELETE("santri/{id}")
-    suspend fun deleteSantri(@Path("id") id: Int): Response<ApiResponse>
-
-    // ================= OBAT =================
-    @GET("v1/obat")
-    suspend fun getObat(@Query("page") page: Int = 1, @Query("per_page") perPage: Int = 10, @Query("search") search: String? = null, @Query("all") all: Boolean? = null): Response<ObatListResponse>
-
-    @GET("v1/obat/{id}")
-    suspend fun getObatById(@Path("id") id: Int): Response<ObatDetailResponse>
-
-    @Multipart
-    @POST("v1/obat")
-    suspend fun createObat(@PartMap partMap: Map<String, @JvmSuppressWildcards RequestBody>, @Part foto: MultipartBody.Part? = null): Response<ApiResponse>
-
-    @Multipart
-    @POST("v1/obat/{id}")
-    suspend fun updateObat(@Path("id") id: Int, @PartMap partMap: Map<String, @JvmSuppressWildcards RequestBody>, @Part foto: MultipartBody.Part? = null): Response<ApiResponse>
-
-    @DELETE("v1/obat/{id}")
-    suspend fun deleteObat(@Path("id") id: Int): Response<ApiResponse>
+    suspend fun deleteSantri(@Path("id") id: Int): Response<ApiResponse<Unit>>
 
     // ================= SAKIT =================
     @GET("sakit")
-    suspend fun getSakit(@Query("page") page: Int = 1, @Query("per_page") perPage: Int = 10, @Query("search") search: String? = null): Response<SakitResponse>
+    suspend fun getSakit(
+        @Query("status") status: String? = null,
+        @Query("search") search: String? = null,
+        @Query("per_page") perPage: Int = 20,
+        @Query("page") page: Int = 1
+    ): Response<ApiResponse<List<Sakit>>>
 
     @GET("sakit/{id}")
-    suspend fun getSakitById(@Path("id") id: Int): Response<SakitDetailResponse>
+    suspend fun getSakitById(@Path("id") id: Int): Response<ApiResponse<Sakit>>
 
     @POST("sakit")
-    suspend fun createSakit(@Body sakit: SakitRequest): Response<ApiResponse>
+    suspend fun createSakit(@Body sakit: Map<String, Any>): Response<ApiResponse<Sakit>>
 
     @PUT("sakit/{id}")
-    suspend fun updateSakit(@Path("id") id: Int, @Body sakit: SakitRequest): Response<ApiResponse>
+    suspend fun updateSakit(
+        @Path("id") id: Int,
+        @Body sakit: Map<String, Any>
+    ): Response<ApiResponse<Sakit>>
 
     @DELETE("sakit/{id}")
-    suspend fun deleteSakit(@Path("id") id: Int): Response<ApiResponse>
+    suspend fun deleteSakit(@Path("id") id: Int): Response<ApiResponse<Unit>>
 
-    @POST("sakit/{id}/sembuh")
-    suspend fun markAsSembuh(@Path("id") id: Int): Response<ApiResponse>
+    // ================= OBAT =================
+    @GET("obat")
+    suspend fun getObat(
+        @Query("search") search: String? = null,
+        @Query("low_stock") lowStock: Boolean? = null,
+        @Query("per_page") perPage: Int = 20,
+        @Query("page") page: Int = 1
+    ): Response<ApiResponse<List<Obat>>>
 
-    // ================= MANAGEMENT =================
-    @GET("management/users")
-    suspend fun getUsers(): Response<DataResponse<List<User>>>
+    @GET("obat/{id}")
+    suspend fun getObatById(@Path("id") id: Int): Response<ApiResponse<Obat>>
 
-    @DELETE("management/users/{id}")
-    suspend fun deleteUser(@Path("id") id: Int): Response<ApiResponse>
-    
-    @GET("management/pending-registrations")
-    suspend fun getPendingRegistrations(): Response<DataResponse<List<RegistrationRequest>>>
-    
-    @POST("management/approve/{id}")
-    suspend fun approveRegistration(@Path("id") id: Int): Response<ApiResponse>
+    @POST("obat")
+    suspend fun createObat(@Body obat: Map<String, Any>): Response<ApiResponse<Obat>>
 
-    @POST("management/reject/{id}")
-    suspend fun rejectRegistration(@Path("id") id: Int): Response<ApiResponse>
+    @PUT("obat/{id}")
+    suspend fun updateObat(
+        @Path("id") id: Int,
+        @Body obat: Map<String, Any>
+    ): Response<ApiResponse<Obat>>
 
-    @GET("management/kelas")
-    suspend fun getKelas(): Response<KelasResponse>
+    @POST("obat/{id}/restock")
+    suspend fun restockObat(
+        @Path("id") id: Int,
+        @Body jumlah: Map<String, Int>
+    ): Response<ApiResponse<Obat>>
 
-    @POST("management/kelas")
-    suspend fun addKelas(@Body request: KelasRequest): Response<ApiResponse>
+    @DELETE("obat/{id}")
+    suspend fun deleteObat(@Path("id") id: Int): Response<ApiResponse<Unit>>
 
-    @DELETE("management/kelas/{id}")
-    suspend fun deleteKelas(@Path("id") id: Int): Response<ApiResponse>
+    // ================= KELAS =================
+    @GET("kelas")
+    suspend fun getKelas(): Response<ApiResponse<List<Kelas>>>
 
-    @GET("management/jurusan")
-    suspend fun getJurusan(): Response<JurusanResponse>
+    @GET("kelas/{id}")
+    suspend fun getKelasById(@Path("id") id: Int): Response<ApiResponse<Kelas>>
 
-    @POST("management/jurusan")
-    suspend fun addJurusan(@Body request: JurusanRequest): Response<ApiResponse>
+    @POST("kelas")
+    suspend fun createKelas(@Body kelas: Map<String, String>): Response<ApiResponse<Kelas>>
 
-    @DELETE("management/jurusan/{id}")
-    suspend fun deleteJurusan(@Path("id") id: Int): Response<ApiResponse>
+    @PUT("kelas/{id}")
+    suspend fun updateKelas(
+        @Path("id") id: Int,
+        @Body kelas: Map<String, String>
+    ): Response<ApiResponse<Kelas>>
 
-    @GET("management/diagnosis")
-    suspend fun getDiagnosis(): Response<DataResponse<List<Diagnosis>>>
-    
-    @POST("management/diagnosis")
-    suspend fun addDiagnosis(@Body request: DiagnosisRequest): Response<ApiResponse>
-    
-    @DELETE("management/diagnosis/{id}")
-    suspend fun deleteDiagnosis(@Path("id") id: Int): Response<ApiResponse>
-    
-    @GET("management/history")
-    suspend fun getHistory(): Response<HistoryResponse>
+    @DELETE("kelas/{id}")
+    suspend fun deleteKelas(@Path("id") id: Int): Response<ApiResponse<Unit>>
 
-    @GET("management/history")
-    suspend fun getActivityLogs(@Query("page") page: Int = 1, @Query("limit") limit: Int = 50): Response<HistoryResponse>
-    
-    @GET("management/angkatan")
-    suspend fun getAngkatan(): Response<DataResponse<List<Angkatan>>>
+    // ================= JURUSAN =================
+    @GET("jurusan")
+    suspend fun getJurusan(): Response<ApiResponse<List<Jurusan>>>
 
-    // ================= LAPORAN =================
-    @GET("laporan/summary")
-    suspend fun getLaporanSummary(): Response<LaporanSummaryResponse>
+    @GET("jurusan/{id}")
+    suspend fun getJurusanById(@Path("id") id: Int): Response<ApiResponse<Jurusan>>
+
+    @POST("jurusan")
+    suspend fun createJurusan(@Body jurusan: Map<String, String>): Response<ApiResponse<Jurusan>>
+
+    @PUT("jurusan/{id}")
+    suspend fun updateJurusan(
+        @Path("id") id: Int,
+        @Body jurusan: Map<String, String>
+    ): Response<ApiResponse<Jurusan>>
+
+    @DELETE("jurusan/{id}")
+    suspend fun deleteJurusan(@Path("id") id: Int): Response<ApiResponse<Unit>>
 }

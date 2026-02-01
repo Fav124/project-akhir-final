@@ -181,21 +181,23 @@ document.addEventListener('DOMContentLoaded', () => {
         if (ajaxBtn) {
             e.preventDefault();
             const url = ajaxBtn.dataset.ajaxUrl;
+            const method = ajaxBtn.dataset.method || 'GET';
             const confirmMsg = ajaxBtn.dataset.confirm || 'Apakah Anda yakin ingin melakukan tindakan ini?';
 
-            if (ajaxBtn.hasAttribute('data-confirm-required') || ajaxBtn.hasAttribute('onclick')) {
+            if (ajaxBtn.hasAttribute('data-confirm-required') || ajaxBtn.hasAttribute('data-confirm') || ajaxBtn.hasAttribute('onclick')) {
                 showConfirm('Konfirmasi Tindakan', confirmMsg, async () => {
-                    await performQuickAjax(url);
+                    await performQuickAjax(url, method);
                 });
             } else {
-                await performQuickAjax(url);
+                await performQuickAjax(url, method);
             }
         }
     });
 
-    async function performQuickAjax(url) {
+    async function performQuickAjax(url, method = 'GET') {
         try {
             const response = await fetch(url, {
+                method: method,
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
                     'Accept': 'application/json',
@@ -224,83 +226,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-function showConfirm(title, message, onConfirm) {
-    const confirmId = 'custom-confirm-' + Date.now();
-    const modalHtml = `
-        <div id="${confirmId}" class="fixed inset-0 z-[10000] overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden transform transition-all scale-95 opacity-0 duration-200" id="${confirmId}-content">
-                <div class="p-6 text-center">
-                    <div class="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-amber-100">
-                        <svg class="w-8 h-8 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 14c-.77 1.333.192 3 1.732 3z"></path>
-                        </svg>
-                    </div>
-                    <h3 class="text-lg font-bold text-slate-900 mb-2">${title}</h3>
-                    <p class="text-sm text-slate-500 mb-6 px-2">${message}</p>
-                    <div class="flex gap-3 justify-center">
-                        <button id="${confirmId}-cancel" class="flex-1 px-4 py-2.5 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 rounded-xl transition-all">Batal</button>
-                        <button id="${confirmId}-confirm" class="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg shadow-blue-500/20 transition-all">Lanjutkan</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-
-    document.body.insertAdjacentHTML('beforeend', modalHtml);
-    const modal = document.getElementById(confirmId);
-    const content = document.getElementById(confirmId + '-content');
-
-    setTimeout(() => {
-        content.classList.remove('scale-95', 'opacity-0');
-        content.classList.add('scale-100', 'opacity-100');
-    }, 10);
-
-    const closeModal = () => {
-        content.classList.replace('scale-100', 'scale-95');
-        content.classList.replace('opacity-100', 'opacity-0');
-        setTimeout(() => modal.remove(), 200);
-    };
-
-    document.getElementById(confirmId + '-cancel').onclick = closeModal;
-    document.getElementById(confirmId + '-confirm').onclick = () => {
-        closeModal();
-        if (onConfirm) onConfirm();
-    };
-}
-
-function showAlert(type, message) {
-    const alertId = 'ajax-alert-' + Date.now();
-    const colorClass = type === 'success' ? 'bg-emerald-500' : 'bg-red-500';
-
-    const alertHtml = `
-        <div id="${alertId}" class="fixed top-5 right-5 z-[9999] flex items-center w-full max-w-xs p-4 space-x-4 text-white ${colorClass} rounded-lg shadow-lg transform transition-all duration-300 translate-y-[-100%] opacity-0">
-            <div class="text-sm font-bold flex-1">${message}</div>
-            <button onclick="document.getElementById('${alertId}').remove()" class="p-1 hover:bg-white/20 rounded">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-            </button>
-        </div>
-    `;
-
-    document.body.insertAdjacentHTML('beforeend', alertHtml);
-
-    setTimeout(() => {
-        const el = document.getElementById(alertId);
-        if (el) el.classList.remove('translate-y-[-100%]', 'opacity-0');
-    }, 10);
-
-    setTimeout(() => {
-        const el = document.getElementById(alertId);
-        if (el) {
-            el.classList.add('translate-y-[-100%]', 'opacity-0');
-            setTimeout(() => el.remove(), 300);
-        }
-    }, 4000);
-}
-
 function showValidationErrors(errors) {
     let msg = "";
     for (const [key, value] of Object.entries(errors)) {
         msg += `• ${value}\n`;
     }
-    showAlert('error', 'Validation Failed:\n' + msg);
+    if (typeof showAlert === 'function') {
+        showAlert('error', 'Validation Failed:\n' + msg);
+    } else {
+        alert('Validation Failed:\n' + msg);
+    }
 }

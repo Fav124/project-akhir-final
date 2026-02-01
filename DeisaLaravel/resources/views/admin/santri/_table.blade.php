@@ -29,9 +29,10 @@
                         <span class="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-1 rounded inline-block w-fit">
                             {{ $santri->angkatan->nama_angkatan ?? 'N/A' }}
                         </span>
-                        @if($santri->kelas && $santri->kelas->angkatan_id && $santri->angkatan_id && $santri->kelas->angkatan_id != $santri->angkatan_id)
-                            <span class="text-[9px] font-black text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200 uppercase tracking-tighter w-fit">
-                                Ketinggalan
+                        @if($santri->is_repeating)
+                            <span
+                                class="text-[9px] font-black text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200 uppercase tracking-tighter w-fit animate-pulse">
+                                Tinggal Kelas
                             </span>
                         @endif
                     </div>
@@ -57,7 +58,8 @@
                         <x-button variant="outline" class="px-2 py-1 text-xs h-8"
                             data-form-url="{{ route('admin.santri.edit', $santri->id) }}">Edit</x-button>
                         <form action="{{ route('admin.santri.destroy', $santri->id) }}" method="POST" data-ajax="true"
-                            data-reload="true" data-confirm-required="true" data-confirm="Apakah Anda yakin ingin menghapus data santri ini secara permanen?">
+                            data-reload="true" data-confirm-required="true"
+                            data-confirm="Apakah Anda yakin ingin menghapus data santri ini secara permanen?">
                             @csrf
                             @method('DELETE')
                             <x-button variant="danger" type="submit" class="px-2 py-1 text-xs h-8"

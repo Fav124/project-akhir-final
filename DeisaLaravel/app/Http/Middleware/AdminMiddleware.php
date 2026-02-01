@@ -26,24 +26,23 @@ class AdminMiddleware
             return $next($request);
         }
 
-        // User role access rules
-        if ($user->role === 'user') {
+        // Petugas role access rules
+        if ($user->role === 'petugas') {
             // Modules allowed for Read-Only access
-            $readOnlyModules = ['santri', 'kelas', 'jurusan', 'obat', 'sakit', 'laporan'];
+            $readOnlyModules = ['kelas', 'jurusan', 'users', 'activity'];
+            $fullAccessModules = ['santri', 'sakit', 'obat', 'laporan', 'akademik'];
 
             // Get module name from prefix admin/...
             $pathParts = explode('/', $request->path());
             $module = $pathParts[1] ?? '';
 
-            if (in_array($module, $readOnlyModules)) {
-                // Allow only GET requests for restricted modules
-                if ($request->isMethod('get')) {
-                    return $next($request);
-                }
+            if (in_array($module, $fullAccessModules)) {
+                return $next($request);
+            }
 
-                // Allow POST for specific sickness reporting if needed, but per specs it's Read-Only for these
-                // Wait, specs says: Santri Sakit (CRUD: All Users)
-                if ($module === 'sakit' || $module === 'obat') {
+            if (in_array($module, $readOnlyModules)) {
+                // Allow only GET requests for master data/system modules
+                if ($request->isMethod('get')) {
                     return $next($request);
                 }
             }

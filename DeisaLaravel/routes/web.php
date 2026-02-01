@@ -28,8 +28,8 @@ Route::get('/dev-login', function () {
     return view('auth.login');
 });
 
-// Admin Routes
-Route::middleware(['web'])->prefix('admin')->name('admin.')->group(function () {
+// Unified Admin & Staff Routes
+Route::middleware(['web', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/stats', [App\Http\Controllers\Admin\DashboardController::class, 'stats'])->name('dashboard.stats');
 
@@ -37,6 +37,7 @@ Route::middleware(['web'])->prefix('admin')->name('admin.')->group(function () {
     Route::middleware(['admin'])->group(function () {
         Route::resource('kelas', App\Http\Controllers\Admin\KelasController::class);
         Route::resource('jurusan', App\Http\Controllers\Admin\JurusanController::class);
+        Route::resource('angkatan', App\Http\Controllers\Admin\AngkatanController::class);
         Route::resource('users', App\Http\Controllers\Admin\UserController::class);
         Route::post('/users/{id}/approve', [App\Http\Controllers\Admin\UserController::class, 'approve'])->name('users.approve');
         Route::get('/activity', [App\Http\Controllers\Admin\ActivityController::class, 'index'])->name('activity.index');
@@ -69,6 +70,26 @@ Route::middleware(['web'])->prefix('user')->name('user.')->group(function () {
     Route::get('/form-sakit', [App\Http\Controllers\User\SantriSakitController::class, 'create'])->name('sakit.create');
     Route::post('/form-sakit', [App\Http\Controllers\User\SantriSakitController::class, 'store'])->name('sakit.store');
     Route::get('/history', [App\Http\Controllers\Admin\ActivityController::class, 'index'])->name('history');
+});
+
+// Staff Routes (Petugas)
+Route::middleware(['auth'])->prefix('staff')->name('staff.')->group(function () {
+    Route::get('/dashboard', [App\Http\Controllers\StaffController::class, 'dashboard'])->name('dashboard');
+
+    // Medicine Management
+    Route::get('/obat', [App\Http\Controllers\StaffController::class, 'obatIndex'])->name('obat.index');
+    Route::get('/obat/create', [App\Http\Controllers\StaffController::class, 'obatCreate'])->name('obat.create');
+    Route::post('/obat', [App\Http\Controllers\StaffController::class, 'obatStore'])->name('obat.store');
+    Route::get('/obat/{id}/edit', [App\Http\Controllers\StaffController::class, 'obatEdit'])->name('obat.edit');
+    Route::put('/obat/{id}', [App\Http\Controllers\StaffController::class, 'obatUpdate'])->name('obat.update');
+    Route::delete('/obat/{id}', [App\Http\Controllers\StaffController::class, 'obatDestroy'])->name('obat.destroy');
+
+    // View Santri Data
+    Route::get('/santri', [App\Http\Controllers\StaffController::class, 'santriIndex'])->name('santri.index');
+
+    // Reports
+    Route::get('/laporan', [App\Http\Controllers\StaffController::class, 'laporanIndex'])->name('laporan.index');
+    Route::post('/laporan/generate', [App\Http\Controllers\StaffController::class, 'laporanGenerate'])->name('laporan.generate');
 });
 
 // Redirect /forms/sakit to the new user route for backward compatibility or remove

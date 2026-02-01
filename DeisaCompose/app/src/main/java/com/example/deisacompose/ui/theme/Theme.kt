@@ -44,7 +44,7 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun DeisaComposeTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean = false,
     primaryColor: Color = DeisaBlue,
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = false,

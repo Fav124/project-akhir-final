@@ -1,111 +1,95 @@
 package com.example.deisacompose.viewmodels
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.deisacompose.data.models.RegistrationRequest
-import com.example.deisacompose.data.models.User
+import com.example.deisacompose.data.models.DashboardData
+import com.example.deisacompose.data.models.PendingUser
+import com.example.deisacompose.data.repository.AdminRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class AdminViewModel : BaseViewModel() {
+class AdminViewModel : ViewModel() {
+    private val repository = AdminRepository()
 
-    private val _registrationList = MutableLiveData<List<RegistrationRequest>>()
-    val registrationList: LiveData<List<RegistrationRequest>> = _registrationList
+    private val _dashboardState = MutableStateFlow<DashboardState>(DashboardState.Loading)
+    val dashboardState: StateFlow<DashboardState> = _dashboardState.asStateFlow()
 
-    private val _userList = MutableLiveData<List<User>>()
-    val userList: LiveData<List<User>> = _userList
+    private val _pendingUsers = MutableStateFlow<List<PendingUser>>(emptyList())
+    val pendingUsers: StateFlow<List<PendingUser>> = _pendingUsers.asStateFlow()
 
-    private val _isLoading = MutableLiveData<Boolean>()
-    val isLoading: LiveData<Boolean> = _isLoading
+    private val _actionState = MutableStateFlow<ActionState>(ActionState.Idle)
+    val actionState: StateFlow<ActionState> = _actionState.asStateFlow()
 
-    private val _message = MutableLiveData<String?>()
-    val message: LiveData<String?> = _message
-
-    fun fetchPendingRegistrations() {
-        _isLoading.postValue(true)
+    fun loadDashboard() {
         viewModelScope.launch {
-            try {
-                val response = apiService.getPendingRegistrations()
-                if (response.isSuccessful) {
-                    _registrationList.postValue(response.body()?.data)
-                } else {
-                    _message.postValue("Failed to fetch registrations: ${response.message()}")
+            _dashboardState.value = DashboardState.Loading
+            repository.getDashboard()
+                .onSuccess { data ->
+                    _dashboardState.value = DashboardState.Success(data)
                 }
-            } catch (e: Exception) {
-                _message.postValue(e.message ?: "An unknown error occurred")
-            } finally {
-                _isLoading.postValue(false)
-            }
+                .onFailure { error ->
+                    _dashboardState.value = DashboardState.Error(error.message ?: "Gagal memuat dashboard")
+                }
         }
     }
 
-    fun fetchUsers() {
-        _isLoading.postValue(true)
+    fun loadPendingUsers() {
         viewModelScope.launch {
-            try {
-                val response = apiService.getUsers()
-                if (response.isSuccessful) {
-                    _userList.postValue(response.body()?.data)
-                } else {
-                    _message.postValue("Failed to fetch users: ${response.message()}")
+            repository.getPendingUsers()
+                .onSuccess { users ->
+                    _pendingUsers.value = users
                 }
-            } catch (e: Exception) {
-                _message.postValue(e.message ?: "An unknown error occurred")
-            } finally {
-                _isLoading.postValue(false)
-            }
+                .onFailure { error ->
+                    _actionState.value = ActionState.Error(error.message ?: "Gagal memuat pending users")
+                }
         }
     }
 
-    fun approveRegistration(id: Int) {
+    fun approveUser(id: Int) {
         viewModelScope.launch {
-            try {
-                val response = apiService.approveRegistration(id)
-                if (response.isSuccessful) {
-                    _message.postValue("Registration approved successfully")
-                    fetchPendingRegistrations() // Refresh list
-                } else {
-                    _message.postValue("Failed to approve: ${response.message()}")
+            _actionState.value = ActionState.Loading
+            repository.approveUser(id)
+                .onSuccess { message ->
+                    _actionState.value = ActionState.Success(message)
+                    loadPendingUsers() // Refresh list
+                    loadDashboard() // Refresh dashboard
                 }
-            } catch (e: Exception) {
-                _message.postValue(e.message ?: "An unknown error occurred")
-            }
-        }
-    }
-
-    fun rejectRegistration(id: Int) {
-        viewModelScope.launch {
-            try {
-                val response = apiService.rejectRegistration(id)
-                if (response.isSuccessful) {
-                    _message.postValue("Registration rejected successfully")
-                    fetchPendingRegistrations() // Refresh list
-                } else {
-                    _message.postValue("Failed to reject: ${response.message()}")
+                .onFailure { error ->
+                    _actionState.value = ActionState.Error(error.message ?: "Gagal menyetujui user")
                 }
-            } catch (e: Exception) {
-                _message.postValue(e.message ?: "An unknown error occurred")
-            }
         }
     }
 
     fun deleteUser(id: Int) {
         viewModelScope.launch {
-            try {
-                val response = apiService.deleteUser(id)
-                if (response.isSuccessful) {
-                    _message.postValue("User deleted successfully")
-                    fetchUsers() // Refresh list
-                } else {
-                    _message.postValue("Failed to delete user: ${response.message()}")
+            _actionState.value = ActionState.Loading
+            repository.deleteUser(id)
+                .onSuccess { message ->
+                    _actionState.value = ActionState.Success(message)
+                    loadPendingUsers() // Refresh list
                 }
-            } catch (e: Exception) {
-                _message.postValue(e.message ?: "An unknown error occurred")
-            }
+                .onFailure { error ->
+                    _actionState.value = ActionState.Error(error.message ?: "Gagal menghapus user")
+                }
         }
     }
 
-    fun clearMessage() {
-        _message.value = null
+    fun resetActionState() {
+        _actionState.value = ActionState.Idle
     }
+}
+
+sealed class DashboardState {
+    object Loading : DashboardState()
+    data class Success(val data: DashboardData) : DashboardState()
+    data class Error(val message: String) : DashboardState()
+}
+
+sealed class ActionState {
+    object Idle : ActionState()
+    object Loading : ActionState()
+    data class Success(val message: String) : ActionState()
+    data class Error(val message: String) : ActionState()
 }

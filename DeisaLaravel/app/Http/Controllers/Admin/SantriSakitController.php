@@ -98,7 +98,7 @@ class SantriSakitController extends Controller
             }
 
             // Sync Santri Status
-            $santriStatus = $request->status == 'Sembuh' ? 'sehat' : 'sakit';
+            $santriStatus = $request->status == 'Sembuh' ? 'Sehat' : 'Sakit';
             $record->santri->update(['status_kesehatan' => $santriStatus]);
 
             ActivityLog::create([
@@ -186,7 +186,7 @@ class SantriSakitController extends Controller
             }
 
             // Sync Santri Status
-            $santriStatus = $request->status == 'Sembuh' ? 'sehat' : 'sakit';
+            $santriStatus = $request->status == 'Sembuh' ? 'Sehat' : 'Sakit';
             $record->santri->update(['status_kesehatan' => $santriStatus]);
 
             if ($request->status == 'Sembuh' && !$record->tgl_sembuh) {
@@ -225,13 +225,13 @@ class SantriSakitController extends Controller
             $updateData = ['status' => $status];
             if ($status == 'Sembuh') {
                 $updateData['tgl_sembuh'] = now();
-                $record->santri->update(['status_kesehatan' => 'sehat']);
+                $record->santri->update(['status_kesehatan' => 'Sehat']);
             } elseif ($status == 'Pulang') {
                 $updateData['jenis_perawatan'] = 'Pulang';
-                $record->santri->update(['status_kesehatan' => 'pemulihan']);
+                $record->santri->update(['status_kesehatan' => 'Pemulihan']);
             } elseif ($status == 'Sakit') {
                 // Return from Pulang
-                $record->santri->update(['status_kesehatan' => 'sakit']);
+                $record->santri->update(['status_kesehatan' => 'Sakit']);
             }
 
             $record->update($updateData);
@@ -263,7 +263,7 @@ class SantriSakitController extends Controller
                 $obat->increment('stok', $obat->pivot->jumlah);
             }
 
-            $record->santri->update(['status_kesehatan' => 'sehat']);
+            $record->santri->update(['status_kesehatan' => 'Sehat']);
 
             ActivityLog::create([
                 'user_id' => Auth::id(),

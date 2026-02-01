@@ -14,9 +14,9 @@ class AkademikController extends Controller
 {
     public function index(Request $request)
     {
-        $classes = Kelas::with('angkatan')->get();
+        $academicClasses = Kelas::all();
         $selectedClassId = $request->query('kelas_id');
-        
+
         $santris = [];
         if ($selectedClassId) {
             $santris = Santri::where('kelas_id', $selectedClassId)
@@ -24,7 +24,11 @@ class AkademikController extends Controller
                 ->get();
         }
 
-        return view('admin.akademik.kenaikan_kelas', compact('classes', 'santris', 'selectedClassId'));
+        return view('admin.akademik.kenaikan_kelas', [
+            'academicClasses' => $academicClasses,
+            'santris' => $santris,
+            'selectedClassId' => $selectedClassId
+        ]);
     }
 
     public function process(Request $request)
@@ -37,24 +41,37 @@ class AkademikController extends Controller
 
         try {
             DB::beginTransaction();
-            
+
             $santriIds = $request->santri_ids;
             $action = $request->action;
             $count = count($santriIds);
 
             if ($action === 'promote') {
+                $firstSantri = Santri::find($santriIds[0]);
+                if ($firstSantri && $request->target_kelas_id == $firstSantri->kelas_id) {
+                    throw new \Exception("Kelas tujuan tidak boleh sama dengan kelas asal.");
+                }
+
                 Santri::whereIn('id', $santriIds)->update([
-                    'kelas_id' => $request->target_kelas_id
+                    'kelas_id' => $request->target_kelas_id,
+                    'is_repeating' => false
                 ]);
-                $detail = "Menaikkan {$count} santri ke kelas baru.";
+
+                $targetKelas = Kelas::find($request->target_kelas_id);
+                $detail = "Menaikkan {$count} santri ke kelas " . ($targetKelas->nama_kelas ?? 'Baru') . ".";
             } elseif ($action === 'graduate') {
                 Santri::whereIn('id', $santriIds)->update([
                     'status_akademik' => 'Alumni',
-                    'kelas_id' => null
+                    'kelas_id' => null,
+                    'is_repeating' => false
                 ]);
                 $detail = "Meluluskan {$count} santri menjadi alumni.";
             } elseif ($action === 'stay') {
-                $detail = "Memproses {$count} santri untuk tinggal kelas (data diperbarui).";
+                // Students staying back are marked as repeating
+                Santri::whereIn('id', $santriIds)->update([
+                    'is_repeating' => true
+                ]);
+                $detail = "Menetapkan {$count} santri untuk tinggal di kelas saat ini (Tinggal Kelas).";
             }
 
             ActivityLog::create([

@@ -94,4 +94,7 @@ dependencies {
     // Coroutines
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
+
+    // Lottie Animation
+    implementation(libs.lottie.compose)
 }

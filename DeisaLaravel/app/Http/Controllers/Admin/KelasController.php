@@ -13,7 +13,7 @@ class KelasController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Kelas::with(['jurusans', 'angkatan']);
+        $query = Kelas::with(['jurusans']);
 
         if ($request->has('search') && $request->search != '') {
             $term = $request->search;

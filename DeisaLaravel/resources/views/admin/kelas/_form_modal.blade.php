@@ -41,9 +41,6 @@
                 placeholder="Contoh: X IPA 1 (Biarkan kosong untuk otomatis)">
         </div>
 
-        <div class="mb-4">
-            <p class="text-[10px] text-slate-400 italic">* Angkatan akan otomatis dihitung: Tahun Mulai - (Tingkat - 1).</p>
-        </div>
         
         <div class="mb-4">
             <label class="block text-sm font-medium text-slate-700 mb-1">Pilih Jurusan (Bisa lebih dari satu)</label>

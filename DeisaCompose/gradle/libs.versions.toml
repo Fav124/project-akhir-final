@@ -70,6 +70,9 @@ room-compiler = { group = "androidx.room", name = "room-compiler", version = "2.
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = "1.7.3" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version = "1.7.3" }
 
+# Lottie Animation
+lottie-compose = { group = "com.airbnb.android", name = "lottie-compose", version = "6.0.0" }
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

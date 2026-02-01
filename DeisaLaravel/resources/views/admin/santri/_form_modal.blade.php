@@ -1,6 +1,7 @@
 <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
     <h3 class="font-bold text-slate-900" id="modal-title">
-        {{ isset($santri) ? 'Edit Data Santri' : 'Tambah Santri Baru' }}</h3>
+        {{ isset($santri) ? 'Edit Data Santri' : 'Tambah Santri Baru' }}
+    </h3>
     <button data-modal-close class="text-slate-400 hover:text-slate-600">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -79,7 +80,19 @@
                         <option value="">Pilih Kelas</option>
                         @foreach($classes as $class)
                             <option value="{{ $class->id }}">
-                                {{ $class->nama_kelas }} {{ $class->angkatan ? '('.$class->angkatan->nama_angkatan.')' : '' }}
+                                {{ $class->nama_kelas }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Angkatan</label>
+                    <select name="angkatan_id" required
+                        class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500/20 focus:border-deisa-blue outline-none transition-all bg-white">
+                        <option value="">Pilih Angkatan</option>
+                        @foreach($angkatans as $angkatan)
+                            <option value="{{ $angkatan->id }}" {{ (isset($santri) && $santri->angkatan_id == $angkatan->id) ? 'selected' : '' }}>
+                                {{ $angkatan->nama_angkatan }}
                             </option>
                         @endforeach
                     </select>
@@ -91,7 +104,8 @@
                         :disabled="!selectedKelas">
                         <option value="">Pilih Jurusan</option>
                         <template x-for="jurusan in availableJurusans" :key="jurusan.id">
-                            <option :value="jurusan.id" :selected="jurusan.id == '{{ $santri->jurusan_id ?? '' }}'" x-text="jurusan.nama_jurusan"></option>
+                            <option :value="jurusan.id" :selected="jurusan.id == '{{ $santri->jurusan_id ?? '' }}'"
+                                x-text="jurusan.nama_jurusan"></option>
                         </template>
                     </select>
                 </div>
@@ -126,10 +140,14 @@
                     <select name="golongan_darah"
                         class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500/20 focus:border-deisa-blue outline-none transition-all bg-white">
                         <option value="">Pilih Golongan Darah</option>
-                        <option value="A" {{ (isset($santri) && $santri->golongan_darah == 'A') ? 'selected' : '' }}>A</option>
-                        <option value="B" {{ (isset($santri) && $santri->golongan_darah == 'B') ? 'selected' : '' }}>B</option>
-                        <option value="AB" {{ (isset($santri) && $santri->golongan_darah == 'AB') ? 'selected' : '' }}>AB</option>
-                        <option value="O" {{ (isset($santri) && $santri->golongan_darah == 'O') ? 'selected' : '' }}>O</option>
+                        <option value="A" {{ (isset($santri) && $santri->golongan_darah == 'A') ? 'selected' : '' }}>A
+                        </option>
+                        <option value="B" {{ (isset($santri) && $santri->golongan_darah == 'B') ? 'selected' : '' }}>B
+                        </option>
+                        <option value="AB" {{ (isset($santri) && $santri->golongan_darah == 'AB') ? 'selected' : '' }}>AB
+                        </option>
+                        <option value="O" {{ (isset($santri) && $santri->golongan_darah == 'O') ? 'selected' : '' }}>O
+                        </option>
                     </select>
                 </div>
                 <div class="md:col-span-2">

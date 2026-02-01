@@ -1,124 +1,118 @@
 package com.example.deisacompose.viewmodels
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.deisacompose.data.models.LoginRequest
-import com.example.deisacompose.data.models.RegisterRequest
-import com.example.deisacompose.data.network.ApiClient
+import com.example.deisacompose.data.models.LoginData
+import com.example.deisacompose.data.models.User
+import com.example.deisacompose.data.repository.AuthRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class AuthViewModel : ViewModel() {
+    private val repository = AuthRepository()
 
-    private val apiService = ApiClient.instance
+    private val _uiState = MutableStateFlow<AuthUiState>(AuthUiState.Idle)
+    val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
 
-    private val _isLoading = MutableLiveData<Boolean>()
-    val isLoading: LiveData<Boolean> = _isLoading
+    private val _currentUser = MutableStateFlow<User?>(null)
+    val currentUser: StateFlow<User?> = _currentUser.asStateFlow()
 
-    private val _error = MutableLiveData<String?>()
-    val error: LiveData<String?> = _error
+    private val _isLoggedIn = MutableStateFlow(false)
+    val isLoggedIn: StateFlow<Boolean> = _isLoggedIn.asStateFlow()
 
-    private val _authSuccess = MutableLiveData<Boolean>()
-    val authSuccess: LiveData<Boolean> = _authSuccess
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
-    private val _registrationSuccess = MutableLiveData<String?>()
-    val registrationSuccess: LiveData<String?> = _registrationSuccess
-
-    fun login(email: String, password: String, rememberMe: Boolean = false) {
-        _isLoading.postValue(true)
+    fun login(email: String, password: String, remember: Boolean = false) {
         viewModelScope.launch {
-            try {
-                val request = LoginRequest(email, password)
-                val response = apiService.login(request)
-
-                if (response.isSuccessful) {
-                    val token = response.body()?.data?.token
-                    if (token != null) {
-                        ApiClient.getSessionManager().saveAuthToken(token)
-                        ApiClient.getSessionManager().saveRememberStatus(rememberMe)
-                    }
-                    _authSuccess.postValue(true)
-                } else {
-                    val errorBody = response.errorBody()?.string()
-                    val errorMessage = try {
-                        val json = com.google.gson.JsonParser.parseString(errorBody).asJsonObject
-                        json.get("message")?.asString ?: "Login failed"
-                    } catch (e: Exception) {
-                        "Login failed: ${response.code()}"
-                    }
-                    _error.postValue(errorMessage)
+            _uiState.value = AuthUiState.Loading
+            _isLoading.value = true
+            repository.login(email, password, remember)
+                .onSuccess { authData ->
+                    _currentUser.value = authData.user
+                    _isLoggedIn.value = true
+                    _uiState.value = AuthUiState.Success("Login berhasil", authData)
                 }
-            } catch (e: Exception) {
-                _error.postValue(e.message ?: "An unknown error occurred")
-            } finally {
-                _isLoading.postValue(false)
-            }
+                .onFailure { error ->
+                    _uiState.value = AuthUiState.Error(error.message ?: "Login gagal")
+                }
+            _isLoading.value = false
         }
     }
 
-    fun forgotPassword(email: String) {
-        _isLoading.postValue(true)
+    fun register(
+        name: String,
+        email: String,
+        password: String,
+        passwordConfirmation: String,
+        role: String
+    ) {
         viewModelScope.launch {
-            try {
-                // Placeholder: In a real app, this would call apiService.forgotPassword
-                // For now, we simulate success message
-                kotlinx.coroutines.delay(1000)
-                _registrationSuccess.postValue("Permintaan reset telah dicatat. Silakan hubungi Admin.")
-            } catch (e: Exception) {
-                _error.postValue(e.message ?: "Gagal memproses permintaan")
-            } finally {
-                _isLoading.postValue(false)
-            }
+            _uiState.value = AuthUiState.Loading
+            _isLoading.value = true
+            repository.register(name, email, password, passwordConfirmation, role)
+                .onSuccess { message ->
+                    _uiState.value = AuthUiState.RegisterSuccess(message)
+                }
+                .onFailure { error ->
+                    _uiState.value = AuthUiState.Error(error.message ?: "Registrasi gagal")
+                }
+            _isLoading.value = false
         }
     }
 
     fun logout() {
         viewModelScope.launch {
-            try {
-                apiService.logout()
-            } catch (e: Exception) {
-                // Even if logout fails on server, client should still log out
-            }
-            if (!ApiClient.getSessionManager().fetchRememberStatus()) {
-                ApiClient.getSessionManager().clearAuthToken()
-            }
-            _authSuccess.postValue(false)
+            repository.logout()
+            _currentUser.value = null
+            _isLoggedIn.value = false
+            _uiState.value = AuthUiState.Idle
         }
     }
 
-    fun register(name: String, email: String, password: String) {
-        _isLoading.postValue(true)
+    fun forgotPassword(email: String) {
         viewModelScope.launch {
-            try {
-                val request = RegisterRequest(name, email, password)
-                val response = apiService.register(request)
-
-                if (response.isSuccessful) {
-                    _registrationSuccess.postValue(response.body()?.message)
-                } else {
-                    val errorBody = response.errorBody()?.string()
-                    val errorMessage = try {
-                        val json = com.google.gson.JsonParser.parseString(errorBody).asJsonObject
-                        json.get("message")?.asString ?: "Registration failed"
-                    } catch (e: Exception) {
-                        "Registration failed: ${response.code()}"
-                    }
-                    _error.postValue(errorMessage)
+            _uiState.value = AuthUiState.Loading
+            _isLoading.value = true
+            repository.forgotPassword(email)
+                .onSuccess { message ->
+                    _uiState.value = AuthUiState.ForgotPasswordSuccess(message)
                 }
-            } catch (e: Exception) {
-                _error.postValue(e.message ?: "An unknown error occurred")
-            } finally {
-                _isLoading.postValue(false)
-            }
+                .onFailure { error ->
+                    _uiState.value = AuthUiState.Error(error.message ?: "Gagal mengirim email")
+                }
+            _isLoading.value = false
         }
     }
 
-    fun clearError() {
-        _error.value = null
+    fun getCurrentUser() {
+        viewModelScope.launch {
+            _isLoading.value = true
+            repository.getCurrentUser()
+                .onSuccess { user ->
+                    _currentUser.value = user
+                    _isLoggedIn.value = true
+                }
+                .onFailure {
+                    _currentUser.value = null
+                    _isLoggedIn.value = false
+                }
+            _isLoading.value = false
+        }
     }
 
-    fun resetRegistrationSuccess() {
-        _registrationSuccess.value = null
+    fun resetState() {
+        _uiState.value = AuthUiState.Idle
     }
+}
+
+sealed class AuthUiState {
+    object Idle : AuthUiState()
+    object Loading : AuthUiState()
+    data class Success(val message: String, val authData: LoginData) : AuthUiState()
+    data class RegisterSuccess(val message: String) : AuthUiState()
+    data class ForgotPasswordSuccess(val message: String) : AuthUiState()
+    data class Error(val message: String) : AuthUiState()
 }

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -19,6 +20,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MedicalServices
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,22 +30,32 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
+import com.example.deisacompose.data.network.ApiClient
 import com.example.deisacompose.ui.theme.DeisaBlue
+import com.example.deisacompose.ui.theme.Slate500
+import com.example.deisacompose.ui.theme.Slate950
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import com.example.deisacompose.ui.components.DeisaLogo
+import com.example.deisacompose.ui.components.LogoSize
+import com.example.deisacompose.ui.components.LogoVariant
 
 @Composable
 fun SplashScreen(navController: NavHostController) {
     val scale = remember { Animatable(0.8f) }
     val alpha = remember { Animatable(0f) }
 
+    val context = LocalContext.current
+    
     LaunchedEffect(Unit) {
         launch {
             scale.animateTo(
@@ -54,7 +67,12 @@ fun SplashScreen(navController: NavHostController) {
             alpha.animateTo(1f, animationSpec = tween(800))
         }
         delay(2500)
-        navController.navigate("login") {
+        
+        // Auto-login logic
+        val token = ApiClient.getSessionManager().fetchAuthToken()
+        val destination = if (!token.isNullOrEmpty()) "home" else "login"
+        
+        navController.navigate(destination) {
             popUpTo("splash") { inclusive = true }
         }
     }
@@ -62,7 +80,7 @@ fun SplashScreen(navController: NavHostController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Slate950),
+            .background(MaterialTheme.colorScheme.background),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -76,24 +94,20 @@ fun SplashScreen(navController: NavHostController) {
                 modifier = Modifier
                     .size(100.dp)
                     .shadow(elevation = 40.dp, spotColor = DeisaBlue, shape = RoundedCornerShape(32.dp)),
-                color = DeisaBlue,
+                color = Color.Transparent, // Transparent because DeisaLogo handles background
                 shape = RoundedCornerShape(32.dp)
             ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        imageVector = Icons.Default.MedicalServices,
-                        contentDescription = "Logo",
-                        tint = Color.White,
-                        modifier = Modifier.size(48.dp)
-                    )
-                }
+                 DeisaLogo(
+                     size = LogoSize.XXL,
+                     variant = LogoVariant.DEFAULT
+                 )
             }
 
             Spacer(modifier = Modifier.height(32.dp))
 
             Text(
                 text = "DEISA",
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 48.sp,
                 fontWeight = FontWeight.Black,
                 letterSpacing = (-2).sp
