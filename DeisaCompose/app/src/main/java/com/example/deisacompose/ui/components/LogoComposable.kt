@@ -3,22 +3,21 @@ package com.example.deisacompose.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MedicalServices
 import androidx.compose.material3.Icon
+import androidx.compose.ui.graphics.Shape
 
 enum class LogoSize(val size: Dp, val iconSize: Dp, val cornerRadius: Dp) {
     XS(24.dp, 12.dp, 6.dp),
@@ -36,10 +35,16 @@ enum class LogoVariant {
     DARK
 }
 
+enum class LogoShape {
+    ROUNDED_SQUARE,
+    CIRCLE
+}
+
 @Composable
 fun DeisaLogo(
     size: LogoSize = LogoSize.MD,
     variant: LogoVariant = LogoVariant.DEFAULT,
+    shape: LogoShape = LogoShape.ROUNDED_SQUARE,
     modifier: Modifier = Modifier
 ) {
     val backgroundColor = when (variant) {
@@ -56,13 +61,16 @@ fun DeisaLogo(
         LogoVariant.DARK -> MaterialTheme.colorScheme.onSurfaceVariant
     }
 
+    val logoShape: Shape = when (shape) {
+        LogoShape.ROUNDED_SQUARE -> RoundedCornerShape(size.cornerRadius)
+        LogoShape.CIRCLE -> CircleShape
+    }
+
     Box(
         modifier = modifier
             .size(size.size)
-            .background(
-                color = backgroundColor,
-                shape = RoundedCornerShape(size.cornerRadius)
-            ),
+            .clip(logoShape)
+            .background(color = backgroundColor),
         contentAlignment = Alignment.Center
     ) {
         Icon(

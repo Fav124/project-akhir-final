@@ -22,7 +22,6 @@ class Santri extends Model
         'jurusan_id',
         'tempat_lahir',
         'tanggal_lahir',
-        'angkatan_id',
         'tahun_masuk',
         'alamat',
         'golongan_darah',
@@ -44,7 +43,8 @@ class Santri extends Model
                 if ($lastSantri) {
                     $lastSequence = intval(substr($lastSantri->nis, -3));
                     $newSequence = str_pad($lastSequence + 1, 3, '0', STR_PAD_LEFT);
-                } else {
+                }
+                else {
                     $newSequence = '001';
                 }
 
@@ -52,7 +52,7 @@ class Santri extends Model
             }
         });
 
-        // The automatic Angkatan calculation is removed as per user request for manual selection.
+    // The automatic Angkatan calculation is removed as per user request for manual selection.
     }
 
     protected $casts = [
@@ -68,10 +68,6 @@ class Santri extends Model
     public function jurusan()
     {
         return $this->belongsTo(Jurusan::class);
-    }
-    public function angkatan()
-    {
-        return $this->belongsTo(Angkatan::class);
     }
     public function wali()
     {

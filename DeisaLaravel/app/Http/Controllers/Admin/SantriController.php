@@ -13,7 +13,7 @@ class SantriController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Santri::with(['kelas', 'jurusan', 'angkatan'])->where('status_akademik', 'Aktif');
+        $query = Santri::with(['kelas', 'jurusan'])->where('status_akademik', 'Aktif');
 
         if ($request->has('search') && $request->search != '') {
             $term = $request->search;
@@ -32,7 +32,6 @@ class SantriController extends Controller
         $santris = $query->latest()->paginate(10);
         $classes = Kelas::all();
         $jurusans = \App\Models\Jurusan::all();
-        $angkatans = \App\Models\Angkatan::orderBy('tahun', 'desc')->get();
 
         if ($request->ajax() && $request->has('search')) {
             return "<div id=\"table-container\">" . view('admin.santri._table', compact('santris'))->render() . "</div>";
@@ -42,7 +41,7 @@ class SantriController extends Controller
             return view('admin.santri._table', compact('santris'));
         }
 
-        return view('admin.santri.index', compact('santris', 'classes', 'jurusans', 'angkatans'));
+        return view('admin.santri.index', compact('santris', 'classes', 'jurusans'));
     }
 
     public function show($id)
@@ -58,11 +57,10 @@ class SantriController extends Controller
     {
         $classes = Kelas::with('jurusans')->get();
         $jurusans = \App\Models\Jurusan::all();
-        $angkatans = \App\Models\Angkatan::orderBy('tahun', 'desc')->get();
         if (request()->ajax()) {
-            return view('admin.santri._form_modal', compact('classes', 'jurusans', 'angkatans'));
+            return view('admin.santri._form_modal', compact('classes', 'jurusans'));
         }
-        return view('admin.santri.create', compact('classes', 'jurusans', 'angkatans'));
+        return view('admin.santri.create', compact('classes', 'jurusans'));
     }
 
     public function store(Request $request)
@@ -77,7 +75,6 @@ class SantriController extends Controller
             'tempat_lahir' => 'nullable|string|max:255',
             'tanggal_lahir' => 'nullable|date',
             'tahun_masuk' => 'nullable|integer|min:1900|max:' . (date('Y') + 1),
-            'angkatan_id' => 'required|exists:angkatans,id',
             'is_repeating' => 'nullable|boolean',
             'alamat' => 'nullable|string|max:500',
             'golongan_darah' => 'nullable|in:A,B,AB,O',
@@ -123,7 +120,8 @@ class SantriController extends Controller
                 return response()->json(['message' => 'Santri berhasil ditambahkan', 'reload' => true]);
             }
             return redirect()->route('admin.santri.index')->with('success', 'Santri berhasil ditambahkan');
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             \DB::rollBack();
             if ($request->wantsJson()) {
                 return response()->json(['message' => 'Gagal menambahkan santri: ' . $e->getMessage()], 500);
@@ -134,14 +132,13 @@ class SantriController extends Controller
 
     public function edit($id)
     {
-        $santri = Santri::with(['kelas', 'jurusan', 'wali', 'angkatan'])->findOrFail($id);
+        $santri = Santri::with(['kelas', 'jurusan', 'wali'])->findOrFail($id);
         $classes = Kelas::with('jurusans')->get();
         $jurusans = \App\Models\Jurusan::all();
-        $angkatans = \App\Models\Angkatan::orderBy('tahun', 'desc')->get();
         if (request()->ajax()) {
-            return view('admin.santri._form_modal', compact('santri', 'classes', 'jurusans', 'angkatans'));
+            return view('admin.santri._form_modal', compact('santri', 'classes', 'jurusans'));
         }
-        return view('admin.santri.edit', compact('santri', 'classes', 'jurusans', 'angkatans'));
+        return view('admin.santri.edit', compact('santri', 'classes', 'jurusans'));
     }
 
     public function update(Request $request, $id)
@@ -157,7 +154,6 @@ class SantriController extends Controller
             'tempat_lahir' => 'nullable|string|max:255',
             'tanggal_lahir' => 'nullable|date',
             'tahun_masuk' => 'nullable|integer|min:1900|max:' . (date('Y') + 1),
-            'angkatan_id' => 'required|exists:angkatans,id',
             'is_repeating' => 'nullable|boolean',
             'alamat' => 'nullable|string|max:500',
             'golongan_darah' => 'nullable|in:A,B,AB,O',
@@ -186,13 +182,13 @@ class SantriController extends Controller
 
             if ($request->filled('nama_wali')) {
                 $santri->wali()->updateOrCreate(
-                    ['santri_id' => $santri->id],
-                    [
-                        'nama_wali' => $request->nama_wali,
-                        'hubungan' => $request->hubungan,
-                        'no_hp' => $request->no_hp,
-                        'pekerjaan' => $request->pekerjaan,
-                    ]
+                ['santri_id' => $santri->id],
+                [
+                    'nama_wali' => $request->nama_wali,
+                    'hubungan' => $request->hubungan,
+                    'no_hp' => $request->no_hp,
+                    'pekerjaan' => $request->pekerjaan,
+                ]
                 );
             }
 
@@ -210,7 +206,8 @@ class SantriController extends Controller
                 return response()->json(['message' => 'Data santri berhasil diperbarui', 'reload' => true]);
             }
             return redirect()->route('admin.santri.index')->with('success', 'Data santri berhasil diperbarui');
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             \DB::rollBack();
             if ($request->wantsJson()) {
                 return response()->json(['message' => 'Gagal update santri: ' . $e->getMessage()], 500);
@@ -238,7 +235,8 @@ class SantriController extends Controller
                 return response()->json(['message' => 'Santri berhasil dihapus', 'reload' => true]);
             }
             return redirect()->back()->with('success', 'Santri berhasil dihapus');
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             if ($request->wantsJson()) {
                 return response()->json(['message' => 'Gagal menghapus santri: ' . $e->getMessage()], 500);
             }

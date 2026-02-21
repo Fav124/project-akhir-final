@@ -41,7 +41,7 @@ class SantriApiController extends Controller
         return response()->json([
             'success' => true,
             'data' => $santri->map(function ($s) {
-                return [
+            return [
                     'id' => $s->id,
                     'nis' => $s->nis,
                     'nama_lengkap' => $s->nama_lengkap,
@@ -57,7 +57,7 @@ class SantriApiController extends Controller
                         'nama' => $s->jurusan->nama_jurusan
                     ] : null
                 ];
-            }),
+        }),
             'meta' => [
                 'current_page' => $santri->currentPage(),
                 'last_page' => $santri->lastPage(),
@@ -81,13 +81,13 @@ class SantriApiController extends Controller
         }
 
         $validated = $request->validate([
-            'nis' => 'required|string|unique:santri,nis',
+            'nis' => 'required|string|unique:santris,nis',
             'nama_lengkap' => 'required|string|max:255',
             'jenis_kelamin' => 'required|in:L,P',
             'tanggal_lahir' => 'required|date',
             'alamat' => 'required|string',
             'kelas_id' => 'required|exists:kelas,id',
-            'jurusan_id' => 'required|exists:jurusan,id'
+            'jurusan_id' => 'required|exists:jurusans,id'
         ]);
 
         $santri = Santri::create($validated);
@@ -150,13 +150,13 @@ class SantriApiController extends Controller
         $santri = Santri::findOrFail($id);
 
         $validated = $request->validate([
-            'nis' => 'required|string|unique:santri,nis,' . $id,
+            'nis' => 'required|string|unique:santris,nis,' . $id,
             'nama_lengkap' => 'required|string|max:255',
             'jenis_kelamin' => 'required|in:L,P',
             'tanggal_lahir' => 'required|date',
             'alamat' => 'required|string',
             'kelas_id' => 'required|exists:kelas,id',
-            'jurusan_id' => 'required|exists:jurusan,id'
+            'jurusan_id' => 'required|exists:jurusans,id'
         ]);
 
         $santri->update($validated);

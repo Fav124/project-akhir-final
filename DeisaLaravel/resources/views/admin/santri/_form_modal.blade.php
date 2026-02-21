@@ -14,7 +14,7 @@
     method="POST" data-ajax="true" enctype="multipart/form-data">
     @csrf
     @if(isset($santri))
-        @method('PUT')
+    @method('PUT')
     @endif
 
     <div class="p-6">
@@ -79,23 +79,18 @@
                         class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500/20 focus:border-deisa-blue outline-none transition-all bg-white">
                         <option value="">Pilih Kelas</option>
                         @foreach($classes as $class)
-                            <option value="{{ $class->id }}">
-                                {{ $class->nama_kelas }}
-                            </option>
+                        <option value="{{ $class->id }}">
+                            {{ $class->nama_kelas }}
+                        </option>
                         @endforeach
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Angkatan</label>
-                    <select name="angkatan_id" required
-                        class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500/20 focus:border-deisa-blue outline-none transition-all bg-white">
-                        <option value="">Pilih Angkatan</option>
-                        @foreach($angkatans as $angkatan)
-                            <option value="{{ $angkatan->id }}" {{ (isset($santri) && $santri->angkatan_id == $angkatan->id) ? 'selected' : '' }}>
-                                {{ $angkatan->nama_angkatan }}
-                            </option>
-                        @endforeach
-                    </select>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Tahun Masuk</label>
+                    <input type="number" name="tahun_masuk" value="{{ $santri->tahun_masuk ?? date('Y') }}" required
+                        min="1900" max="{{ date('Y') + 1 }}"
+                        class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500/20 focus:border-deisa-blue outline-none transition-all"
+                        placeholder="Contoh: {{ date('Y') }}">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Jurusan</label>
@@ -113,10 +108,14 @@
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Status Kesehatan Awal</label>
                     <select name="status_kesehatan" required
                         class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500/20 focus:border-deisa-blue outline-none transition-all bg-white">
-                        <option value="Sehat" {{ (isset($santri) && $santri->status_kesehatan == 'Sehat') ? 'selected' : '' }}>Sehat</option>
-                        <option value="Sakit" {{ (isset($santri) && $santri->status_kesehatan == 'Sakit') ? 'selected' : '' }}>Sakit</option>
-                        <option value="Rawat Inap" {{ (isset($santri) && $santri->status_kesehatan == 'Rawat Inap') ? 'selected' : '' }}>Rawat Inap</option>
-                        <option value="Pulang" {{ (isset($santri) && $santri->status_kesehatan == 'Pulang') ? 'selected' : '' }}>Pulang</option>
+                        <option value="Sehat" {{ (isset($santri) && $santri->status_kesehatan == 'Sehat') ? 'selected' :
+                            '' }}>Sehat</option>
+                        <option value="Sakit" {{ (isset($santri) && $santri->status_kesehatan == 'Sakit') ? 'selected' :
+                            '' }}>Sakit</option>
+                        <option value="Rawat Inap" {{ (isset($santri) && $santri->status_kesehatan == 'Rawat Inap') ?
+                            'selected' : '' }}>Rawat Inap</option>
+                        <option value="Pulang" {{ (isset($santri) && $santri->status_kesehatan == 'Pulang') ? 'selected'
+                            : '' }}>Pulang</option>
                     </select>
                 </div>
             </div>
@@ -144,7 +143,8 @@
                         </option>
                         <option value="B" {{ (isset($santri) && $santri->golongan_darah == 'B') ? 'selected' : '' }}>B
                         </option>
-                        <option value="AB" {{ (isset($santri) && $santri->golongan_darah == 'AB') ? 'selected' : '' }}>AB
+                        <option value="AB" {{ (isset($santri) && $santri->golongan_darah == 'AB') ? 'selected' : ''
+                            }}>AB
                         </option>
                         <option value="O" {{ (isset($santri) && $santri->golongan_darah == 'O') ? 'selected' : '' }}>O
                         </option>
@@ -175,9 +175,12 @@
                     <select name="hubungan"
                         class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500/20 focus:border-deisa-blue outline-none transition-all bg-white">
                         <option value="">Pilih Hubungan</option>
-                        <option value="Ayah" {{ (isset($santri) && optional($santri->wali)->hubungan == 'Ayah') ? 'selected' : '' }}>Ayah</option>
-                        <option value="Ibu" {{ (isset($santri) && optional($santri->wali)->hubungan == 'Ibu') ? 'selected' : '' }}>Ibu</option>
-                        <option value="Wali" {{ (isset($santri) && optional($santri->wali)->hubungan == 'Wali') ? 'selected' : '' }}>Wali / Saudara</option>
+                        <option value="Ayah" {{ (isset($santri) && optional($santri->wali)->hubungan == 'Ayah') ?
+                            'selected' : '' }}>Ayah</option>
+                        <option value="Ibu" {{ (isset($santri) && optional($santri->wali)->hubungan == 'Ibu') ?
+                            'selected' : '' }}>Ibu</option>
+                        <option value="Wali" {{ (isset($santri) && optional($santri->wali)->hubungan == 'Wali') ?
+                            'selected' : '' }}>Wali / Saudara</option>
                     </select>
                 </div>
                 <div>

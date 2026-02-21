@@ -8,6 +8,8 @@ class SessionManager(context: Context) {
 
     companion object {
         const val USER_TOKEN = "user_token"
+        const val USER_ROLE = "user_role"
+        const val USER_NAME = "user_name"
         const val REMEMBER_ME = "remember_me"
         
         // Static memory variable for non-persistent session
@@ -57,14 +59,28 @@ class SessionManager(context: Context) {
         return prefs.getString(USER_TOKEN, null)
     }
 
+    fun saveUserRole(role: String) {
+        prefs.edit().putString(USER_ROLE, role).apply()
+    }
+
+    fun fetchUserRole(): String? {
+        return prefs.getString(USER_ROLE, null)
+    }
+
+    fun saveUserName(name: String) {
+        prefs.edit().putString(USER_NAME, name).apply()
+    }
+
+    fun fetchUserName(): String? {
+        return prefs.getString(USER_NAME, null)
+    }
+
     fun clearAuthToken() {
         memoryToken = null
         val editor = prefs.edit()
         editor.remove(USER_TOKEN)
-        // We might or might not want to clear REMEMBER_ME flag depending on UX,
-        // but typically logout clears session data.
-        // We usually keep the REMEMBER_ME preference for next login (to pre-check box) or clear it.
-        // Requirement implies session clearing.
+        editor.remove(USER_ROLE)
+        editor.remove(USER_NAME)
         editor.remove(REMEMBER_ME) 
         editor.apply()
     }

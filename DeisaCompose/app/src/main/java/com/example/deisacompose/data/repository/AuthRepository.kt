@@ -1,6 +1,7 @@
 package com.example.deisacompose.data.repository
 
 import com.example.deisacompose.data.models.*
+import com.example.deisacompose.data.network.ApiClient
 import com.example.deisacompose.data.network.RetrofitClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -16,8 +17,11 @@ class AuthRepository {
                 if (response.isSuccessful && body != null) {
                     if (body.success) {
                         body.data?.let {
-                            // Save token
+                            // Save token and user info for session persistence
                             RetrofitClient.setAuthToken(it.token)
+                            ApiClient.getSessionManager().saveAuthToken(it.token, true)
+                            ApiClient.getSessionManager().saveUserRole(it.user.role)
+                            ApiClient.getSessionManager().saveUserName(it.user.name)
                             Result.success(it)
                         } ?: Result.failure(Exception("Data tidak valid"))
                     } else {
@@ -90,6 +94,8 @@ class AuthRepository {
                     } else {
                         Result.failure(Exception(body.message ?: "Gagal mengambil data user"))
                     }
+                } else if (response.code() == 401) {
+                    Result.failure(Exception("UNAUTHORIZED"))
                 } else {
                     Result.failure(Exception("Gagal mengambil data user"))
                 }

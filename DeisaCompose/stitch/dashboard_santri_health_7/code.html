@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SantriHealth - Data Santri</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1978e5",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#0A0F1D",
+                        "sakit": "#FF4D4D",
+                        "obat": "#4CAF50",
+                        "sembuh": "#2196F3",
+                        "pulang": "#9C27B0",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        :root {
+            --sakit: #FF4D4D;
+            --obat: #4CAF50;
+            --sembuh: #2196F3;
+            --pulang: #9C27B0;
+        }
+        body {
+            background-color: #0A0F1D;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .ios-blur {
+            @apply backdrop-blur-xl bg-[#0A0F1D]/80;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        #sidebar-overlay {
+            display: none;
+        }
+        #sidebar-toggle:checked ~ #sidebar-drawer {
+            transform: translateX(0);
+        }
+        #sidebar-toggle:checked ~ #sidebar-overlay {
+            display: block;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-dark font-display text-slate-300 antialiased overflow-x-hidden">
+<input class="hidden" id="sidebar-toggle" type="checkbox"/>
+<label class="fixed inset-0 bg-black/60 z-[60] backdrop-blur-sm transition-opacity" for="sidebar-toggle" id="sidebar-overlay"></label>
+<aside class="fixed top-0 left-0 bottom-0 w-[280px] bg-[#111827] z-[70] shadow-2xl transition-transform duration-300 -translate-x-full flex flex-col" id="sidebar-drawer">
+<div class="p-8 border-b border-white/5">
+<h2 class="text-white text-2xl font-bold tracking-tight">Santri<span class="text-primary">Health</span></h2>
+<p class="text-xs text-slate-500 mt-1">Boarding School Management</p>
+</div>
+<nav class="flex-1 px-4 py-6 space-y-2">
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-slate-400 hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl bg-primary/10 text-primary font-semibold" href="#">
+<span class="material-symbols-outlined">groups</span>
+                Data Santri
+            </a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-slate-400 hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined text-sakit">sick</span>
+                Data Sakit
+            </a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-slate-400 hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined text-obat">medication</span>
+                Stok Obat
+            </a>
+<div class="pt-6 mt-6 border-t border-white/5">
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-slate-400 hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+                    Pengaturan
+                </a>
+</div>
+</nav>
+<div class="p-6 text-center">
+<p class="text-[10px] text-slate-600 uppercase tracking-widest">v1.2.4 Build</p>
+</div>
+</aside>
+<div class="max-w-[430px] mx-auto min-h-screen bg-background-dark shadow-2xl relative overflow-hidden flex flex-col">
+<header class="pt-14 pb-4 px-6 ios-blur sticky top-0 z-50 flex items-center justify-between border-b border-white/5">
+<div class="flex items-center gap-4">
+<label class="w-10 h-10 rounded-lg flex items-center justify-center cursor-pointer active:bg-white/10 transition-colors" for="sidebar-toggle">
+<span class="material-symbols-outlined text-white text-2xl">menu</span>
+</label>
+<h1 class="text-white text-xl font-bold tracking-tight">Data Santri</h1>
+</div>
+<div class="flex items-center gap-3">
+<button class="relative w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/5 transition-colors">
+<span class="material-symbols-outlined text-white text-xl">notifications</span>
+<span class="absolute top-2.5 right-2.5 w-2 h-2 bg-sakit rounded-full border-2 border-background-dark"></span>
+</button>
+<div class="w-9 h-9 rounded-full border border-white/10 p-0.5 overflow-hidden">
+<img alt="Admin Profile" class="w-full h-full object-cover rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqC_gzrrsspWk2MMVcxrqEqYcrimXPcqyzsTL0X5xRQXEYUDj76DsT2fgpdnOJ827Ij2mG1gTD3334xxaPYJAcc8Dzyit4LuoKDavhpG3gXkdwX8fdRBwjgyCjUKs29OD2_srmKpQRDKLqf7NZZL6TfHHcQ31VSmGptEVEivUUOjmggyyfmBlUW2IdEQqZKICx2EklcKd9m0qUCVwjEv5tt_7M37ecT_F60Oa6RrYvrAtahuA2hhAtMXf8JK3u0yAZiQzECT90hxY"/>
+</div>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto px-6 pb-32 custom-scrollbar">
+<div class="mt-6 mb-6">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-xl group-focus-within:text-primary transition-colors">search</span>
+<input class="w-full bg-[#161B2C] border-none rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-slate-500 focus:ring-2 focus:ring-primary/50 transition-all text-sm" placeholder="Search name or ID..." type="text"/>
+</div>
+</div>
+<div class="flex gap-2 mb-8 overflow-x-auto custom-scrollbar pb-1">
+<button class="flex-shrink-0 px-4 py-2 rounded-full bg-primary text-white text-xs font-semibold flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">filter_alt</span>
+                    All
+                </button>
+<button class="flex-shrink-0 px-4 py-2 rounded-full bg-[#161B2C] border border-white/5 text-slate-400 text-xs font-semibold">Class</button>
+<button class="flex-shrink-0 px-4 py-2 rounded-full bg-[#161B2C] border border-white/5 text-slate-400 text-xs font-semibold">Gender</button>
+<button class="flex-shrink-0 px-4 py-2 rounded-full bg-[#161B2C] border border-white/5 text-slate-400 text-xs font-semibold">Health Status</button>
+</div>
+<div class="space-y-3">
+<div class="bg-[#161B2C] p-4 rounded-2xl border border-white/5 flex items-center justify-between active:bg-white/5 transition-colors cursor-pointer group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-sembuh/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-sembuh text-2xl">person</span>
+</div>
+<div>
+<h4 class="text-sm font-bold text-white mb-0.5">Ahmad Rayyan</h4>
+<p class="text-[11px] text-slate-500">Kelas 10-A • Male</p>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<span class="px-3 py-1 rounded-full bg-sembuh/10 text-sembuh text-[10px] font-bold uppercase tracking-wider">Healthy</span>
+<span class="material-symbols-outlined text-slate-600 group-active:translate-x-1 transition-transform">chevron_right</span>
+</div>
+</div>
+<div class="bg-[#161B2C] p-4 rounded-2xl border border-white/5 flex items-center justify-between active:bg-white/5 transition-colors cursor-pointer group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-sakit/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-sakit text-2xl">person</span>
+</div>
+<div>
+<h4 class="text-sm font-bold text-white mb-0.5">Zaidan Ramadhan</h4>
+<p class="text-[11px] text-slate-500">Kelas 11-B • Male</p>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<span class="px-3 py-1 rounded-full bg-sakit/10 text-sakit text-[10px] font-bold uppercase tracking-wider">Sick</span>
+<span class="material-symbols-outlined text-slate-600 group-active:translate-x-1 transition-transform">chevron_right</span>
+</div>
+</div>
+<div class="bg-[#161B2C] p-4 rounded-2xl border border-white/5 flex items-center justify-between active:bg-white/5 transition-colors cursor-pointer group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-pulang/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-pulang text-2xl">person</span>
+</div>
+<div>
+<h4 class="text-sm font-bold text-white mb-0.5">Fatimah Zahra</h4>
+<p class="text-[11px] text-slate-500">Kelas 10-C • Female</p>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<span class="px-3 py-1 rounded-full bg-pulang/10 text-pulang text-[10px] font-bold uppercase tracking-wider">Went Home</span>
+<span class="material-symbols-outlined text-slate-600 group-active:translate-x-1 transition-transform">chevron_right</span>
+</div>
+</div>
+<div class="bg-[#161B2C] p-4 rounded-2xl border border-white/5 flex items-center justify-between active:bg-white/5 transition-colors cursor-pointer group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-sembuh/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-sembuh text-2xl">person</span>
+</div>
+<div>
+<h4 class="text-sm font-bold text-white mb-0.5">Muhammad Fatih</h4>
+<p class="text-[11px] text-slate-500">Kelas 12-A • Male</p>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<span class="px-3 py-1 rounded-full bg-sembuh/10 text-sembuh text-[10px] font-bold uppercase tracking-wider">Healthy</span>
+<span class="material-symbols-outlined text-slate-600 group-active:translate-x-1 transition-transform">chevron_right</span>
+</div>
+</div>
+<div class="bg-[#161B2C] p-4 rounded-2xl border border-white/5 flex items-center justify-between active:bg-white/5 transition-colors cursor-pointer group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-sakit/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-sakit text-2xl">person</span>
+</div>
+<div>
+<h4 class="text-sm font-bold text-white mb-0.5">Luthfi Hakim</h4>
+<p class="text-[11px] text-slate-500">Kelas 10-A • Male</p>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<span class="px-3 py-1 rounded-full bg-sakit/10 text-sakit text-[10px] font-bold uppercase tracking-wider">Sick</span>
+<span class="material-symbols-outlined text-slate-600 group-active:translate-x-1 transition-transform">chevron_right</span>
+</div>
+</div>
+</div>
+</main>
+<button class="fixed bottom-10 right-8 w-16 h-16 bg-primary text-white rounded-full shadow-2xl flex items-center justify-center z-50 hover:scale-105 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-3xl font-light">add</span>
+</button>
+</div>
+
+</body></html>

@@ -24,9 +24,18 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.deisacompose.data.models.Santri
+import com.example.deisacompose.ui.components.PremiumFilterChip
+import com.example.deisacompose.ui.components.StitchDrawerContent
+import com.example.deisacompose.ui.components.StitchTopBar
+import com.example.deisacompose.ui.theme.DeisaBlue
+import com.example.deisacompose.ui.theme.DeisaNavy
+import com.example.deisacompose.ui.theme.DeisaSoftNavy
+import com.example.deisacompose.ui.theme.SuccessGreen
 import com.example.deisacompose.viewmodels.AuthViewModel
+import com.example.deisacompose.viewmodels.ResourceUiState
 import com.example.deisacompose.viewmodels.ResourceViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,172 +46,128 @@ fun SantriListScreen(
 ) {
     val santriList by resourceViewModel.santriList.collectAsState()
     val kelasList by resourceViewModel.kelasList.collectAsState()
-    val jurusanList by resourceViewModel.jurusanList.collectAsState()
     val isLoading by resourceViewModel.isLoading.collectAsState()
     val currentUser by authViewModel.currentUser.collectAsState()
+    val uiState by resourceViewModel.uiState.collectAsState()
 
     var searchQuery by remember { mutableStateOf("") }
     var selectedKelas by remember { mutableStateOf<Int?>(null) }
-    var selectedJurusan by remember { mutableStateOf<Int?>(null) }
-    var showFilterDialog by remember { mutableStateOf(false) }
-
-    val isAdmin = currentUser?.role == "admin"
+    val isAdmin by authViewModel.isAdmin.collectAsState()
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         resourceViewModel.loadSantri()
         resourceViewModel.loadKelas()
-        resourceViewModel.loadJurusan()
     }
 
-    LaunchedEffect(searchQuery, selectedKelas, selectedJurusan) {
+    // Handle session timeout globally from ResourceViewModel
+    LaunchedEffect(uiState) {
+        if (uiState is ResourceUiState.Error && (uiState as ResourceUiState.Error).message == "SESI_HABIS") {
+            authViewModel.logout()
+            navController.navigate("login") {
+                popUpTo(0) { inclusive = true }
+            }
+        }
+    }
+
+    LaunchedEffect(searchQuery, selectedKelas) {
         delay(300)
         resourceViewModel.loadSantri(
             search = searchQuery.ifBlank { null },
-            kelasId = selectedKelas,
-            jurusanId = selectedJurusan
+            kelasId = selectedKelas
         )
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Database Santri", fontWeight = FontWeight.ExtraBold) },
-                navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.Default.ArrowBack, "Kembali")
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { showFilterDialog = true }) {
-                        Box {
-                            Icon(Icons.Default.FilterList, "Filter")
-                            if (selectedKelas != null || selectedJurusan != null) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(10.dp)
-                                        .clip(CircleShape)
-                                        .background(Color(0xFFEF4444))
-                                        .align(Alignment.TopEnd)
-                                )
-                            }
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet(
+                drawerContainerColor = DeisaSoftNavy,
+                drawerContentColor = Color.White
+            ) {
+                StitchDrawerContent(
+                    userName = currentUser?.name ?: "User",
+                    onLogout = {
+                        authViewModel.logout()
+                        navController.navigate("login") {
+                            popUpTo(0) { inclusive = true }
                         }
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
+                    },
+                    navController = navController,
+                    currentRoute = "santri_list"
                 )
-            )
-        },
-        floatingActionButton = {
-            if (isAdmin) {
-                FloatingActionButton(
-                    onClick = { navController.navigate("santri_add") },
-                    containerColor = Color(0xFF0B63D6),
-                    contentColor = Color.White,
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Icon(Icons.Default.Add, "Tambah Santri")
-                }
             }
         }
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(padding)
-        ) {
-            // Search Bar
-            OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
+    ) {
+        Scaffold(
+            containerColor = DeisaNavy,
+            topBar = {
+                StitchTopBar(
+                    title = "Data Santri",
+                    onMenuClick = { scope.launch { drawerState.open() } },
+                    showMenu = true
+                )
+            },
+            floatingActionButton = {
+                if (isAdmin) {
+                    FloatingActionButton(
+                        onClick = { navController.navigate("santri_add") },
+                        containerColor = DeisaBlue,
+                        contentColor = Color.White
+                    ) {
+                        Icon(Icons.Default.Add, "Tambah Santri")
+                    }
+                }
+            }
+        ) { padding ->
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                placeholder = { Text("Cari nama atau NIS...") },
-                leadingIcon = { Icon(Icons.Default.Search, null, tint = Color(0xFF0B63D6)) },
-                trailingIcon = {
-                    if (searchQuery.isNotEmpty()) {
-                        IconButton(onClick = { searchQuery = "" }) {
-                            Icon(Icons.Default.Close, "Clear")
-                        }
-                    }
-                },
-                singleLine = true,
-                shape = RoundedCornerShape(20.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color(0xFF0B63D6),
-                    unfocusedBorderColor = Color.Gray.copy(alpha = 0.3f),
-                    unfocusedContainerColor = Color.White,
-                    focusedContainerColor = Color.White
-                )
-            )
-
-            // Content
-            when {
-                isLoading && santriList.isEmpty() -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(strokeWidth = 3.dp, color = Color(0xFF0B63D6))
-                    }
-                }
-                santriList.isEmpty() -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(
-                                Icons.Default.Groups,
-                                contentDescription = null,
-                                modifier = Modifier.size(80.dp),
-                                tint = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Text(
-                                "Tidak ada data santri",
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-                }
-                else -> {
-                    LazyColumn(
-                        contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        items(santriList) { santri ->
-                            SantriCard(
-                                santri = santri,
-                                onClick = { navController.navigate("santri_detail/${santri.id}") },
-                                isAdmin = isAdmin
-                            )
-                        }
-                        item { Spacer(modifier = Modifier.height(80.dp)) }
-                    }
-                }
-            }
-        }
-    }
-
-    // Filter Dialog (Simplified for brevity, but could be enhanced)
-    if (showFilterDialog) {
-        AlertDialog(
-            onDismissRequest = { showFilterDialog = false },
-            title = { Text("Filter Berdasarkan", fontWeight = FontWeight.Bold) },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Text("Kelas", style = MaterialTheme.typography.labelLarge, color = Color.Gray)
-                    FlowRow(mainAxisSpacing = 8.dp, crossAxisSpacing = 8.dp) {
-                        PremiumFilterChip(
-                            selected = selectedKelas == null,
-                            onClick = { selectedKelas = null },
-                            label = "Semua"
+                    .fillMaxSize()
+                    .padding(padding)
+            ) {
+                // Search Area (v7 Style)
+                Column(modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)) {
+                    OutlinedTextField(
+                        value = searchQuery,
+                        onValueChange = { searchQuery = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = { Text("Cari berdasarkan nama atau NIS...", color = Color.Gray) },
+                        leadingIcon = { Icon(Icons.Default.Search, null, tint = Color.Gray) },
+                        trailingIcon = {
+                            if (searchQuery.isNotEmpty()) {
+                                IconButton(onClick = { searchQuery = "" }) {
+                                    Icon(Icons.Default.Close, null, tint = Color.Gray)
+                                }
+                            }
+                        },
+                        shape = RoundedCornerShape(14.dp),
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = DeisaSoftNavy,
+                            unfocusedContainerColor = DeisaSoftNavy,
+                            focusedBorderColor = DeisaBlue,
+                            unfocusedBorderColor = Color.White.copy(alpha = 0.05f),
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White
                         )
-                        kelasList.forEach { kelas ->
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Horizontal Filter Chips
+                    androidx.compose.foundation.lazy.LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        contentPadding = PaddingValues(bottom = 8.dp)
+                    ) {
+                        item {
+                            PremiumFilterChip(
+                                selected = selectedKelas == null,
+                                onClick = { selectedKelas = null },
+                                label = "Semua"
+                            )
+                        }
+                        items(kelasList) { kelas ->
                             PremiumFilterChip(
                                 selected = selectedKelas == kelas.id,
                                 onClick = { selectedKelas = kelas.id },
@@ -211,78 +176,74 @@ fun SantriListScreen(
                         }
                     }
                 }
-            },
-            confirmButton = {
-                TextButton(onClick = { showFilterDialog = false }) {
-                    Text("Terapkan", fontWeight = FontWeight.Bold, color = Color(0xFF0B63D6))
-                }
-            }
-        )
-    }
-}
 
-@Composable
-fun FlowRow(
-    mainAxisSpacing: androidx.compose.ui.unit.Dp,
-    crossAxisSpacing: androidx.compose.ui.unit.Dp,
-    content: @Composable () -> Unit
-) {
-    androidx.compose.ui.layout.Layout(content) { measurables, constraints ->
-        val chipSpacing = mainAxisSpacing.roundToPx()
-        val lineSpacing = crossAxisSpacing.roundToPx()
-        val placeables = measurables.map { it.measure(constraints.copy(minWidth = 0)) }
-        
-        layout(constraints.maxWidth, constraints.maxHeight) {
-            var x = 0
-            var y = 0
-            var lineHeight = 0
-            
-            placeables.forEach { placeable ->
-                if (x + placeable.width > constraints.maxWidth) {
-                    x = 0
-                    y += lineHeight + lineSpacing
-                    lineHeight = 0
+                // List Header
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        "TOTAL ${santriList.size} SANTRI",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Gray,
+                        letterSpacing = 1.5.sp
+                    )
                 }
-                placeable.place(x, y)
-                x += placeable.width + chipSpacing
-                lineHeight = maxOf(lineHeight, placeable.height)
+
+                // Content
+                if (isLoading && santriList.isEmpty()) {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(color = DeisaBlue)
+                    }
+                } else if (santriList.isEmpty()) {
+                    EmptySantriState()
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(horizontal = 24.dp, vertical = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(santriList) { santri ->
+                            SantriRow(
+                                santri = santri,
+                                onClick = { navController.navigate("santri_detail/${santri.id}") }
+                            )
+                        }
+                        item { Spacer(modifier = Modifier.height(80.dp)) }
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-fun SantriCard(
-    santri: Santri,
-    onClick: () -> Unit,
-    isAdmin: Boolean
-) {
+fun SantriRow(santri: Santri, onClick: () -> Unit) {
     com.example.deisacompose.ui.components.PremiumCard(
-        modifier = Modifier.fillMaxWidth(),
-        onClick = onClick,
-        accentColor = Color(0xFF0B63D6)
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        accentColor = DeisaBlue
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Premium Avatar
+            // Avatar
             Box(
                 modifier = Modifier
-                    .size(60.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(
-                        Brush.linearGradient(
-                            colors = listOf(Color(0xFF0B63D6).copy(alpha = 0.1f), Color(0xFF0B63D6).copy(alpha = 0.05f))
-                        )
-                    )
-                    .border(1.dp, Color(0xFF0B63D6).copy(alpha = 0.1f), RoundedCornerShape(16.dp)),
+                    .size(48.dp)
+                    .background(Color.White.copy(alpha = 0.05f), RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = santri.nama_lengkap.take(1).uppercase(),
-                    style = MaterialTheme.typography.headlineSmall,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF0B63D6)
+                    color = DeisaBlue
                 )
             }
 
@@ -291,54 +252,69 @@ fun SantriCard(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = santri.nama_lengkap,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = Color(0xFF1E293B)
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
                 )
                 Text(
                     text = "NIS: ${santri.nis}",
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.labelSmall,
                     color = Color.Gray
                 )
-                
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    santri.kelas?.let {
-                        Surface(
-                            color = Color(0xFFF1F5F9),
-                            shape = RoundedCornerShape(6.dp)
-                        ) {
-                            Text(
-                                text = it.nama_kelas,
-                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-                                style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFF475569)
-                            )
-                        }
-                    }
-                    santri.jurusan?.let {
-                        Surface(
-                            color = Color(0xFFF1F5F9),
-                            shape = RoundedCornerShape(6.dp)
-                        ) {
-                            Text(
-                                text = it.nama_jurusan,
-                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-                                style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFF475569)
-                            )
-                        }
-                    }
-                }
             }
 
+            Column(horizontalAlignment = Alignment.End) {
+                santri.kelas?.let {
+                    Box(
+                        modifier = Modifier
+                            .background(DeisaBlue.copy(alpha = 0.1f), RoundedCornerShape(4.dp))
+                            .padding(horizontal = 8.dp, vertical = 2.dp)
+                    ) {
+                        Text(
+                            text = it.nama_kelas,
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = DeisaBlue
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(4.dp))
+                // Status Chip (Healthy/Sick)
+                Box(
+                    modifier = Modifier
+                        .background(SuccessGreen.copy(alpha = 0.1f), RoundedCornerShape(4.dp))
+                        .padding(horizontal = 8.dp, vertical = 2.dp)
+                ) {
+                    Text(
+                        text = "SEHAT",
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = SuccessGreen
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun EmptySantriState() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Icon(
-                Icons.Default.ChevronRight,
+                Icons.Default.Groups,
                 contentDescription = null,
-                tint = Color.Gray.copy(alpha = 0.5f)
+                modifier = Modifier.size(80.dp),
+                tint = Color.White.copy(alpha = 0.05f)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                "Data santri tidak ditemukan",
+                style = MaterialTheme.typography.bodyLarge,
+                color = Color.Gray
             )
         }
     }

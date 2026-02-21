@@ -22,6 +22,8 @@ class AdminRepository {
                     } else {
                         Result.failure(Exception(body.message ?: "Gagal mengambil dashboard"))
                     }
+                } else if (response.code() == 401) {
+                    Result.failure(Exception("UNAUTHORIZED"))
                 } else {
                     Result.failure(Exception("Gagal mengambil dashboard"))
                 }

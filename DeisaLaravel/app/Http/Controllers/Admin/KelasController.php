@@ -19,29 +19,27 @@ class KelasController extends Controller
             $term = $request->search;
             $query->where('nama_kelas', 'like', "%{$term}%")
                 ->orWhereHas('jurusans', function ($q) use ($term) {
-                    $q->where('nama_jurusan', 'like', "%{$term}%");
-                });
+                $q->where('nama_jurusan', 'like', "%{$term}%");
+            });
         }
 
         $kelases = $query->latest()->paginate(10);
         $jurusans = Jurusan::all();
-        $angkatans = \App\Models\Angkatan::all();
 
         if ($request->ajax()) {
             return view('admin.kelas._table', compact('kelases'));
         }
 
-        return view('admin.kelas.index', compact('kelases', 'jurusans', 'angkatans'));
+        return view('admin.kelas.index', compact('kelases', 'jurusans'));
     }
 
     public function create()
     {
         $jurusans = Jurusan::all();
-        $angkatans = \App\Models\Angkatan::all();
         if (request()->ajax()) {
-            return view('admin.kelas._form_modal', compact('jurusans', 'angkatans'));
+            return view('admin.kelas._form_modal', compact('jurusans'));
         }
-        return view('admin.kelas.create', compact('jurusans', 'angkatans'));
+        return view('admin.kelas.create', compact('jurusans'));
     }
 
     public function store(Request $request)
@@ -77,7 +75,8 @@ class KelasController extends Controller
                 return response()->json(['message' => 'Kelas berhasil ditambahkan', 'reload' => true]);
             }
             return redirect()->route('admin.kelas.index')->with('success', 'Kelas berhasil ditambahkan');
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             if ($request->wantsJson()) {
                 return response()->json(['message' => 'Gagal menambahkan kelas: ' . $e->getMessage()], 500);
             }
@@ -89,11 +88,10 @@ class KelasController extends Controller
     {
         $kelas = Kelas::with('jurusans')->findOrFail($id);
         $jurusans = Jurusan::all();
-        $angkatans = \App\Models\Angkatan::all();
         if (request()->ajax()) {
-            return view('admin.kelas._form_modal', compact('kelas', 'jurusans', 'angkatans'));
+            return view('admin.kelas._form_modal', compact('kelas', 'jurusans'));
         }
-        return view('admin.kelas.edit', compact('kelas', 'jurusans', 'angkatans'));
+        return view('admin.kelas.edit', compact('kelas', 'jurusans'));
     }
 
     public function update(Request $request, $id)
@@ -130,7 +128,8 @@ class KelasController extends Controller
                 return response()->json(['message' => 'Data kelas berhasil diperbarui', 'reload' => true]);
             }
             return redirect()->route('admin.kelas.index')->with('success', 'Data kelas berhasil diperbarui');
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             if ($request->wantsJson()) {
                 return response()->json(['message' => 'Gagal update kelas: ' . $e->getMessage()], 500);
             }
@@ -157,7 +156,8 @@ class KelasController extends Controller
                 return response()->json(['message' => 'Kelas berhasil dihapus', 'reload' => true]);
             }
             return redirect()->back()->with('success', 'Kelas berhasil dihapus');
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             if ($request->wantsJson()) {
                 return response()->json(['message' => 'Gagal menghapus kelas: ' . $e->getMessage()], 500);
             }

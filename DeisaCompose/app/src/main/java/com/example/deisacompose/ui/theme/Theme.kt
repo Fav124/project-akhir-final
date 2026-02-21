@@ -20,26 +20,33 @@ private val DarkColorScheme = darkColorScheme(
     primary = DeisaBlue,
     secondary = DeisaBlueLight,
     tertiary = SuccessGreen,
-    background = Color(0xFF0F172A),
-    surface = Color(0xFF1E293B),
+    background = DeisaNavy,
+    surface = DeisaSoftNavy,
     onPrimary = Color.White,
     onSecondary = DeisaBlue,
     onTertiary = Color.White,
     onBackground = Color.White,
-    onSurface = Color.White,
+    onSurface = Color(0xFFCBD5E1), // Slate300 roughly
+    error = DangerRed,
+    errorContainer = DangerRed.copy(alpha = 0.1f),
+    onErrorContainer = DangerRed
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = DeisaBlue,
+    primary = DeisaBluePrimary,
     secondary = DeisaBlueLight,
     tertiary = SuccessGreen,
     background = Slate50,
     surface = Color.White,
     onPrimary = Color.White,
-    onSecondary = DeisaBlue,
+    onSecondary = DeisaBluePrimary,
     onTertiary = Color.White,
     onBackground = Slate900,
     onSurface = Slate700,
+    outline = Slate300,
+    error = DangerRed,
+    errorContainer = DangerRed.copy(alpha = 0.1f),
+    onErrorContainer = DangerRed
 )
 
 @Composable

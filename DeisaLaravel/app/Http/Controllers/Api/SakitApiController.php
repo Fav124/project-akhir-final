@@ -35,7 +35,7 @@ class SakitApiController extends Controller
         return response()->json([
             'success' => true,
             'data' => $sakit->map(function ($s) {
-                return [
+            return [
                     'id' => $s->id,
                     'santri' => [
                         'id' => $s->santri->id,
@@ -49,7 +49,7 @@ class SakitApiController extends Controller
                     'tanggal_masuk' => $s->created_at->format('Y-m-d H:i'),
                     'tanggal_masuk_human' => $s->created_at->diffForHumans()
                 ];
-            }),
+        }),
             'meta' => [
                 'current_page' => $sakit->currentPage(),
                 'last_page' => $sakit->lastPage(),
@@ -65,7 +65,7 @@ class SakitApiController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'santri_id' => 'required|exists:santri,id',
+            'santri_id' => 'required|exists:santris,id',
             'diagnosis_utama' => 'required|string',
             'keluhan' => 'nullable|string',
             'tindakan' => 'nullable|string',

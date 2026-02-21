@@ -12,9 +12,9 @@
             <div
                 class="w-32 h-32 rounded-2xl bg-blue-100 flex items-center justify-center text-deisa-blue text-4xl font-bold mb-4 shadow-inner">
                 @if($santri->foto)
-                    <img src="{{ asset('storage/' . $santri->foto) }}" class="w-full h-full object-cover rounded-2xl">
+                <img src="{{ asset('storage/' . $santri->foto) }}" class="w-full h-full object-cover rounded-2xl">
                 @else
-                    {{ substr($santri->nama_lengkap, 0, 1) }}
+                {{ substr($santri->nama_lengkap, 0, 1) }}
                 @endif
             </div>
             <span
@@ -37,9 +37,6 @@
                     <label class="text-slate-400 uppercase text-[10px] font-bold">Kelas</label>
                     <div class="font-medium text-slate-900">
                         {{ $santri->kelas->nama_kelas ?? '-' }}
-                        @if($santri->kelas && $santri->kelas->angkatan)
-                            <span class="text-[10px] text-slate-400 font-bold ml-1">({{ $santri->kelas->angkatan->nama_angkatan }})</span>
-                        @endif
                     </div>
                 </div>
                 <div>
@@ -49,7 +46,8 @@
                 <div>
                     <label class="text-slate-400 uppercase text-[10px] font-bold">Tempat, Tgl Lahir</label>
                     <div class="font-medium text-slate-900">{{ $santri->tempat_lahir ?? '-' }},
-                        {{ $santri->tanggal_lahir ? \Carbon\Carbon::parse($santri->tanggal_lahir)->format('d F Y') : '-' }}
+                        {{ $santri->tanggal_lahir ? \Carbon\Carbon::parse($santri->tanggal_lahir)->format('d F Y') : '-'
+                        }}
                     </div>
                 </div>
                 <div>
@@ -73,39 +71,43 @@
                 <label class="text-slate-400 uppercase text-[10px] font-bold">Riwayat Kesehatan (Sakit)</label>
                 <div class="mt-2 space-y-2">
                     @forelse($santri->sakit->take(3) as $s)
-                        <div class="flex items-center justify-between p-2 bg-slate-50 rounded-lg border border-slate-100 text-xs">
-                            <div>
-                                <div class="font-bold text-slate-800">{{ $s->diagnosis ?? 'Diagnosis tidak tersedia' }}</div>
-                                <div class="text-slate-500">{{ \Carbon\Carbon::parse($s->tanggal_sakit)->format('d/m/Y') }}</div>
+                    <div
+                        class="flex items-center justify-between p-2 bg-slate-50 rounded-lg border border-slate-100 text-xs">
+                        <div>
+                            <div class="font-bold text-slate-800">{{ $s->diagnosis ?? 'Diagnosis tidak tersedia' }}
                             </div>
-                            <span class="px-2 py-0.5 rounded-full {{ $s->status == 'sembuh' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800' }}">
-                                {{ ucfirst($s->status) }}
-                            </span>
+                            <div class="text-slate-500">{{ \Carbon\Carbon::parse($s->tanggal_sakit)->format('d/m/Y') }}
+                            </div>
                         </div>
+                        <span
+                            class="px-2 py-0.5 rounded-full {{ $s->status == 'sembuh' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800' }}">
+                            {{ ucfirst($s->status) }}
+                        </span>
+                    </div>
                     @empty
-                        <div class="text-xs text-slate-400 italic">Belum ada riwayat sakit yang tercatat.</div>
+                    <div class="text-xs text-slate-400 italic">Belum ada riwayat sakit yang tercatat.</div>
                     @endforelse
                 </div>
             </div>
 
             @if($santri->wali)
-                <div class="pt-4 border-t border-slate-100">
-                    <label class="text-slate-400 uppercase text-[10px] font-bold">Data Wali</label>
-                    <div class="grid grid-cols-2 gap-4 mt-1 text-sm">
-                        <div>
-                            <div class="font-medium text-slate-900">{{ $santri->wali->nama_wali }}</div>
-                            <div class="text-xs text-slate-500">Nama Wali</div>
-                        </div>
-                        <div>
-                            <div class="font-medium text-slate-900">{{ $santri->wali->no_hp ?? '-' }}</div>
-                            <div class="text-xs text-slate-500">No. HP / WhatsApp</div>
-                        </div>
-                        <div>
-                            <div class="font-medium text-slate-900">{{ ucfirst($santri->wali->hubungan ?? '-') }}</div>
-                            <div class="text-xs text-slate-500">Hubungan</div>
-                        </div>
+            <div class="pt-4 border-t border-slate-100">
+                <label class="text-slate-400 uppercase text-[10px] font-bold">Data Wali</label>
+                <div class="grid grid-cols-2 gap-4 mt-1 text-sm">
+                    <div>
+                        <div class="font-medium text-slate-900">{{ $santri->wali->nama_wali }}</div>
+                        <div class="text-xs text-slate-500">Nama Wali</div>
+                    </div>
+                    <div>
+                        <div class="font-medium text-slate-900">{{ $santri->wali->no_hp ?? '-' }}</div>
+                        <div class="text-xs text-slate-500">No. HP / WhatsApp</div>
+                    </div>
+                    <div>
+                        <div class="font-medium text-slate-900">{{ ucfirst($santri->wali->hubungan ?? '-') }}</div>
+                        <div class="text-xs text-slate-500">Hubungan</div>
                     </div>
                 </div>
+            </div>
             @endif
         </div>
     </div>

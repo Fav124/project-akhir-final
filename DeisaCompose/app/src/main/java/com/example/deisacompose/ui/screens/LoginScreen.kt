@@ -1,43 +1,83 @@
 package com.example.deisacompose.ui.screens
 
-import androidx.compose.animation.*
-import androidx.compose.animation.core.*
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.deisacompose.ui.components.DeisaLogo
 import com.example.deisacompose.ui.components.LogoSize
-import com.example.deisacompose.ui.components.LogoVariant
+import com.example.deisacompose.ui.components.PremiumGradientButton
+import com.example.deisacompose.ui.components.PremiumTextField
+import com.example.deisacompose.ui.theme.*
 import com.example.deisacompose.viewmodels.AuthViewModel
-import com.example.deisacompose.viewmodels.AuthUiState
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,258 +85,263 @@ fun LoginScreen(
     navController: NavController,
     authViewModel: AuthViewModel = viewModel()
 ) {
-    val uiState by authViewModel.uiState.collectAsState()
     val currentUser by authViewModel.currentUser.collectAsState()
     val focusManager = LocalFocusManager.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var rememberMe by remember { mutableStateOf(false) }
+    var email by remember { mutableStateOf("") } // Clear default email
+    var password by remember { mutableStateOf("") } // Clear default password
     var passwordVisible by remember { mutableStateOf(false) }
+    var rememberMe by remember { mutableStateOf(false) } // Add state for Remember Me
     var showError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
 
-    // Animation states
     var visible by remember { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
+        authViewModel.getCurrentUser() // Check if user is already logged in
         delay(100)
         visible = true
     }
 
-    // Handle UI state changes
-    LaunchedEffect(uiState) {
-        when (val state = uiState) {
-            is AuthUiState.Success -> {
-                val route = when (currentUser?.role) {
-                    "admin" -> "admin_dashboard"
-                    "petugas" -> "staff_dashboard"
-                    else -> "home"
-                }
-                navController.navigate(route) {
-                    popUpTo("login") { inclusive = true }
-                }
-                authViewModel.resetState()
+    LaunchedEffect(currentUser) {
+        if (currentUser != null) {
+            navController.navigate(if (currentUser!!.role == "admin") "admin_dashboard" else "staff_dashboard") {
+                popUpTo("login") { inclusive = true }
             }
-            is AuthUiState.Error -> {
-                errorMessage = state.message
-                showError = true
-                delay(3000)
-                showError = false
-                authViewModel.resetState()
-            }
-            else -> {}
         }
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFF0B63D6),
-                        Color(0xFF1E293B)
-                    )
-                )
-            )
+    Scaffold(
+        containerColor = DeisaNavy,
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) {
-        // Decorative Circles for Premium Feel
         Box(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .offset(x = 50.dp, y = (-50).dp)
-                .size(200.dp)
-                .clip(CircleShape)
-                .background(Color.White.copy(alpha = 0.05f))
-        )
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .offset(x = (-100).dp, y = 100.dp)
-                .size(300.dp)
-                .clip(CircleShape)
-                .background(Color.White.copy(alpha = 0.05f))
-        )
-
-        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp)
-                .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+                .padding(it)
         ) {
-            // Logo Area
+            // Background animations
             AnimatedVisibility(
                 visible = visible,
-                enter = fadeIn() + scaleIn()
+                enter = fadeIn(animationSpec = tween(1000, 500)),
+                exit = fadeOut(animationSpec = tween(500))
             ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.padding(bottom = 40.dp)
-                ) {
-                    Surface(
-                        modifier = Modifier.size(100.dp),
-                        shape = RoundedCornerShape(24.dp),
-                        color = Color.White,
-                        shadowElevation = 12.dp
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            DeisaLogo(size = LogoSize.LG)
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(24.dp))
-                    Text(
-                        text = "Deisa Health",
-                        style = MaterialTheme.typography.headlineLarge,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = Color.White,
-                        letterSpacing = (-1).sp
-                    )
-                    Text(
-                        text = "Sistem Informasi Kesehatan Santri",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White.copy(alpha = 0.7f),
-                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                    )
-                }
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.radialGradient(
+                                colors = listOf(DeisaBlue.copy(alpha = 0.1f), Color.Transparent),
+                                radius = 800f
+                            )
+                        )
+                )
+            }
+            AnimatedVisibility(
+                visible = visible,
+                enter = fadeIn(animationSpec = tween(1000, 1000)),
+                exit = fadeOut(animationSpec = tween(500))
+            ) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .fillMaxSize()
+                        .background(
+                            Brush.radialGradient(
+                                colors = listOf(DeisaBlue.copy(alpha = 0.1f), Color.Transparent),
+                                radius = 800f
+                            )
+                        )
+                )
             }
 
-            // Login Box
-            AnimatedVisibility(
-                visible = visible,
-                enter = fadeIn() + slideInVertically { it / 2 }
+            // Main Content
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-                com.example.deisacompose.ui.components.PremiumCard(
-                    modifier = Modifier.fillMaxWidth(),
-                    backgroundColor = Color.White.copy(alpha = 0.95f)
+                AnimatedVisibility(
+                    visible = visible,
+                    enter = fadeIn(animationSpec = tween(1000, 500)) + scaleIn(initialScale = 0.8f, animationSpec = tween(1000))
                 ) {
                     Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(32.dp))
+                            .background(DeisaSoftNavy.copy(alpha = 0.8f))
+                            .border(1.dp, Color.White.copy(alpha = 0.05f), RoundedCornerShape(32.dp))
+                            .padding(32.dp)
                     ) {
+                        // Logo and Title
+                        DeisaLogo(size = LogoSize.SM)
+                        Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            text = "Selamat Datang!",
+                            "Santri Health",
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF1E293B)
+                            color = Color.White
                         )
                         Text(
-                            text = "Silakan masuk ke akun Anda",
+                            "Manajemen Kesehatan Pesantren",
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.Gray,
-                            modifier = Modifier.padding(bottom = 24.dp)
+                            textAlign = TextAlign.Center
                         )
 
-                        // Email
-                        OutlinedTextField(
+                        Spacer(modifier = Modifier.height(32.dp))
+
+                        // Input Fields
+                        PremiumTextField(
                             value = email,
                             onValueChange = { email = it },
-                            label = { Text("Email Address") },
-                            leadingIcon = { Icon(Icons.Default.AlternateEmail, null, tint = Color(0xFF0B63D6)) },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(16.dp),
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
-                            keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }),
-                            singleLine = true
+                            label = "Alamat Email",
+                            placeholder = "Masukkan email Anda",
+                            leadingIcon = Icons.Default.Email,
+                            error = if (showError) errorMessage else null,
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Email,
+                                imeAction = ImeAction.Next
+                            ),
+                            keyboardActions = KeyboardActions(
+                                onNext = { focusManager.moveFocus(FocusDirection.Down) }
+                            )
                         )
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Password
-                        OutlinedTextField(
+                        PremiumTextField(
                             value = password,
                             onValueChange = { password = it },
-                            label = { Text("Password") },
-                            leadingIcon = { Icon(Icons.Default.LockOpen, null, tint = Color(0xFF0B63D6)) },
-                            trailingIcon = {
-                                IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                                    Icon(
-                                        if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                                        null
-                                    )
+                            label = "Kata Sandi",
+                            placeholder = "Masukkan kata sandi",
+                            leadingIcon = Icons.Default.Lock,
+                            error = if (showError) errorMessage else null,
+
+                            isPassword = true,
+                            passwordVisible = passwordVisible,
+                            onPasswordToggle = { passwordVisible = !passwordVisible },
+
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Password,
+                                imeAction = ImeAction.Done
+                            ),
+                            keyboardActions = KeyboardActions(
+                                onDone = {
+                                    focusManager.clearFocus()
+                                    if (email.isNotBlank() && password.isNotBlank()) {
+                                        isLoading = true
+                                        showError = false
+                                        authViewModel.login(email, password) { result ->
+                                            isLoading = false
+                                            if (result.isFailure) {
+                                                showError = true
+                                                errorMessage = result.exceptionOrNull()?.message ?: "Login gagal"
+                                            }
+                                        }
+                                    }
                                 }
-                            },
-                            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(16.dp),
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
-                            keyboardActions = KeyboardActions(onDone = {
-                                focusManager.clearFocus()
-                                if (email.isNotBlank() && password.isNotBlank()) authViewModel.login(email, password, rememberMe)
-                            }),
-                            singleLine = true
+                            )
                         )
 
-                        Spacer(modifier = Modifier.height(12.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
 
+                        // Remember Me and Forgot Password
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Checkbox(checked = rememberMe, onCheckedChange = { rememberMe = it })
-                                Text("Ingat saya", style = MaterialTheme.typography.bodySmall)
+                                androidx.compose.material3.Checkbox(
+                                    checked = rememberMe,
+                                    onCheckedChange = { rememberMe = it },
+                                    colors = androidx.compose.material3.CheckboxDefaults.colors(
+                                        checkedColor = DeisaBlue,
+                                        uncheckedColor = Color.Gray,
+                                        checkmarkColor = Color.White
+                                    )
+                                )
+                                Text("Ingat Saya", color = Color.Gray, fontSize = 14.sp)
                             }
-                            TextButton(onClick = { /* Lupa Password */ }) {
-                                Text("Lupa password?", color = Color(0xFF0B63D6), fontWeight = FontWeight.SemiBold)
+                            TextButton(onClick = { navController.navigate("forgot_password") }) {
+                                Text("Lupa Sandi?", color = DeisaBlue, fontWeight = FontWeight.Bold)
                             }
                         }
 
                         Spacer(modifier = Modifier.height(24.dp))
 
-                        com.example.deisacompose.ui.components.PremiumGradientButton(
-                            text = "Masuk Sekarang",
+                        // Login Button
+                        PremiumGradientButton(
+                            text = "Masuk",
                             onClick = {
-                                if (email.isNotBlank() && password.isNotBlank()) {
-                                    authViewModel.login(email, password, rememberMe)
-                                } else {
-                                    errorMessage = "Email dan password wajib diisi"
+                                if (email.isBlank() || password.isBlank()) {
                                     showError = true
+                                    errorMessage = "Email dan password wajib diisi"
+                                    return@PremiumGradientButton
+                                }
+                                
+                                isLoading = true
+                                showError = false
+                                authViewModel.login(email, password) { result ->
+                                    isLoading = false
+                                    if (result.isFailure) {
+                                        showError = true
+                                        errorMessage = result.exceptionOrNull()?.message ?: "Login gagal"
+                                    }
                                 }
                             },
-                            isLoading = uiState is AuthUiState.Loading
+                            isLoading = isLoading
                         )
 
                         Spacer(modifier = Modifier.height(24.dp))
 
+                        // Divider and Social Login
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text("Belum punya akun?", style = MaterialTheme.typography.bodySmall)
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                "Daftar di sini",
-                                style = MaterialTheme.typography.bodySmall,
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFF0B63D6),
-                                modifier = Modifier.clickable { navController.navigate("register") }
-                            )
+                            Divider(modifier = Modifier.weight(1f), color = Color.White.copy(alpha = 0.1f))
+                            Text("ATAU", modifier = Modifier.padding(horizontal = 16.dp), color = Color.Gray, fontSize = 12.sp)
+                            Divider(modifier = Modifier.weight(1f), color = Color.White.copy(alpha = 0.1f))
+                        }
+
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        // Social Login Buttons
+                        OutlinedButton(
+                            onClick = { /* TODO: Implement Google Sign-In */ },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp),
+                            border = ButtonDefaults.outlinedButtonBorder.copy(brush = SolidColor(DeisaBlue))
+                        ) {
+                            Text("G", color = DeisaBlue, fontWeight = FontWeight.ExtraBold, fontSize = 18.sp, modifier = Modifier.padding(end = 8.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Masuk dengan Google", color = Color.White)
                         }
                     }
                 }
             }
-        }
 
-        // Error Message
-        AnimatedVisibility(
-            visible = showError,
-            enter = slideInVertically { it } + fadeIn(),
-            exit = slideOutVertically { it } + fadeOut(),
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(24.dp)
-        ) {
-            Surface(
-                color = MaterialTheme.colorScheme.errorContainer,
-                shape = RoundedCornerShape(16.dp),
-                shadowElevation = 8.dp
+            // Error message display
+            AnimatedVisibility(
+                visible = showError,
+                enter = fadeIn(),
+                exit = fadeOut(),
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 32.dp)
             ) {
-                Row(
-                    modifier = Modifier.padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(DangerRed)
+                        .padding(horizontal = 16.dp, vertical = 12.dp)
                 ) {
-                    Icon(Icons.Default.Info, null, tint = MaterialTheme.colorScheme.error)
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(errorMessage, color = MaterialTheme.colorScheme.onErrorContainer, fontSize = 14.sp)
+                    Text(errorMessage, color = Color.White, fontWeight = FontWeight.Bold)
                 }
             }
         }

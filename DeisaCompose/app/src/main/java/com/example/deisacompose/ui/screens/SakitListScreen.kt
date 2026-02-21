@@ -1,6 +1,8 @@
 package com.example.deisacompose.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -11,6 +13,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -21,7 +24,17 @@ import com.example.deisacompose.viewmodels.AuthViewModel
 import com.example.deisacompose.viewmodels.ResourceViewModel
 import com.example.deisacompose.ui.components.PremiumFilterChip
 import com.example.deisacompose.ui.components.PremiumCard
+import com.example.deisacompose.ui.components.StitchDrawerContent
+import com.example.deisacompose.ui.components.StitchTopBar
+import com.example.deisacompose.ui.theme.DangerRed
+import com.example.deisacompose.ui.theme.DeisaBlue
+import com.example.deisacompose.ui.theme.DeisaNavy
+import com.example.deisacompose.ui.theme.DeisaSoftNavy
+import com.example.deisacompose.ui.theme.SuccessGreen
+import com.example.deisacompose.ui.theme.WarningOrange
+import com.example.deisacompose.viewmodels.ResourceUiState
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,14 +46,27 @@ fun SakitListScreen(
     val sakitList by resourceViewModel.sakitList.collectAsState()
     val isLoading by resourceViewModel.isLoading.collectAsState()
     val currentUser by authViewModel.currentUser.collectAsState()
+    val uiState by resourceViewModel.uiState.collectAsState()
 
     var searchQuery by remember { mutableStateOf("") }
     var statusFilter by remember { mutableStateOf<String?>(null) }
 
-    val isAdmin = currentUser?.role == "admin"
+    val isAdmin by authViewModel.isAdmin.collectAsState()
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         resourceViewModel.loadSakit()
+    }
+
+    // Handle session timeout globally from ResourceViewModel
+    LaunchedEffect(uiState) {
+        if (uiState is ResourceUiState.Error && (uiState as ResourceUiState.Error).message == "SESI_HABIS") {
+            authViewModel.logout()
+            navController.navigate("login") {
+                popUpTo(0) { inclusive = true }
+            }
+        }
     }
 
     LaunchedEffect(searchQuery, statusFilter) {
@@ -51,133 +77,131 @@ fun SakitListScreen(
         )
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Kesehatan Santri", fontWeight = FontWeight.ExtraBold) },
-                navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.Default.ArrowBack, "Kembali")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
-                )
-            )
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { navController.navigate("sakit_add") },
-                containerColor = Color(0xFF0B63D6),
-                contentColor = Color.White,
-                shape = RoundedCornerShape(16.dp)
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet(
+                drawerContainerColor = DeisaSoftNavy,
+                drawerContentColor = Color.White
             ) {
-                Icon(Icons.Default.Add, "Tambah Data Sakit")
-            }
-        }
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(padding)
-        ) {
-            // Search & Filter Section
-            Column(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                OutlinedTextField(
-                    value = searchQuery,
-                    onValueChange = { searchQuery = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("Cari nama santri...") },
-                    leadingIcon = { Icon(Icons.Default.Search, null, tint = Color(0xFF0B63D6)) },
-                    trailingIcon = {
-                        if (searchQuery.isNotEmpty()) {
-                            IconButton(onClick = { searchQuery = "" }) {
-                                Icon(Icons.Default.Close, "Clear")
-                            }
+                StitchDrawerContent(
+                    userName = currentUser?.name ?: "User",
+                    onLogout = {
+                        authViewModel.logout()
+                        navController.navigate("login") {
+                            popUpTo(0) { inclusive = true }
                         }
                     },
-                    singleLine = true,
-                    shape = RoundedCornerShape(20.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color(0xFF0B63D6),
-                        unfocusedBorderColor = Color.Gray.copy(alpha = 0.3f),
-                        unfocusedContainerColor = Color.White,
-                        focusedContainerColor = Color.White
-                    )
+                    navController = navController,
+                    currentRoute = "sakit_list"
                 )
-
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    PremiumFilterChip(
-                        selected = statusFilter == null,
-                        onClick = { statusFilter = null },
-                        label = "Semua"
-                    )
-                    PremiumFilterChip(
-                        selected = statusFilter == "Sakit",
-                        onClick = { statusFilter = "Sakit" },
-                        label = "Sakit",
-                        activeColor = Color(0xFFEF4444)
-                    )
-                    PremiumFilterChip(
-                        selected = statusFilter == "Sembuh",
-                        onClick = { statusFilter = "Sembuh" },
-                        label = "Sembuh",
-                        activeColor = Color(0xFF10B981)
-                    )
-                }
             }
-
-            // Content
-            when {
-                isLoading && sakitList.isEmpty() -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
+        }
+    ) {
+        Scaffold(
+            containerColor = DeisaNavy,
+            topBar = {
+                StitchTopBar(
+                    title = "Catatan Kesehatan",
+                    onMenuClick = { scope.launch { drawerState.open() } },
+                    showMenu = true
+                )
+            },
+            floatingActionButton = {
+                if (isAdmin) {
+                    FloatingActionButton(
+                        onClick = { navController.navigate("sakit_add") },
+                        containerColor = DeisaBlue,
+                        contentColor = Color.White
                     ) {
-                        CircularProgressIndicator(strokeWidth = 3.dp, color = Color(0xFF0B63D6))
+                        Icon(Icons.Default.Add, "Tambah Data")
                     }
                 }
-                sakitList.isEmpty() -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
+            }
+        ) { padding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+            ) {
+                // Search Area (v7 Style)
+                Column(modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)) {
+                    OutlinedTextField(
+                        value = searchQuery,
+                        onValueChange = { searchQuery = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = { Text("Cari berdasarkan nama santri...", color = Color.Gray) },
+                        leadingIcon = { Icon(Icons.Default.Search, null, tint = Color.Gray) },
+                        trailingIcon = {
+                            if (searchQuery.isNotEmpty()) {
+                                IconButton(onClick = { searchQuery = "" }) {
+                                    Icon(Icons.Default.Close, null, tint = Color.Gray)
+                                }
+                            }
+                        },
+                        shape = RoundedCornerShape(14.dp),
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = DeisaSoftNavy,
+                            unfocusedContainerColor = DeisaSoftNavy,
+                            focusedBorderColor = DeisaBlue,
+                            unfocusedBorderColor = Color.White.copy(alpha = 0.05f),
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White
+                        )
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Horizontal Filter Chips
+                    androidx.compose.foundation.lazy.LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        contentPadding = PaddingValues(bottom = 8.dp)
                     ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(
-                                Icons.Default.Inventory2,
-                                contentDescription = null,
-                                modifier = Modifier.size(80.dp),
-                                tint = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+                        item {
+                            PremiumFilterChip(
+                                selected = statusFilter == null,
+                                onClick = { statusFilter = null },
+                                label = "Semua"
                             )
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Text(
-                                "Tidak ada rekaman kesehatan",
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                        }
+                        item {
+                            PremiumFilterChip(
+                                selected = statusFilter == "Sakit",
+                                onClick = { statusFilter = "Sakit" },
+                                label = "Sakit",
+                                activeColor = DangerRed
+                            )
+                        }
+                        item {
+                            PremiumFilterChip(
+                                selected = statusFilter == "Sembuh",
+                                onClick = { statusFilter = "Sembuh" },
+                                label = "Sembuh",
+                                activeColor = SuccessGreen
                             )
                         }
                     }
                 }
-                else -> {
+
+                // Content
+                if (isLoading && sakitList.isEmpty()) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(color = DeisaBlue)
+                    }
+                } else if (sakitList.isEmpty()) {
+                    EmptyHealthState()
+                } else {
                     LazyColumn(
-                        contentPadding = PaddingValues(16.dp),
+                        contentPadding = PaddingValues(start = 24.dp, end = 24.dp, bottom = 80.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         items(sakitList) { sakit ->
-                            SakitCard(
+                            SakitRow(
                                 sakit = sakit,
-                                onClick = { navController.navigate("sakit_detail/${sakit.id}") },
-                                isAdmin = isAdmin
+                                onClick = { navController.navigate("sakit_detail/${sakit.id}") }
                             )
                         }
-                        item { Spacer(modifier = Modifier.height(80.dp)) }
                     }
                 }
             }
@@ -186,105 +210,79 @@ fun SakitListScreen(
 }
 
 @Composable
-fun PremiumFilterChip(
-    selected: Boolean,
-    onClick: () -> Unit,
-    label: String,
-    activeColor: Color = Color(0xFF0B63D6)
-) {
-    Surface(
-        onClick = onClick,
-        color = if (selected) activeColor else Color.White,
-        contentColor = if (selected) Color.White else Color.Gray,
-        shape = RoundedCornerShape(12.dp),
-        border = if (selected) null else androidx.compose.foundation.BorderStroke(1.dp, Color.Gray.copy(alpha = 0.2f)),
-        shadowElevation = if (selected) 4.dp else 0.dp
-    ) {
-        Text(
-            text = label,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-            style = MaterialTheme.typography.labelLarge,
-            fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium
-        )
-    }
-}
+fun SakitRow(sakit: Sakit, onClick: () -> Unit) {
+    val statusColor = if (sakit.status == "Sakit") DangerRed else SuccessGreen
 
-@Composable
-fun SakitCard(
-    sakit: Sakit,
-    onClick: () -> Unit,
-    isAdmin: Boolean
-) {
-    val statusColor = if (sakit.status == "Sakit") Color(0xFFEF4444) else Color(0xFF10B981)
-    
-    com.example.deisacompose.ui.components.PremiumCard(
-        modifier = Modifier.fillMaxWidth(),
-        onClick = onClick,
-        accentColor = statusColor
+    PremiumCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
+        accentColor = if (sakit.status == "Sakit") WarningOrange else SuccessGreen
     ) {
         Column {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = sakit.santri.nama_lengkap,
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = Color(0xFF1E293B)
+                        color = Color.White,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
                     )
                     Text(
                         text = "Kelas: ${sakit.santri.kelas?.nama_kelas ?: "-"}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.Gray
+                        color = Color.Gray,
+                        style = MaterialTheme.typography.labelSmall
                     )
                 }
-                
-                Surface(
-                    color = statusColor.copy(alpha = 0.1f),
-                    contentColor = statusColor,
-                    shape = RoundedCornerShape(8.dp)
+
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(statusColor.copy(alpha = 0.1f))
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
                     Text(
                         text = sakit.status.uppercase(),
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                        color = statusColor,
                         style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Black
+                        fontWeight = FontWeight.ExtraBold
                     )
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-            
-            Divider(color = Color.Gray.copy(alpha = 0.1f))
-            
+            Divider(color = Color.White.copy(alpha = 0.05f))
             Spacer(modifier = Modifier.height(16.dp))
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    Icons.Default.Sick,
+                    Icons.Default.LocalHospital,
                     contentDescription = null,
-                    modifier = Modifier.size(20.dp),
-                    tint = Color(0xFF0B63D6)
+                    tint = DeisaBlue,
+                    modifier = Modifier.size(16.dp)
                 )
-                Spacer(modifier = Modifier.width(12.dp))
-                Column {
-                    Text(
-                        text = sakit.diagnosis_utama,
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF334155)
-                    )
-                    sakit.keluhan?.let {
-                        Text(
-                            text = it,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color.Gray
-                        )
-                    }
-                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = sakit.diagnosis_utama,
+                    color = Color.White,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+
+            if (!sakit.gejala.isNullOrBlank()) {
+                Text(
+                    text = sakit.gejala,
+                    color = Color.Gray,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(start = 24.dp, top = 4.dp),
+                    maxLines = 1,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -298,23 +296,40 @@ fun SakitCard(
                     Icon(
                         Icons.Default.Event,
                         contentDescription = null,
-                        modifier = Modifier.size(16.dp),
-                        tint = Color.Gray
+                        tint = Color.Gray,
+                        modifier = Modifier.size(14.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = sakit.tanggal_masuk_human ?: "-",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.Gray
+                        color = Color.Gray,
+                        style = MaterialTheme.typography.labelSmall
                     )
                 }
-                
+
                 Icon(
                     Icons.Default.ChevronRight,
                     contentDescription = null,
-                    tint = Color.Gray.copy(alpha = 0.5f)
+                    tint = Color.Gray.copy(alpha = 0.3f),
+                    modifier = Modifier.size(20.dp)
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun EmptyHealthState() {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Icon(
+                Icons.Default.HealthAndSafety,
+                contentDescription = null,
+                modifier = Modifier.size(64.dp),
+                tint = Color.Gray.copy(alpha = 0.2f)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text("Data kesehatan tidak ditemukan", color = Color.Gray)
         }
     }
 }

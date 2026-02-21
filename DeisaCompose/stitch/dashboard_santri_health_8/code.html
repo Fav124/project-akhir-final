@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SantriHealth - Tambah Santri</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1978e5",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#0A0F1D",
+                        "sakit": "#FF4D4D",
+                        "obat": "#4CAF50",
+                        "sembuh": "#2196F3",
+                        "pulang": "#9C27B0",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        :root {
+            --sakit: #FF4D4D;
+            --obat: #4CAF50;
+            --sembuh: #2196F3;
+            --pulang: #9C27B0;
+        }
+        body {
+            background-color: #0A0F1D;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .ios-blur {
+            @apply backdrop-blur-xl bg-[#161B2C]/80;
+        }
+        .form-input-focus {
+            @apply focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all duration-200 outline-none;
+        }
+        #sidebar-overlay {
+            display: none;
+        }
+        #sidebar-toggle:checked ~ #sidebar-drawer {
+            transform: translateX(0);
+        }
+        #sidebar-toggle:checked ~ #sidebar-overlay {
+            display: block;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-dark font-display text-slate-300 antialiased overflow-x-hidden">
+<input class="hidden" id="sidebar-toggle" type="checkbox"/>
+<label class="fixed inset-0 bg-black/60 z-[60] backdrop-blur-sm transition-opacity" for="sidebar-toggle" id="sidebar-overlay"></label>
+<aside class="fixed top-0 left-0 bottom-0 w-[280px] bg-[#111827] z-[70] shadow-2xl transition-transform duration-300 -translate-x-full flex flex-col" id="sidebar-drawer">
+<div class="p-8 border-b border-white/5">
+<h2 class="text-white text-2xl font-bold tracking-tight">Santri<span class="text-primary">Health</span></h2>
+<p class="text-xs text-slate-500 mt-1">Boarding School Management</p>
+</div>
+<nav class="flex-1 px-4 py-6 space-y-2">
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-slate-400 hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-slate-400 hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined text-sakit">sick</span>
+                Data Sakit
+            </a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-slate-400 hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined text-obat">medication</span>
+                Stok Obat
+            </a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-slate-400 hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined text-sembuh">check_circle</span>
+                Riwayat Sembuh
+            </a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-slate-400 hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined text-pulang">home_health</span>
+                Izin Pulang
+            </a>
+<div class="pt-6 mt-6 border-t border-white/5">
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-slate-400 hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+                    Pengaturan
+                </a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-red-400 hover:bg-red-400/5 transition-colors" href="#">
+<span class="material-symbols-outlined">logout</span>
+                    Keluar
+                </a>
+</div>
+</nav>
+<div class="p-6 text-center">
+<p class="text-[10px] text-slate-600 uppercase tracking-widest">v1.2.4 Build</p>
+</div>
+</aside>
+<div class="max-w-[430px] mx-auto min-h-screen bg-background-dark shadow-2xl relative flex flex-col">
+<header class="pt-14 pb-4 px-6 ios-blur sticky top-0 z-50 flex items-center justify-between border-b border-white/5">
+<div class="flex items-center gap-4">
+<label class="w-10 h-10 rounded-lg flex items-center justify-center cursor-pointer active:bg-white/10 transition-colors" for="sidebar-toggle">
+<span class="material-symbols-outlined text-white text-2xl">menu</span>
+</label>
+<h1 class="text-white text-xl font-bold tracking-tight">Santri<span class="text-primary font-extrabold">Health</span></h1>
+</div>
+<div class="flex items-center gap-3">
+<button class="relative w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/5 transition-colors">
+<span class="material-symbols-outlined text-white text-xl">notifications</span>
+<span class="absolute top-2.5 right-2.5 w-2 h-2 bg-sakit rounded-full border-2 border-background-dark"></span>
+</button>
+<div class="w-9 h-9 rounded-full border border-white/10 p-0.5 overflow-hidden">
+<img alt="Admin Profile" class="w-full h-full object-cover rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqC_gzrrsspWk2MMVcxrqEqYcrimXPcqyzsTL0X5xRQXEYUDj76DsT2fgpdnOJ827Ij2mG1gTD3334xxaPYJAcc8Dzyit4LuoKDavhpG3gXkdwX8fdRBwjgyCjUKs29OD2_srmKpQRDKLqf7NZZL6TfHHcQ31VSmGptEVEivUUOjmggyyfmBlUW2IdEQqZKICx2EklcKd9m0qUCVwjEv5tt_7M37ecT_F60Oa6RrYvrAtahuA2hhAtMXf8JK3u0yAZiQzECT90hxY"/>
+</div>
+</div>
+</header>
+<main class="flex-1 px-6 pt-8 pb-32">
+<div class="mb-8 flex items-center gap-4">
+<a class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/60 hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined">arrow_back</span>
+</a>
+<div>
+<h2 class="text-white text-2xl font-bold tracking-tight">Tambah Santri</h2>
+<p class="text-slate-500 text-sm">Lengkapi data santri baru</p>
+</div>
+</div>
+<form class="space-y-6">
+<div class="space-y-2">
+<label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1" for="nama">Nama Lengkap</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-xl group-focus-within:text-primary transition-colors">person</span>
+<input class="w-full bg-[#161B2C] border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-slate-600 form-input-focus" id="nama" placeholder="Masukkan nama lengkap" type="text"/>
+</div>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1" for="nis">Nomor Induk (NIS)</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-xl group-focus-within:text-primary transition-colors">fingerprint</span>
+<input class="w-full bg-[#161B2C] border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-slate-600 form-input-focus" id="nis" placeholder="Contoh: 2024001" type="text"/>
+</div>
+</div>
+<div class="grid grid-cols-1 gap-6">
+<div class="space-y-2">
+<label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1" for="kelas">Kelas</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-xl group-focus-within:text-primary transition-colors">meeting_room</span>
+<select class="w-full bg-[#161B2C] border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white appearance-none form-input-focus" id="kelas">
+<option disabled="" selected="" value="">Pilih Kelas</option>
+<option value="7">Kelas 7</option>
+<option value="8">Kelas 8</option>
+<option value="9">Kelas 9</option>
+<option value="10">Kelas 10</option>
+<option value="11">Kelas 11</option>
+<option value="12">Kelas 12</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none">expand_more</span>
+</div>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1" for="alamat">Alamat</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-4 text-slate-500 text-xl group-focus-within:text-primary transition-colors">location_on</span>
+<textarea class="w-full bg-[#161B2C] border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-slate-600 form-input-focus resize-none" id="alamat" placeholder="Alamat lengkap asal santri" rows="3"></textarea>
+</div>
+</div>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1" for="alergi">Riwayat Alergi</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-xl group-focus-within:text-primary transition-colors">warning</span>
+<input class="w-full bg-[#161B2C] border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-slate-600 form-input-focus" id="alergi" placeholder="Obat, makanan, atau tidak ada" type="text"/>
+</div>
+<p class="text-[10px] text-slate-600 ml-1 italic">*Kosongkan jika tidak ada riwayat alergi</p>
+</div>
+</form>
+</main>
+<div class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] p-6 ios-blur border-t border-white/5 z-50">
+<button class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-2xl shadow-xl shadow-primary/20 flex items-center justify-center gap-2 active:scale-[0.98] transition-all" type="submit">
+<span class="material-symbols-outlined text-xl">save</span>
+                Simpan Data Santri
+            </button>
+</div>
+</div>
+
+</body></html>

@@ -1,6 +1,8 @@
 package com.example.deisacompose.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -11,9 +13,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.deisacompose.data.models.Obat
@@ -21,7 +25,16 @@ import com.example.deisacompose.viewmodels.AuthViewModel
 import com.example.deisacompose.viewmodels.ResourceViewModel
 import com.example.deisacompose.ui.components.PremiumFilterChip
 import com.example.deisacompose.ui.components.PremiumCard
+import com.example.deisacompose.ui.components.StitchDrawerContent
+import com.example.deisacompose.ui.components.StitchTopBar
+import com.example.deisacompose.ui.theme.DangerRed
+import com.example.deisacompose.ui.theme.DeisaBlue
+import com.example.deisacompose.ui.theme.DeisaNavy
+import com.example.deisacompose.ui.theme.DeisaSoftNavy
+import com.example.deisacompose.ui.theme.SuccessGreen
+import com.example.deisacompose.viewmodels.ResourceUiState
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,14 +46,27 @@ fun ObatListScreen(
     val obatList by resourceViewModel.obatList.collectAsState()
     val isLoading by resourceViewModel.isLoading.collectAsState()
     val currentUser by authViewModel.currentUser.collectAsState()
+    val uiState by resourceViewModel.uiState.collectAsState()
 
     var searchQuery by remember { mutableStateOf("") }
     var showLowStockOnly by remember { mutableStateOf(false) }
 
-    val isAdmin = currentUser?.role == "admin"
+    val isAdmin by authViewModel.isAdmin.collectAsState()
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         resourceViewModel.loadObat()
+    }
+
+    // Handle session timeout globally from ResourceViewModel
+    LaunchedEffect(uiState) {
+        if (uiState is ResourceUiState.Error && (uiState as ResourceUiState.Error).message == "SESI_HABIS") {
+            authViewModel.logout()
+            navController.navigate("login") {
+                popUpTo(0) { inclusive = true }
+            }
+        }
     }
 
     LaunchedEffect(searchQuery, showLowStockOnly) {
@@ -51,120 +77,109 @@ fun ObatListScreen(
         )
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Inventaris Obat", fontWeight = FontWeight.ExtraBold) },
-                navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.Default.ArrowBack, "Kembali")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
-                )
-            )
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { navController.navigate("obat_add") },
-                containerColor = Color(0xFF0B63D6),
-                contentColor = Color.White,
-                shape = RoundedCornerShape(16.dp)
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet(
+                drawerContainerColor = DeisaSoftNavy,
+                drawerContentColor = Color.White
             ) {
-                Icon(Icons.Default.Add, "Tambah Obat")
-            }
-        }
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(padding)
-        ) {
-            // Search & Filter Section
-            Column(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                OutlinedTextField(
-                    value = searchQuery,
-                    onValueChange = { searchQuery = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("Cari nama obat...") },
-                    leadingIcon = { Icon(Icons.Default.Search, null, tint = Color(0xFF0B63D6)) },
-                    trailingIcon = {
-                        if (searchQuery.isNotEmpty()) {
-                            IconButton(onClick = { searchQuery = "" }) {
-                                Icon(Icons.Default.Close, "Clear")
-                            }
+                StitchDrawerContent(
+                    userName = currentUser?.name ?: "User",
+                    onLogout = {
+                        authViewModel.logout()
+                        navController.navigate("login") {
+                            popUpTo(0) { inclusive = true }
                         }
                     },
-                    singleLine = true,
-                    shape = RoundedCornerShape(20.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color(0xFF0B63D6),
-                        unfocusedBorderColor = Color.Gray.copy(alpha = 0.3f),
-                        unfocusedContainerColor = Color.White,
-                        focusedContainerColor = Color.White
-                    )
-                )
-
-                PremiumFilterChip(
-                    selected = showLowStockOnly,
-                    onClick = { showLowStockOnly = !showLowStockOnly },
-                    label = "Stok Menipis",
-                    activeColor = Color(0xFFEF4444)
+                    navController = navController,
+                    currentRoute = "obat_list"
                 )
             }
+        }
+    ) {
+        Scaffold(
+            containerColor = DeisaNavy,
+            topBar = {
+                StitchTopBar(
+                    title = "Stok Obat",
+                    onMenuClick = { scope.launch { drawerState.open() } },
+                    showMenu = true
+                )
+            },
+            floatingActionButton = {
+                if (isAdmin) {
+                    FloatingActionButton(
+                        onClick = { navController.navigate("obat_add") },
+                        containerColor = DeisaBlue,
+                        contentColor = Color.White,
+                    ) {
+                        Icon(Icons.Default.Add, "Tambah Obat")
+                    }
+                }
+            }
+        ) { padding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+            ) {
+                // Search Area (v7 Style)
+                Column(modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)) {
+                    OutlinedTextField(
+                        value = searchQuery,
+                        onValueChange = { searchQuery = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = { Text("Cari berdasarkan nama obat...", color = Color.Gray) },
+                        leadingIcon = { Icon(Icons.Default.Search, null, tint = Color.Gray) },
+                        trailingIcon = {
+                            if (searchQuery.isNotEmpty()) {
+                                IconButton(onClick = { searchQuery = "" }) {
+                                    Icon(Icons.Default.Close, null, tint = Color.Gray)
+                                }
+                            }
+                        },
+                        shape = RoundedCornerShape(14.dp),
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = DeisaSoftNavy,
+                            unfocusedContainerColor = DeisaSoftNavy,
+                            focusedBorderColor = DeisaBlue,
+                            unfocusedBorderColor = Color.White.copy(alpha = 0.05f),
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White
+                        )
+                    )
 
-            // Content
-            when {
-                isLoading && obatList.isEmpty() -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(strokeWidth = 3.dp, color = Color(0xFF0B63D6))
-                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Low Stock Toggle
+                    PremiumFilterChip(
+                        selected = showLowStockOnly,
+                        onClick = { showLowStockOnly = !showLowStockOnly },
+                        label = "Hanya Stok Sedikit",
+                        activeColor = DangerRed
+                    )
                 }
-                obatList.isEmpty() -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(
-                                Icons.Default.Inventory2,
-                                contentDescription = null,
-                                modifier = Modifier.size(80.dp),
-                                tint = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Text(
-                                "Tidak ada data obat",
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
+
+                // Content
+                if (isLoading && obatList.isEmpty()) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(color = DeisaBlue)
                     }
-                }
-                else -> {
+                } else if (obatList.isEmpty()) {
+                    EmptyObatState()
+                } else {
                     LazyColumn(
-                        contentPadding = PaddingValues(16.dp),
+                        contentPadding = PaddingValues(start = 24.dp, end = 24.dp, bottom = 80.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         items(obatList) { obat ->
-                            ObatCard(
+                            ObatRow(
                                 obat = obat,
-                                onClick = { navController.navigate("obat_detail/${obat.id}") },
-                                onRestock = {
-                                    // TODO: Show restock dialog
-                                },
-                                isAdmin = isAdmin
+                                onClick = { navController.navigate("obat_detail/${obat.id}") }
                             )
                         }
-                        item { Spacer(modifier = Modifier.height(80.dp)) }
                     }
                 }
             }
@@ -173,100 +188,110 @@ fun ObatListScreen(
 }
 
 @Composable
-fun ObatCard(
-    obat: Obat,
-    onClick: () -> Unit,
-    onRestock: () -> Unit,
-    isAdmin: Boolean
-) {
-    val statusColor = if (obat.is_low_stock) Color(0xFFEF4444) else Color(0xFF10B981)
-    
-    com.example.deisacompose.ui.components.PremiumCard(
-        modifier = Modifier.fillMaxWidth(),
-        onClick = onClick,
-        accentColor = statusColor
+fun ObatRow(obat: Obat, onClick: () -> Unit) {
+    val isLowStock = obat.is_low_stock
+    val statusColor = if (isLowStock) DangerRed else SuccessGreen
+
+    PremiumCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
+        accentColor = if (isLowStock) DangerRed else DeisaBlue
     ) {
         Column {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = obat.nama_obat,
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = Color(0xFF1E293B)
+                        color = Color.White,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = "Jenis: ${obat.jenis}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.Gray
+                        text = "Kategori: ${obat.kategori ?: "-"}",
+                        color = Color.Gray,
+                        style = MaterialTheme.typography.labelSmall
                     )
                 }
-                
-                if (obat.is_low_stock) {
-                    Surface(
-                        color = statusColor.copy(alpha = 0.1f),
-                        contentColor = statusColor,
-                        shape = RoundedCornerShape(8.dp)
+
+                if (isLowStock) {
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(DangerRed.copy(alpha = 0.1f))
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
                     ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(Icons.Default.Warning, null, modifier = Modifier.size(12.dp))
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = "STOK RENDAH",
-                                style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.Black
-                            )
-                        }
+                        Text(
+                            text = "STOK SEDIKIT",
+                            color = DangerRed,
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Black
+                        )
                     }
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-            
-            Divider(color = Color.Gray.copy(alpha = 0.1f))
-            
+            Divider(color = Color.White.copy(alpha = 0.05f))
             Spacer(modifier = Modifier.height(16.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.Bottom
             ) {
                 Column {
                     Text(
-                        text = "${obat.stok} ${obat.satuan}",
-                        style = MaterialTheme.typography.headlineSmall,
+                        text = "LEVEL STOK",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.Gray,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF334155)
+                        letterSpacing = 1.sp
                     )
                     Text(
-                        text = "Stok Tersedia",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = Color.Gray
+                        text = "${obat.stok} ${obat.satuan}",
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = statusColor
                     )
                 }
-                
-                Button(
-                    onClick = onRestock,
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF0B63D6).copy(alpha = 0.1f),
-                        contentColor = Color(0xFF0B63D6)
-                    ),
-                    modifier = Modifier.height(40.dp)
+
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(DeisaNavy)
+                        .border(1.dp, Color.White.copy(alpha = 0.05f), RoundedCornerShape(12.dp)),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.Default.Add, null, modifier = Modifier.size(16.dp))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("Tambah", fontWeight = FontWeight.Bold)
+                    Icon(
+                        Icons.Default.ChevronRight,
+                        contentDescription = null,
+                        tint = Color.Gray,
+                        modifier = Modifier.size(20.dp)
+                    )
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun EmptyObatState() {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Icon(
+                Icons.Default.Inventory2,
+                contentDescription = null,
+                modifier = Modifier.size(64.dp),
+                tint = Color.Gray.copy(alpha = 0.2f)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text("Data obat tidak ditemukan", color = Color.Gray)
         }
     }
 }

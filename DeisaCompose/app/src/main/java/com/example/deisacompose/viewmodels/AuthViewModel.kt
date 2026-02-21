@@ -6,39 +6,61 @@ import com.example.deisacompose.data.models.LoginData
 import com.example.deisacompose.data.models.User
 import com.example.deisacompose.data.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class AuthViewModel : ViewModel() {
-    private val repository = AuthRepository()
-
-    private val _uiState = MutableStateFlow<AuthUiState>(AuthUiState.Idle)
-    val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
+    private val authRepository = AuthRepository()
 
     private val _currentUser = MutableStateFlow<User?>(null)
-    val currentUser: StateFlow<User?> = _currentUser.asStateFlow()
+    val currentUser: StateFlow<User?> = _currentUser
 
-    private val _isLoggedIn = MutableStateFlow(false)
-    val isLoggedIn: StateFlow<Boolean> = _isLoggedIn.asStateFlow()
+    val isAdmin: StateFlow<Boolean> = currentUser.map { it?.role == "admin" }
+        .stateIn(viewModelScope, SharingStarted.Lazily, false)
 
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+    // Alert State
+    private val _alertMessage = MutableStateFlow<String?>(null)
+    val alertMessage: StateFlow<String?> = _alertMessage.asStateFlow()
 
-    fun login(email: String, password: String, remember: Boolean = false) {
+    private val _alertType = MutableStateFlow<String>("success") // success, error
+    val alertType: StateFlow<String> = _alertType.asStateFlow()
+
+    fun showAlert(message: String, type: String = "success") {
+        _alertMessage.value = message
+        _alertType.value = type
+    }
+
+    fun clearAlert() {
+        _alertMessage.value = null
+    }
+
+    init {
+        getCurrentUser()
+    }
+
+    fun getCurrentUser() {
         viewModelScope.launch {
-            _uiState.value = AuthUiState.Loading
-            _isLoading.value = true
-            repository.login(email, password, remember)
-                .onSuccess { authData ->
-                    _currentUser.value = authData.user
-                    _isLoggedIn.value = true
-                    _uiState.value = AuthUiState.Success("Login berhasil", authData)
-                }
-                .onFailure { error ->
-                    _uiState.value = AuthUiState.Error(error.message ?: "Login gagal")
-                }
-            _isLoading.value = false
+            val result = authRepository.getCurrentUser()
+            _currentUser.value = result.getOrNull()
+        }
+    }
+
+    fun login(email: String, password: String, onResult: (Result<LoginData>) -> Unit) {
+        viewModelScope.launch {
+            val result = authRepository.login(email, password)
+            if (result.isSuccess) {
+                val data = result.getOrNull()
+                _currentUser.value = data?.user
+                showAlert("Selamat datang, ${data?.user?.name}!", "success")
+            } else {
+                val error = result.exceptionOrNull()?.message ?: "Login gagal"
+                showAlert(error, "error")
+            }
+            onResult(result)
         }
     }
 
@@ -47,72 +69,38 @@ class AuthViewModel : ViewModel() {
         email: String,
         password: String,
         passwordConfirmation: String,
-        role: String
+        role: String,
+        onResult: (Result<String>) -> Unit
     ) {
         viewModelScope.launch {
-            _uiState.value = AuthUiState.Loading
-            _isLoading.value = true
-            repository.register(name, email, password, passwordConfirmation, role)
-                .onSuccess { message ->
-                    _uiState.value = AuthUiState.RegisterSuccess(message)
-                }
-                .onFailure { error ->
-                    _uiState.value = AuthUiState.Error(error.message ?: "Registrasi gagal")
-                }
-            _isLoading.value = false
+            val result = authRepository.register(name, email, password, passwordConfirmation, role)
+            if (result.isSuccess) {
+                showAlert(result.getOrNull() ?: "Registrasi berhasil", "success")
+            } else {
+                val error = result.exceptionOrNull()?.message ?: "Registrasi gagal"
+                showAlert(error, "error")
+            }
+            onResult(result)
+        }
+    }
+
+    fun forgotPassword(email: String, onResult: (Result<String>) -> Unit) {
+        viewModelScope.launch {
+            val result = authRepository.forgotPassword(email)
+            if (result.isSuccess) {
+                showAlert("Instruksi reset sandi telah dikirim ke email", "success")
+            } else {
+                val error = result.exceptionOrNull()?.message ?: "Gagal mengirim email reset"
+                showAlert(error, "error")
+            }
+            onResult(result)
         }
     }
 
     fun logout() {
         viewModelScope.launch {
-            repository.logout()
+            authRepository.logout()
             _currentUser.value = null
-            _isLoggedIn.value = false
-            _uiState.value = AuthUiState.Idle
         }
     }
-
-    fun forgotPassword(email: String) {
-        viewModelScope.launch {
-            _uiState.value = AuthUiState.Loading
-            _isLoading.value = true
-            repository.forgotPassword(email)
-                .onSuccess { message ->
-                    _uiState.value = AuthUiState.ForgotPasswordSuccess(message)
-                }
-                .onFailure { error ->
-                    _uiState.value = AuthUiState.Error(error.message ?: "Gagal mengirim email")
-                }
-            _isLoading.value = false
-        }
-    }
-
-    fun getCurrentUser() {
-        viewModelScope.launch {
-            _isLoading.value = true
-            repository.getCurrentUser()
-                .onSuccess { user ->
-                    _currentUser.value = user
-                    _isLoggedIn.value = true
-                }
-                .onFailure {
-                    _currentUser.value = null
-                    _isLoggedIn.value = false
-                }
-            _isLoading.value = false
-        }
-    }
-
-    fun resetState() {
-        _uiState.value = AuthUiState.Idle
-    }
-}
-
-sealed class AuthUiState {
-    object Idle : AuthUiState()
-    object Loading : AuthUiState()
-    data class Success(val message: String, val authData: LoginData) : AuthUiState()
-    data class RegisterSuccess(val message: String) : AuthUiState()
-    data class ForgotPasswordSuccess(val message: String) : AuthUiState()
-    data class Error(val message: String) : AuthUiState()
 }

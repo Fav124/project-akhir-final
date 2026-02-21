@@ -16,12 +16,12 @@ class JurusanApiController extends Controller
         return response()->json([
             'success' => true,
             'data' => $jurusan->map(function ($j) {
-                return [
+            return [
                     'id' => $j->id,
                     'nama_jurusan' => $j->nama_jurusan,
                     'kode' => $j->kode ?? null
                 ];
-            })
+        })
         ]);
     }
 
@@ -32,7 +32,7 @@ class JurusanApiController extends Controller
         }
 
         $validated = $request->validate([
-            'nama_jurusan' => 'required|string|max:255|unique:jurusan',
+            'nama_jurusan' => 'required|string|max:255|unique:jurusans',
             'kode' => 'nullable|string|max:10'
         ]);
 
@@ -66,7 +66,7 @@ class JurusanApiController extends Controller
         $jurusan = Jurusan::findOrFail($id);
 
         $validated = $request->validate([
-            'nama_jurusan' => 'required|string|max:255|unique:jurusan,nama_jurusan,' . $id,
+            'nama_jurusan' => 'required|string|max:255|unique:jurusans,nama_jurusan,' . $id,
             'kode' => 'nullable|string|max:10'
         ]);
 

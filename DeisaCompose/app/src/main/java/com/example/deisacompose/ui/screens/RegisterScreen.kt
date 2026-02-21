@@ -1,7 +1,10 @@
 package com.example.deisacompose.ui.screens
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,44 +17,56 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.deisacompose.ui.components.DeisaLogo
 import com.example.deisacompose.ui.components.LogoSize
+import com.example.deisacompose.ui.components.PremiumTextField
+import com.example.deisacompose.ui.theme.DangerRed
+import com.example.deisacompose.ui.theme.DeisaBlue
+import com.example.deisacompose.ui.theme.DeisaNavy
+import com.example.deisacompose.ui.theme.DeisaSoftNavy
+import com.example.deisacompose.ui.theme.SuccessGreen
 import com.example.deisacompose.viewmodels.AuthViewModel
-import com.example.deisacompose.viewmodels.AuthUiState
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(
     navController: NavController,
     authViewModel: AuthViewModel = viewModel()
 ) {
-    val uiState by authViewModel.uiState.collectAsState()
     val focusManager = LocalFocusManager.current
+    val scope = rememberCoroutineScope()
 
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordConfirmation by remember { mutableStateOf("") }
     var role by remember { mutableStateOf("petugas") }
+
     var passwordVisible by remember { mutableStateOf(false) }
     var confirmPasswordVisible by remember { mutableStateOf(false) }
-    var showSuccess by remember { mutableStateOf(false) }
-    var showError by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf("") }
-    var successMessage by remember { mutableStateOf("") }
+
+    // Validation States
+    var nameError by remember { mutableStateOf<String?>(null) }
+    var emailError by remember { mutableStateOf<String?>(null) }
+    var passwordError by remember { mutableStateOf<String?>(null) }
+    var confirmError by remember { mutableStateOf<String?>(null) }
+
+    var generalError by remember { mutableStateOf<String?>(null) }
+    var generalSuccess by remember { mutableStateOf<String?>(null) }
+    var isLoading by remember { mutableStateOf(false) }
 
     var visible by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
@@ -59,354 +74,288 @@ fun RegisterScreen(
         visible = true
     }
 
-    LaunchedEffect(uiState) {
-        when (val state = uiState) {
-            is AuthUiState.RegisterSuccess -> {
-                successMessage = state.message
-                showSuccess = true
-                delay(3000)
-                navController.navigate("login") {
-                    popUpTo("register") { inclusive = true }
-                }
-                authViewModel.resetState()
-            }
-            is AuthUiState.Error -> {
-                errorMessage = state.message
-                showError = true
-                delay(3000)
-                showError = false
-                authViewModel.resetState()
-            }
-            else -> {}
-        }
-    }
-
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.background,
-                        MaterialTheme.colorScheme.surface
-                    )
-                )
-            )
+            .background(DeisaNavy)
     ) {
+        // Decorative Background Elements
+        AnimatedVisibility(
+            visible = visible,
+            enter = fadeIn(animationSpec = tween(1000, 500))
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.radialGradient(
+                            colors = listOf(DeisaBlue.copy(alpha = 0.1f), Color.Transparent),
+                            radius = 800f
+                        )
+                    )
+            )
+        }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp)
+                .padding(horizontal = 32.dp)
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(64.dp))
 
-            // Logo
+            // Logo & Header
             AnimatedVisibility(
                 visible = visible,
-                enter = fadeIn() + scaleIn()
+                enter = fadeIn() + expandVertically()
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.padding(bottom = 24.dp)
+                    modifier = Modifier.padding(bottom = 32.dp)
                 ) {
-                    DeisaLogo(size = LogoSize.LG)
-                    Spacer(modifier = Modifier.height(12.dp))
+                    DeisaLogo(size = LogoSize.MD)
+                    Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = "Daftar Akun Baru",
-                        style = MaterialTheme.typography.headlineMedium,
+                        text = "Buat Akses Baru",
+                        style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
+                        color = Color.White
                     )
                     Text(
-                        text = "Akun akan disetujui oleh admin",
+                        text = "Bergabung dengan ekosistem kesehatan pesantren",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = Color.Gray
                     )
                 }
             }
 
-            // Register Card
+            // Registration Card
             AnimatedVisibility(
                 visible = visible,
-                enter = fadeIn() + slideInVertically { it / 2 }
+                enter = fadeIn(animationSpec = tween(600)) + slideInVertically(animationSpec = tween(600)) { it / 4 }
             ) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(24.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
-                    ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(32.dp))
+                        .background(DeisaSoftNavy.copy(alpha = 0.8f))
+                        .border(1.dp, Color.White.copy(alpha = 0.05f), RoundedCornerShape(32.dp))
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Column(
-                        modifier = Modifier.padding(24.dp)
+                    // Personal Section
+                    Text(
+                        "PROFIL PERSONAL",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Black,
+                        color = DeisaBlue,
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
+                    )
+
+                    PremiumTextField(
+                        value = name,
+                        onValueChange = {
+                            name = it
+                            nameError = if (it.isBlank()) "Nama lengkap wajib diisi" else null
+                        },
+                        label = "Nama Lengkap",
+                        placeholder = "Masukkan nama lengkap",
+                        leadingIcon = Icons.Default.Person,
+                        error = nameError,
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                        keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) })
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    PremiumTextField(
+                        value = email,
+                        onValueChange = {
+                            email = it
+                            emailError = if (it.isBlank()) "Email wajib diisi" else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(it).matches()) "Format email tidak valid" else null
+                        },
+                        label = "Alamat Email",
+                        placeholder = "nama@domain.com",
+                        leadingIcon = Icons.Default.Email,
+                        error = emailError,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
+                        keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) })
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // Authorization Section
+                    Text(
+                        "TINGKAT AKSES",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Black,
+                        color = DeisaBlue,
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
+                    )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        // Name Field
-                        OutlinedTextField(
-                            value = name,
-                            onValueChange = { name = it },
-                            label = { Text("Nama Lengkap") },
-                            leadingIcon = {
-                                Icon(Icons.Default.Person, contentDescription = null)
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            keyboardOptions = KeyboardOptions(
-                                imeAction = ImeAction.Next
-                            ),
-                            keyboardActions = KeyboardActions(
-                                onNext = { focusManager.moveFocus(FocusDirection.Down) }
-                            ),
-                            singleLine = true,
-                            shape = RoundedCornerShape(16.dp)
-                        )
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        // Email Field
-                        OutlinedTextField(
-                            value = email,
-                            onValueChange = { email = it },
-                            label = { Text("Email") },
-                            leadingIcon = {
-                                Icon(Icons.Default.Email, contentDescription = null)
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Email,
-                                imeAction = ImeAction.Next
-                            ),
-                            keyboardActions = KeyboardActions(
-                                onNext = { focusManager.moveFocus(FocusDirection.Down) }
-                            ),
-                            singleLine = true,
-                            shape = RoundedCornerShape(16.dp)
-                        )
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        // Role Selection
-                        Text(
-                            "Pilih Role",
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Medium
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            FilterChip(
-                                selected = role == "petugas",
-                                onClick = { role = "petugas" },
-                                label = { Text("Petugas") },
-                                leadingIcon = if (role == "petugas") {
-                                    { Icon(Icons.Default.Check, contentDescription = null) }
-                                } else null,
-                                modifier = Modifier.weight(1f)
-                            )
-                            FilterChip(
-                                selected = role == "admin",
-                                onClick = { role = "admin" },
-                                label = { Text("Admin") },
-                                leadingIcon = if (role == "admin") {
-                                    { Icon(Icons.Default.Check, contentDescription = null) }
-                                } else null,
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        // Password Field
-                        OutlinedTextField(
-                            value = password,
-                            onValueChange = { password = it },
-                            label = { Text("Password") },
-                            leadingIcon = {
-                                Icon(Icons.Default.Lock, contentDescription = null)
-                            },
-                            trailingIcon = {
-                                IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                                    Icon(
-                                        if (passwordVisible) Icons.Default.Visibility
-                                        else Icons.Default.VisibilityOff,
-                                        contentDescription = null
-                                    )
-                                }
-                            },
-                            visualTransformation = if (passwordVisible) VisualTransformation.None
-                            else PasswordVisualTransformation(),
-                            modifier = Modifier.fillMaxWidth(),
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Password,
-                                imeAction = ImeAction.Next
-                            ),
-                            keyboardActions = KeyboardActions(
-                                onNext = { focusManager.moveFocus(FocusDirection.Down) }
-                            ),
-                            singleLine = true,
-                            shape = RoundedCornerShape(16.dp)
-                        )
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        // Confirm Password Field
-                        OutlinedTextField(
-                            value = passwordConfirmation,
-                            onValueChange = { passwordConfirmation = it },
-                            label = { Text("Konfirmasi Password") },
-                            leadingIcon = {
-                                Icon(Icons.Default.Lock, contentDescription = null)
-                            },
-                            trailingIcon = {
-                                IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
-                                    Icon(
-                                        if (confirmPasswordVisible) Icons.Default.Visibility
-                                        else Icons.Default.VisibilityOff,
-                                        contentDescription = null
-                                    )
-                                }
-                            },
-                            visualTransformation = if (confirmPasswordVisible) VisualTransformation.None
-                            else PasswordVisualTransformation(),
-                            modifier = Modifier.fillMaxWidth(),
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Password,
-                                imeAction = ImeAction.Done
-                            ),
-                            keyboardActions = KeyboardActions(
-                                onDone = {
-                                    focusManager.clearFocus()
-                                    if (name.isNotBlank() && email.isNotBlank() && 
-                                        password.isNotBlank() && passwordConfirmation.isNotBlank()) {
-                                        authViewModel.register(name, email, password, passwordConfirmation, role)
-                                    }
-                                }
-                            ),
-                            singleLine = true,
-                            shape = RoundedCornerShape(16.dp)
-                        )
-
-                        Spacer(modifier = Modifier.height(24.dp))
-
-                        // Register Button
-                        Button(
-                            onClick = {
-                                if (name.isNotBlank() && email.isNotBlank() && 
-                                    password.isNotBlank() && passwordConfirmation.isNotBlank()) {
-                                    authViewModel.register(name, email, password, passwordConfirmation, role)
-                                } else {
-                                    errorMessage = "Semua field harus diisi"
-                                    showError = true
-                                }
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(56.dp),
-                            shape = RoundedCornerShape(16.dp),
-                            enabled = uiState !is AuthUiState.Loading
-                        ) {
-                            if (uiState is AuthUiState.Loading) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(24.dp),
-                                    color = MaterialTheme.colorScheme.onPrimary
-                                )
-                            } else {
-                                Text(
-                                    text = "Daftar",
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        // Login Link
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "Sudah punya akun?",
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                            TextButton(
-                                onClick = { navController.navigate("login") }
+                        listOf("petugas" to "Petugas", "admin" to "Admin").forEach { (id, label) ->
+                            val isSelected = role == id
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(48.dp)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(if (isSelected) DeisaBlue else DeisaNavy)
+                                    .border(1.dp, if (isSelected) DeisaBlue else Color.White.copy(alpha = 0.05f), RoundedCornerShape(12.dp))
+                                    .clickable { role = id },
+                                contentAlignment = Alignment.Center
                             ) {
-                                Text("Masuk")
+                                Text(
+                                    text = label,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                    color = if (isSelected) Color.White else Color.Gray
+                                )
                             }
                         }
                     }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // Security Section
+                    Text(
+                        "KREDENSIAL KEAMANAN",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Black,
+                        color = DeisaBlue,
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
+                    )
+
+                    PremiumTextField(
+                        value = password,
+                        onValueChange = {
+                            password = it
+                            passwordError = if (it.length < 6) "Minimal 6 karakter" else null
+                        },
+                        label = "Kata Sandi",
+                        placeholder = "••••••••",
+                        leadingIcon = Icons.Default.Lock,
+                        isPassword = true,
+                        passwordVisible = passwordVisible,
+                        onPasswordToggle = { passwordVisible = !passwordVisible },
+                        error = passwordError,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Next),
+                        keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) })
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    PremiumTextField(
+                        value = passwordConfirmation,
+                        onValueChange = {
+                            passwordConfirmation = it
+                            confirmError = if (it != password) "Kata sandi tidak cocok" else null
+                        },
+                        label = "Konfirmasi Kata Sandi",
+                        placeholder = "••••••••",
+                        leadingIcon = Icons.Default.Lock,
+                        isPassword = true,
+                        passwordVisible = confirmPasswordVisible,
+                        onPasswordToggle = { confirmPasswordVisible = !confirmPasswordVisible },
+                        error = confirmError,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
+                        keyboardActions = KeyboardActions(onDone = {
+                            focusManager.clearFocus()
+                            if (name.isNotBlank() && email.isNotBlank() && password.isNotBlank() && passwordConfirmation == password) {
+                                isLoading = true
+                                generalError = null
+                                authViewModel.register(name, email, password, passwordConfirmation, role) { result ->
+                                    isLoading = false
+                                    if (result.isSuccess) {
+                                        generalSuccess = result.getOrNull() ?: "Registrasi berhasil"
+                                        scope.launch {
+                                            delay(2000)
+                                            navController.navigate("login") {
+                                                popUpTo("register") { inclusive = true }
+                                            }
+                                        }
+                                    } else {
+                                        generalError = result.exceptionOrNull()?.message ?: "Registrasi gagal"
+                                    }
+                                }
+                            }
+                        })
+                    )
+
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    com.example.deisacompose.ui.components.PremiumGradientButton(
+                        text = "Daftar Sekarang",
+                        onClick = {
+                            if (name.isNotBlank() && email.isNotBlank() && password.isNotBlank() && passwordConfirmation == password && nameError == null && emailError == null && passwordError == null && confirmError == null) {
+                                isLoading = true
+                                generalError = null
+                                authViewModel.register(name, email, password, passwordConfirmation, role) { result ->
+                                    isLoading = false
+                                    if (result.isSuccess) {
+                                        generalSuccess = result.getOrNull() ?: "Registrasi berhasil"
+                                        scope.launch {
+                                            delay(2000)
+                                            navController.navigate("login") {
+                                                popUpTo("register") { inclusive = true }
+                                            }
+                                        }
+                                    } else {
+                                        generalError = result.exceptionOrNull()?.message ?: "Registrasi gagal"
+                                    }
+                                }
+                            } else {
+                                if (name.isBlank()) nameError = "Nama wajib diisi"
+                                if (email.isBlank()) emailError = "Email wajib diisi"
+                                if (password.isBlank()) passwordError = "Kata sandi wajib diisi"
+                                if (passwordConfirmation != password) confirmError = "Kata sandi tidak cocok"
+                            }
+                        },
+                        isLoading = isLoading
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("Sudah punya akun?", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            "Masuk Sekarang",
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = Color.White,
+                            modifier = Modifier.clickable { navController.navigate("login") }
+                        )
+                    }
                 }
             }
+            Spacer(modifier = Modifier.height(48.dp))
         }
 
-        // Success Snackbar
+        // Integrated Feedback
         AnimatedVisibility(
-            visible = showSuccess,
+            visible = generalError != null || generalSuccess != null,
             enter = slideInVertically { it } + fadeIn(),
             exit = slideOutVertically { it } + fadeOut(),
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(16.dp)
+            modifier = Modifier.align(Alignment.BottomCenter).padding(24.dp)
         ) {
-            Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                ),
-                shape = RoundedCornerShape(12.dp)
+            val isSuccess = generalSuccess != null
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(if (isSuccess) SuccessGreen.copy(alpha = 0.9f) else DangerRed.copy(alpha = 0.9f))
+                    .padding(16.dp)
             ) {
-                Row(
-                    modifier = Modifier.padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        Icons.Default.CheckCircle,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
-                    )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(if (isSuccess) Icons.Default.CheckCircle else Icons.Default.Warning, null, tint = Color.White)
                     Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        text = successMessage,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                }
-            }
-        }
-
-        // Error Snackbar
-        AnimatedVisibility(
-            visible = showError,
-            enter = slideInVertically { it } + fadeIn(),
-            exit = slideOutVertically { it } + fadeOut(),
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(16.dp)
-        ) {
-            Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.errorContainer
-                ),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Row(
-                    modifier = Modifier.padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        Icons.Default.Error,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.error
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        text = errorMessage,
-                        color = MaterialTheme.colorScheme.onErrorContainer
-                    )
+                    Text(generalSuccess ?: generalError ?: "", color = Color.White, fontWeight = FontWeight.Bold)
                 }
             }
         }

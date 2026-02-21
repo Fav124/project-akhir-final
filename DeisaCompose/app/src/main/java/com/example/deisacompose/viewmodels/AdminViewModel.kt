@@ -22,6 +22,22 @@ class AdminViewModel : ViewModel() {
     private val _actionState = MutableStateFlow<ActionState>(ActionState.Idle)
     val actionState: StateFlow<ActionState> = _actionState.asStateFlow()
 
+    // Alert State
+    private val _alertMessage = MutableStateFlow<String?>(null)
+    val alertMessage: StateFlow<String?> = _alertMessage.asStateFlow()
+
+    private val _alertType = MutableStateFlow<String>("success") // success, error
+    val alertType: StateFlow<String> = _alertType.asStateFlow()
+
+    fun showAlert(message: String, type: String = "success") {
+        _alertMessage.value = message
+        _alertType.value = type
+    }
+
+    fun clearAlert() {
+        _alertMessage.value = null
+    }
+
     fun loadDashboard() {
         viewModelScope.launch {
             _dashboardState.value = DashboardState.Loading
@@ -30,7 +46,11 @@ class AdminViewModel : ViewModel() {
                     _dashboardState.value = DashboardState.Success(data)
                 }
                 .onFailure { error ->
-                    _dashboardState.value = DashboardState.Error(error.message ?: "Gagal memuat dashboard")
+                    if (error.message == "UNAUTHORIZED") {
+                        _dashboardState.value = DashboardState.Error("SESI_HABIS")
+                    } else {
+                        _dashboardState.value = DashboardState.Error(error.message ?: "Gagal memuat dashboard")
+                    }
                 }
         }
     }
@@ -42,7 +62,8 @@ class AdminViewModel : ViewModel() {
                     _pendingUsers.value = users
                 }
                 .onFailure { error ->
-                    _actionState.value = ActionState.Error(error.message ?: "Gagal memuat pending users")
+                    val message = if (error.message == "UNAUTHORIZED") "SESI_HABIS" else (error.message ?: "Gagal memuat pending users")
+                    _actionState.value = ActionState.Error(message)
                 }
         }
     }
@@ -53,11 +74,14 @@ class AdminViewModel : ViewModel() {
             repository.approveUser(id)
                 .onSuccess { message ->
                     _actionState.value = ActionState.Success(message)
+                    showAlert(message, "success")
                     loadPendingUsers() // Refresh list
                     loadDashboard() // Refresh dashboard
                 }
                 .onFailure { error ->
-                    _actionState.value = ActionState.Error(error.message ?: "Gagal menyetujui user")
+                    val message = if (error.message == "UNAUTHORIZED") "SESI_HABIS" else (error.message ?: "Gagal menyetujui user")
+                    _actionState.value = ActionState.Error(message)
+                    if (message != "SESI_HABIS") showAlert(message, "error")
                 }
         }
     }
@@ -68,10 +92,13 @@ class AdminViewModel : ViewModel() {
             repository.deleteUser(id)
                 .onSuccess { message ->
                     _actionState.value = ActionState.Success(message)
+                    showAlert(message, "success")
                     loadPendingUsers() // Refresh list
                 }
                 .onFailure { error ->
-                    _actionState.value = ActionState.Error(error.message ?: "Gagal menghapus user")
+                    val message = if (error.message == "UNAUTHORIZED") "SESI_HABIS" else (error.message ?: "Gagal menghapus user")
+                    _actionState.value = ActionState.Error(message)
+                    if (message != "SESI_HABIS") showAlert(message, "error")
                 }
         }
     }

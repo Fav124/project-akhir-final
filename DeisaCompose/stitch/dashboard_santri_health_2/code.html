@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SantriHealth - Clean Grid Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1978e5",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#0f141a",
+                        "health-red": "#ef4444",
+                        "health-green": "#22c55e",
+                        "health-blue": "#3b82f6",
+                        "health-purple": "#a855f7",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        body {
+            background-color: #0f141a;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .grid-card {
+            @apply bg-[#1a212a] border border-white/5 rounded-xl transition-all active:scale-[0.98];
+        }
+        .chart-line {
+            stroke-dasharray: 0;
+            transition: opacity 0.3s ease;
+        }
+        .legend-item.inactive {
+            @apply opacity-30 grayscale;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-dark font-display text-slate-300">
+<div class="max-w-[430px] mx-auto min-h-screen bg-background-dark shadow-2xl relative overflow-hidden flex flex-col">
+<div class="h-12 w-full"></div>
+<header class="pt-2 pb-6 px-6 flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Health Monitor</span>
+<h1 class="text-white text-xl font-bold tracking-tight">Dashboard Overview</h1>
+</div>
+<div class="flex items-center gap-3">
+<button class="w-10 h-10 rounded-full bg-[#1a212a] flex items-center justify-center text-slate-400 border border-white/5">
+<span class="material-symbols-outlined text-xl">search</span>
+</button>
+<div class="w-10 h-10 rounded-full overflow-hidden border border-white/10">
+<img alt="Admin Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqC_gzrrsspWk2MMVcxrqEqYcrimXPcqyzsTL0X5xRQXEYUDj76DsT2fgpdnOJ827Ij2mG1gTD3334xxaPYJAcc8Dzyit4LuoKDavhpG3gXkdwX8fdRBwjgyCjUKs29OD2_srmKpQRDKLqf7NZZL6TfHHcQ31VSmGptEVEivUUOjmggyyfmBlUW2IdEQqZKICx2EklcKd9m0qUCVwjEv5tt_7M37ecT_F60Oa6RrYvrAtahuA2hhAtMXf8JK3u0yAZiQzECT90hxY"/>
+</div>
+</div>
+</header>
+<main class="flex-1 px-6 pb-24 overflow-y-auto">
+<div class="flex gap-2 mb-6">
+<button class="px-4 py-2 text-[12px] font-bold rounded-lg bg-primary text-white">Daily</button>
+<button class="px-4 py-2 text-[12px] font-bold rounded-lg bg-[#1a212a] text-slate-400 border border-white/5">Weekly</button>
+<button class="px-4 py-2 text-[12px] font-bold rounded-lg bg-[#1a212a] text-slate-400 border border-white/5">Monthly</button>
+</div>
+<div class="grid grid-cols-2 gap-3 mb-6">
+<div class="grid-card p-4">
+<div class="flex items-center justify-between mb-3">
+<div class="w-8 h-8 rounded-lg bg-health-red/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-health-red text-xl">sick</span>
+</div>
+<span class="text-[10px] font-bold text-health-red bg-health-red/10 px-1.5 py-0.5 rounded">+2</span>
+</div>
+<p class="text-[11px] text-slate-500 font-semibold mb-1">Santri Sakit</p>
+<p class="text-2xl font-bold text-white">12</p>
+</div>
+<div class="grid-card p-4">
+<div class="flex items-center justify-between mb-3">
+<div class="w-8 h-8 rounded-lg bg-health-green/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-health-green text-xl">medication</span>
+</div>
+<span class="text-[10px] font-bold text-health-green bg-health-green/10 px-1.5 py-0.5 rounded">Stock OK</span>
+</div>
+<p class="text-[11px] text-slate-500 font-semibold mb-1">Obat Keluar</p>
+<p class="text-2xl font-bold text-white">45</p>
+</div>
+<div class="grid-card p-4">
+<div class="flex items-center justify-between mb-3">
+<div class="w-8 h-8 rounded-lg bg-health-blue/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-health-blue text-xl">check_circle</span>
+</div>
+<span class="text-[10px] font-bold text-health-blue bg-health-blue/10 px-1.5 py-0.5 rounded">80%</span>
+</div>
+<p class="text-[11px] text-slate-500 font-semibold mb-1">Sembuh</p>
+<p class="text-2xl font-bold text-white">08</p>
+</div>
+<div class="grid-card p-4">
+<div class="flex items-center justify-between mb-3">
+<div class="w-8 h-8 rounded-lg bg-health-purple/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-health-purple text-xl">home</span>
+</div>
+<span class="text-[10px] font-bold text-health-purple bg-health-purple/10 px-1.5 py-0.5 rounded">Active</span>
+</div>
+<p class="text-[11px] text-slate-500 font-semibold mb-1">Santri Pulang</p>
+<p class="text-2xl font-bold text-white">03</p>
+</div>
+</div>
+<section class="grid-card p-5 mb-6">
+<div class="flex flex-col gap-1 mb-6">
+<h3 class="text-sm font-bold text-white">Health Activity Trend</h3>
+<p class="text-[11px] text-slate-500">Comparative data across metrics</p>
+</div>
+<div class="relative h-44 w-full mb-6">
+<svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 400 150">
+<path d="M0 130 Q 50 110, 100 120 T 200 80 T 300 100 T 400 70 V 150 H 0 Z" fill="rgba(239, 68, 68, 0.05)"></path>
+<path d="M0 130 Q 50 110, 100 120 T 200 80 T 300 100 T 400 70" fill="none" stroke="#ef4444" stroke-width="2.5"></path>
+<path d="M0 140 Q 50 135, 100 110 T 200 120 T 300 60 T 400 40 V 150 H 0 Z" fill="rgba(59, 130, 246, 0.05)"></path>
+<path d="M0 140 Q 50 135, 100 110 T 200 120 T 300 60 T 400 40" fill="none" stroke="#3b82f6" stroke-width="2.5"></path>
+</svg>
+</div>
+<div class="grid grid-cols-2 gap-2">
+<button class="legend-item flex items-center gap-2 p-2 rounded-lg bg-white/5 border border-white/5">
+<span class="w-2.5 h-2.5 rounded-full bg-health-red"></span>
+<span class="text-[11px] font-bold text-slate-300">Sakit</span>
+</button>
+<button class="legend-item flex items-center gap-2 p-2 rounded-lg bg-white/5 border border-white/5">
+<span class="w-2.5 h-2.5 rounded-full bg-health-green"></span>
+<span class="text-[11px] font-bold text-slate-300">Obat</span>
+</button>
+<button class="legend-item flex items-center gap-2 p-2 rounded-lg bg-white/5 border border-white/5">
+<span class="w-2.5 h-2.5 rounded-full bg-health-blue"></span>
+<span class="text-[11px] font-bold text-slate-300">Sembuh</span>
+</button>
+<button class="legend-item flex items-center gap-2 p-2 rounded-lg bg-white/5 border border-white/5 inactive">
+<span class="w-2.5 h-2.5 rounded-full bg-health-purple"></span>
+<span class="text-[11px] font-bold text-slate-300">Pulang</span>
+</button>
+</div>
+</section>
+<section>
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-[12px] font-bold text-white uppercase tracking-wider">Recent Activity</h3>
+<button class="text-primary text-[11px] font-bold">See History</button>
+</div>
+<div class="space-y-3">
+<div class="grid-card p-3 flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-health-red/10 flex items-center justify-center text-health-red">
+<span class="material-symbols-outlined">person</span>
+</div>
+<div class="flex-1">
+<h4 class="text-sm font-bold text-white">Ahmad Fauzi</h4>
+<p class="text-[11px] text-slate-500">Demam Tinggi</p>
+</div>
+<span class="text-[10px] font-bold text-health-red bg-health-red/5 px-2 py-1 rounded border border-health-red/10 uppercase">Critical</span>
+</div>
+<div class="grid-card p-3 flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-health-blue/10 flex items-center justify-center text-health-blue">
+<span class="material-symbols-outlined">check_circle</span>
+</div>
+<div class="flex-1">
+<h4 class="text-sm font-bold text-white">Zaidan Ramadhan</h4>
+<p class="text-[11px] text-slate-500">Batuk Kering - Sembuh</p>
+</div>
+<span class="text-[10px] font-bold text-health-blue bg-health-blue/5 px-2 py-1 rounded border border-health-blue/10 uppercase">Closed</span>
+</div>
+</div>
+</section>
+</main>
+<div class="fixed bottom-6 right-6 flex flex-col items-end gap-3 z-50">
+<div class="flex flex-col items-end gap-3 pointer-events-none opacity-0 translate-y-4">
+<button class="bg-[#1a212a] text-white p-3 rounded-full border border-white/10 shadow-lg">
+<span class="material-symbols-outlined text-xl">person_add</span>
+</button>
+<button class="bg-[#1a212a] text-white p-3 rounded-full border border-white/10 shadow-lg">
+<span class="material-symbols-outlined text-xl">medical_services</span>
+</button>
+</div>
+<button class="w-14 h-14 bg-primary text-white rounded-full shadow-2xl flex items-center justify-center active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-3xl">add</span>
+</button>
+</div>
+<div class="h-8 w-full bg-[#0f141a]"></div>
+</div>
+
+</body></html>

@@ -26,6 +26,8 @@ class ResourceRepository {
                     } else {
                         Result.failure(Exception(body.message ?: "Gagal mengambil data santri"))
                     }
+                } else if (response.code() == 401) {
+                    Result.failure(Exception("UNAUTHORIZED"))
                 } else {
                     Result.failure(Exception("Gagal mengambil data santri"))
                 }
@@ -46,6 +48,8 @@ class ResourceRepository {
                     } else {
                         Result.failure(Exception(body.message ?: "Gagal menambah santri"))
                     }
+                } else if (response.code() == 401) {
+                    Result.failure(Exception("UNAUTHORIZED"))
                 } else {
                     Result.failure(Exception("Gagal menambah santri"))
                 }
@@ -66,6 +70,8 @@ class ResourceRepository {
                     } else {
                         Result.failure(Exception("Gagal mengupdate santri"))
                     }
+                } else if (response.code() == 401) {
+                    Result.failure(Exception("UNAUTHORIZED"))
                 } else {
                     Result.failure(Exception("Gagal mengupdate santri"))
                 }
@@ -86,6 +92,8 @@ class ResourceRepository {
                     } else {
                         Result.failure(Exception("Gagal menghapus santri"))
                     }
+                } else if (response.code() == 401) {
+                    Result.failure(Exception("UNAUTHORIZED"))
                 } else {
                     Result.failure(Exception("Gagal menghapus santri"))
                 }
@@ -112,6 +120,8 @@ class ResourceRepository {
                     } else {
                         Result.failure(Exception(body.message ?: "Gagal mengambil data sakit"))
                     }
+                } else if (response.code() == 401) {
+                    Result.failure(Exception("UNAUTHORIZED"))
                 } else {
                     Result.failure(Exception("Gagal mengambil data sakit"))
                 }
@@ -132,6 +142,8 @@ class ResourceRepository {
                     } else {
                         Result.failure(Exception(body.message ?: "Gagal menambah data sakit"))
                     }
+                } else if (response.code() == 401) {
+                    Result.failure(Exception("UNAUTHORIZED"))
                 } else {
                     Result.failure(Exception("Gagal menambah data sakit"))
                 }
@@ -152,6 +164,8 @@ class ResourceRepository {
                     } else {
                         Result.failure(Exception(body.message ?: "Gagal mengupdate data sakit"))
                     }
+                } else if (response.code() == 401) {
+                    Result.failure(Exception("UNAUTHORIZED"))
                 } else {
                     Result.failure(Exception("Gagal mengupdate data sakit"))
                 }
@@ -172,6 +186,8 @@ class ResourceRepository {
                     } else {
                         Result.failure(Exception(body.message ?: "Gagal menghapus data sakit"))
                     }
+                } else if (response.code() == 401) {
+                    Result.failure(Exception("UNAUTHORIZED"))
                 } else {
                     Result.failure(Exception("Gagal menghapus data sakit"))
                 }
@@ -198,6 +214,8 @@ class ResourceRepository {
                     } else {
                         Result.failure(Exception(body.message ?: "Gagal mengambil data obat"))
                     }
+                } else if (response.code() == 401) {
+                    Result.failure(Exception("UNAUTHORIZED"))
                 } else {
                     Result.failure(Exception("Gagal mengambil data obat"))
                 }
@@ -218,6 +236,8 @@ class ResourceRepository {
                     } else {
                         Result.failure(Exception(body.message ?: "Gagal menambah obat"))
                     }
+                } else if (response.code() == 401) {
+                    Result.failure(Exception("UNAUTHORIZED"))
                 } else {
                     Result.failure(Exception("Gagal menambah obat"))
                 }
@@ -238,6 +258,8 @@ class ResourceRepository {
                     } else {
                         Result.failure(Exception(body.message ?: "Gagal mengupdate obat"))
                     }
+                } else if (response.code() == 401) {
+                    Result.failure(Exception("UNAUTHORIZED"))
                 } else {
                     Result.failure(Exception("Gagal mengupdate obat"))
                 }
@@ -258,6 +280,8 @@ class ResourceRepository {
                     } else {
                         Result.failure(Exception(body.message ?: "Gagal restock obat"))
                     }
+                } else if (response.code() == 401) {
+                    Result.failure(Exception("UNAUTHORIZED"))
                 } else {
                     Result.failure(Exception("Gagal restock obat"))
                 }
@@ -278,6 +302,8 @@ class ResourceRepository {
                     } else {
                         Result.failure(Exception(body.message ?: "Gagal menghapus obat"))
                     }
+                } else if (response.code() == 401) {
+                    Result.failure(Exception("UNAUTHORIZED"))
                 } else {
                     Result.failure(Exception("Gagal menghapus obat"))
                 }
@@ -299,8 +325,76 @@ class ResourceRepository {
                     } else {
                         Result.failure(Exception(body.message ?: "Gagal mengambil data kelas"))
                     }
+                } else if (response.code() == 401) {
+                    Result.failure(Exception("UNAUTHORIZED"))
                 } else {
                     Result.failure(Exception("Gagal mengambil data kelas"))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    suspend fun createKelas(nama: String): Result<String> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = api.createKelas(mapOf("nama_kelas" to nama))
+                val body = response.body()
+                if (response.isSuccessful && body != null) {
+                    if (body.success == true) {
+                        Result.success(body.message ?: "Kelas ditambahkan")
+                    } else {
+                        Result.failure(Exception(body.message ?: "Gagal menambah kelas"))
+                    }
+                } else if (response.code() == 401) {
+                    Result.failure(Exception("UNAUTHORIZED"))
+                } else {
+                    Result.failure(Exception("Gagal menambah kelas"))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    suspend fun updateKelas(id: Int, nama: String): Result<String> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = api.updateKelas(id, mapOf("nama_kelas" to nama))
+                val body = response.body()
+                if (response.isSuccessful && body != null) {
+                    if (body.success == true) {
+                        Result.success(body.message ?: "Kelas diupdate")
+                    } else {
+                        Result.failure(Exception(body.message ?: "Gagal mengupdate kelas"))
+                    }
+                } else if (response.code() == 401) {
+                    Result.failure(Exception("UNAUTHORIZED"))
+                } else {
+                    Result.failure(Exception("Gagal mengupdate kelas"))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    suspend fun deleteKelas(id: Int): Result<String> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = api.deleteKelas(id)
+                val body = response.body()
+                if (response.isSuccessful && body != null) {
+                    if (body.success == true) {
+                        Result.success(body.message ?: "Kelas dihapus")
+                    } else {
+                        Result.failure(Exception(body.message ?: "Gagal menghapus kelas"))
+                    }
+                } else if (response.code() == 401) {
+                    Result.failure(Exception("UNAUTHORIZED"))
+                } else {
+                    Result.failure(Exception("Gagal menghapus kelas"))
                 }
             } catch (e: Exception) {
                 Result.failure(e)
@@ -320,8 +414,76 @@ class ResourceRepository {
                     } else {
                         Result.failure(Exception(body.message ?: "Gagal mengambil data jurusan"))
                     }
+                } else if (response.code() == 401) {
+                    Result.failure(Exception("UNAUTHORIZED"))
                 } else {
                     Result.failure(Exception("Gagal mengambil data jurusan"))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    suspend fun createJurusan(nama: String): Result<String> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = api.createJurusan(mapOf("nama_jurusan" to nama))
+                val body = response.body()
+                if (response.isSuccessful && body != null) {
+                    if (body.success == true) {
+                        Result.success(body.message ?: "Jurusan ditambahkan")
+                    } else {
+                        Result.failure(Exception(body.message ?: "Gagal menambah jurusan"))
+                    }
+                } else if (response.code() == 401) {
+                    Result.failure(Exception("UNAUTHORIZED"))
+                } else {
+                    Result.failure(Exception("Gagal menambah jurusan"))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    suspend fun updateJurusan(id: Int, nama: String): Result<String> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = api.updateJurusan(id, mapOf("nama_jurusan" to nama))
+                val body = response.body()
+                if (response.isSuccessful && body != null) {
+                    if (body.success == true) {
+                        Result.success(body.message ?: "Jurusan diupdate")
+                    } else {
+                        Result.failure(Exception(body.message ?: "Gagal mengupdate jurusan"))
+                    }
+                } else if (response.code() == 401) {
+                    Result.failure(Exception("UNAUTHORIZED"))
+                } else {
+                    Result.failure(Exception("Gagal mengupdate jurusan"))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    suspend fun deleteJurusan(id: Int): Result<String> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = api.deleteJurusan(id)
+                val body = response.body()
+                if (response.isSuccessful && body != null) {
+                    if (body.success == true) {
+                        Result.success(body.message ?: "Jurusan dihapus")
+                    } else {
+                        Result.failure(Exception(body.message ?: "Gagal menghapus jurusan"))
+                    }
+                } else if (response.code() == 401) {
+                    Result.failure(Exception("UNAUTHORIZED"))
+                } else {
+                    Result.failure(Exception("Gagal menghapus jurusan"))
                 }
             } catch (e: Exception) {
                 Result.failure(e)

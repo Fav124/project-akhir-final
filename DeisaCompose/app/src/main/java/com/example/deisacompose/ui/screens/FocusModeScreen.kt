@@ -1,135 +1,131 @@
 package com.example.deisacompose.ui.screens
 
-import androidx.compose.foundation.background
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
-import com.example.deisacompose.ui.theme.*
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.deisacompose.ui.components.StitchTopBar
+import com.example.deisacompose.ui.theme.DeisaBlue
+import com.example.deisacompose.ui.theme.DeisaNavy
+import com.example.deisacompose.ui.theme.DeisaSoftNavy
+import com.example.deisacompose.viewmodels.FocusModeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FocusModeScreen(navController: NavHostController) {
+fun FocusModeScreen() {
+    val viewModel: FocusModeViewModel = viewModel()
+    val timeRemaining by viewModel.timeRemaining.collectAsState()
+    val progress by viewModel.progress.collectAsState()
+    val isRunning by viewModel.isRunning.collectAsState()
+    val isFinished by viewModel.isFinished.collectAsState()
+
+    val animatedProgress = animateFloatAsState(
+        targetValue = progress,
+        animationSpec = tween(durationMillis = 1000)
+    ).value
+
     Scaffold(
+        containerColor = DeisaNavy,
         topBar = {
-            CenterAlignedTopAppBar(
-                title = { 
-                    Text("Focus Mode", fontWeight = FontWeight.Black, fontSize = 16.sp, letterSpacing = 2.sp)
-                },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Slate950,
-                    titleContentColor = Color.White,
-                    navigationIconContentColor = Color.White
-                )
+            StitchTopBar(
+                title = "Mode Fokus",
+                onMenuClick = { /* Can be used to go back or keep empty */ },
+                showMenu = false
             )
         }
-    ) { padding ->
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Slate950)
-                .padding(padding)
-                .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(it)
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            // Header Info
-            Surface(
-                color = DeisaBlue.copy(alpha = 0.1f),
-                shape = CircleShape,
-                border = androidx.compose.foundation.BorderStroke(1.dp, DeisaBlue.copy(alpha = 0.2f))
+            val primaryColor = DeisaBlue
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.size(250.dp)
             ) {
+                Canvas(modifier = Modifier.fillMaxSize()) {
+                    drawArc(
+                        color = Color.LightGray,
+                        startAngle = -90f,
+                        sweepAngle = 360f,
+                        useCenter = false,
+                        style = Stroke(width = 15f)
+                    )
+                    drawArc(
+                        color = primaryColor,
+                        startAngle = -90f,
+                        sweepAngle = 360 * animatedProgress,
+                        useCenter = false,
+                        style = Stroke(width = 15f, cap = StrokeCap.Round)
+                    )
+                }
                 Text(
-                    "Patient 01/24", 
-                    color = DeisaBlue, 
-                    fontWeight = FontWeight.Black, 
-                    fontSize = 10.sp,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+                    text = timeRemaining,
+                    fontSize = 50.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = primaryColor
                 )
             }
-            
-            Spacer(modifier = Modifier.height(32.dp))
 
-            // Patient Hero Card
-            ElevatedCard(
-                modifier = Modifier.fillMaxWidth().aspectRatio(0.8f),
-                shape = RoundedCornerShape(48.dp),
-                colors = CardDefaults.elevatedCardColors(containerColor = Slate900)
-            ) {
-                Column(
-                    modifier = Modifier.padding(32.dp).fillMaxSize(),
-                    verticalArrangement = Arrangement.SpaceBetween
+            Spacer(modifier = Modifier.height(40.dp))
+
+            if (isFinished) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = colorScheme.secondaryContainer)
                 ) {
-                    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                         Surface(color = DeisaBlue, shape = RoundedCornerShape(20.dp), modifier = Modifier.size(64.dp)) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Text("AR", color = Color.White, fontWeight = FontWeight.Black, fontSize = 24.sp)
-                            }
-                         }
-                         
-                         Column {
-                             Text("Ahmad Rusydi", color = Color.White, style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Black)
-                             Text("Grade 11 - Software Engineering", color = DeisaBlue, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                         }
-                         
-                         Divider(color = Slate800, thickness = 1.dp)
-                         
-                         Text(
-                             "Keluhan demam tinggi disertai batuk berdahak sejak pagi ini. Membutuhkan observasi ketat dan pemberian paracetamol berkala.",
-                             color = Slate400,
-                             style = MaterialTheme.typography.bodyMedium,
-                             lineHeight = 22.sp
-                         )
-                    }
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    Text(
+                        text = "Sesi fokus selesai!",
+                        modifier = Modifier.padding(16.dp),
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(onClick = { viewModel.startTimer(25 * 60) }) {
+                    Text("Mulai Lagi")
+                }
+            } else {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    FloatingActionButton(
+                        onClick = { if (isRunning) viewModel.pauseTimer() else viewModel.startTimer() },
                     ) {
-                        Button(
-                            onClick = { /* Action */ },
-                            modifier = Modifier.weight(1f).height(64.dp),
-                            shape = RoundedCornerShape(24.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = ThemeEmerald)
-                        ) {
-                            Text("Sembuh", fontWeight = FontWeight.Black, fontSize = 14.sp)
-                        }
-                        
-                         OutlinedButton(
-                            onClick = { /* Action */ },
-                            modifier = Modifier.weight(1f).height(64.dp),
-                            shape = RoundedCornerShape(24.dp),
-                            border = androidx.compose.foundation.BorderStroke(1.dp, Slate700)
-                        ) {
-                            Text("Next", color = Color.White, fontWeight = FontWeight.Black, fontSize = 14.sp)
-                        }
+                        Icon(
+                            if (isRunning) Icons.Default.Pause else Icons.Default.PlayArrow,
+                            contentDescription = if (isRunning) "Pause" else "Play"
+                        )
+                    }
+                    FloatingActionButton(
+                        onClick = { viewModel.stopTimer() },
+                        containerColor = colorScheme.errorContainer
+                    ) {
+                        Icon(Icons.Default.Stop, contentDescription = "Stop")
                     }
                 }
             }
-            
-            Spacer(modifier = Modifier.height(40.dp))
-            
-            Text(
-                "Swipe left for next patient", 
-                color = Slate500, 
-                fontWeight = FontWeight.Bold, 
-                fontSize = 12.sp,
-                letterSpacing = 1.sp
-            )
         }
     }
 }

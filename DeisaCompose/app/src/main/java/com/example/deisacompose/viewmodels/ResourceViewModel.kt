@@ -39,6 +39,22 @@ class ResourceViewModel : ViewModel() {
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
+    // Alert State
+    private val _alertMessage = MutableStateFlow<String?>(null)
+    val alertMessage: StateFlow<String?> = _alertMessage.asStateFlow()
+
+    private val _alertType = MutableStateFlow<String>("success") // success, error
+    val alertType: StateFlow<String> = _alertType.asStateFlow()
+
+    fun showAlert(message: String, type: String = "success") {
+        _alertMessage.value = message
+        _alertType.value = type
+    }
+
+    fun clearAlert() {
+        _alertMessage.value = null
+    }
+
     // ================= SANTRI =================
     fun loadSantri(search: String? = null, kelasId: Int? = null, jurusanId: Int? = null) {
         viewModelScope.launch {
@@ -49,7 +65,8 @@ class ResourceViewModel : ViewModel() {
                     _isLoading.value = false
                 }
                 .onFailure { error ->
-                    _uiState.value = ResourceUiState.Error(error.message ?: "Gagal memuat santri")
+                    val message = if (error.message == "UNAUTHORIZED") "SESI_HABIS" else (error.message ?: "Gagal memuat santri")
+                    _uiState.value = ResourceUiState.Error(message)
                     _isLoading.value = false
                 }
         }
@@ -64,7 +81,9 @@ class ResourceViewModel : ViewModel() {
                     loadSantri() // Refresh
                 }
                 .onFailure { error ->
-                    _uiState.value = ResourceUiState.Error(error.message ?: "Gagal menambah santri")
+                    val message = if (error.message == "UNAUTHORIZED") "SESI_HABIS" else (error.message ?: "Gagal menambah santri")
+                    _uiState.value = ResourceUiState.Error(message)
+                    if (message != "SESI_HABIS") showAlert(message, "error")
                 }
         }
     }
@@ -78,7 +97,9 @@ class ResourceViewModel : ViewModel() {
                     loadSantri() // Refresh
                 }
                 .onFailure { error ->
-                    _uiState.value = ResourceUiState.Error(error.message ?: "Gagal mengupdate santri")
+                    val message = if (error.message == "UNAUTHORIZED") "SESI_HABIS" else (error.message ?: "Gagal mengupdate santri")
+                    _uiState.value = ResourceUiState.Error(message)
+                    if (message != "SESI_HABIS") showAlert(message, "error")
                 }
         }
     }
@@ -92,7 +113,9 @@ class ResourceViewModel : ViewModel() {
                     loadSantri() // Refresh
                 }
                 .onFailure { error ->
-                    _uiState.value = ResourceUiState.Error(error.message ?: "Gagal menghapus santri")
+                    val message = if (error.message == "UNAUTHORIZED") "SESI_HABIS" else (error.message ?: "Gagal menghapus santri")
+                    _uiState.value = ResourceUiState.Error(message)
+                    if (message != "SESI_HABIS") showAlert(message, "error")
                 }
         }
     }
@@ -107,7 +130,8 @@ class ResourceViewModel : ViewModel() {
                     _isLoading.value = false
                 }
                 .onFailure { error ->
-                    _uiState.value = ResourceUiState.Error(error.message ?: "Gagal memuat data sakit")
+                    val message = if (error.message == "UNAUTHORIZED") "SESI_HABIS" else (error.message ?: "Gagal memuat data sakit")
+                    _uiState.value = ResourceUiState.Error(message)
                     _isLoading.value = false
                 }
         }
@@ -119,10 +143,13 @@ class ResourceViewModel : ViewModel() {
             repository.createSakit(sakit)
                 .onSuccess { message ->
                     _uiState.value = ResourceUiState.Success(message)
+                    showAlert(message, "success")
                     loadSakit() // Refresh
                 }
                 .onFailure { error ->
-                    _uiState.value = ResourceUiState.Error(error.message ?: "Gagal menambah data sakit")
+                    val message = if (error.message == "UNAUTHORIZED") "SESI_HABIS" else (error.message ?: "Gagal menambah data sakit")
+                    _uiState.value = ResourceUiState.Error(message)
+                    if (message != "SESI_HABIS") showAlert(message, "error")
                 }
         }
     }
@@ -133,10 +160,13 @@ class ResourceViewModel : ViewModel() {
             repository.updateSakit(id, sakit)
                 .onSuccess { message ->
                     _uiState.value = ResourceUiState.Success(message)
+                    showAlert(message, "success")
                     loadSakit() // Refresh
                 }
                 .onFailure { error ->
-                    _uiState.value = ResourceUiState.Error(error.message ?: "Gagal mengupdate data sakit")
+                    val message = if (error.message == "UNAUTHORIZED") "SESI_HABIS" else (error.message ?: "Gagal mengupdate data sakit")
+                    _uiState.value = ResourceUiState.Error(message)
+                    if (message != "SESI_HABIS") showAlert(message, "error")
                 }
         }
     }
@@ -147,10 +177,13 @@ class ResourceViewModel : ViewModel() {
             repository.deleteSakit(id)
                 .onSuccess { message ->
                     _uiState.value = ResourceUiState.Success(message)
+                    showAlert(message, "success")
                     loadSakit() // Refresh
                 }
                 .onFailure { error ->
-                    _uiState.value = ResourceUiState.Error(error.message ?: "Gagal menghapus data sakit")
+                    val message = if (error.message == "UNAUTHORIZED") "SESI_HABIS" else (error.message ?: "Gagal menghapus data sakit")
+                    _uiState.value = ResourceUiState.Error(message)
+                    if (message != "SESI_HABIS") showAlert(message, "error")
                 }
         }
     }
@@ -165,7 +198,8 @@ class ResourceViewModel : ViewModel() {
                     _isLoading.value = false
                 }
                 .onFailure { error ->
-                    _uiState.value = ResourceUiState.Error(error.message ?: "Gagal memuat obat")
+                    val message = if (error.message == "UNAUTHORIZED") "SESI_HABIS" else (error.message ?: "Gagal memuat obat")
+                    _uiState.value = ResourceUiState.Error(message)
                     _isLoading.value = false
                 }
         }
@@ -177,10 +211,13 @@ class ResourceViewModel : ViewModel() {
             repository.createObat(obat)
                 .onSuccess { message ->
                     _uiState.value = ResourceUiState.Success(message)
+                    showAlert(message, "success")
                     loadObat() // Refresh
                 }
                 .onFailure { error ->
-                    _uiState.value = ResourceUiState.Error(error.message ?: "Gagal menambah obat")
+                    val message = if (error.message == "UNAUTHORIZED") "SESI_HABIS" else (error.message ?: "Gagal menambah obat")
+                    _uiState.value = ResourceUiState.Error(message)
+                    if (message != "SESI_HABIS") showAlert(message, "error")
                 }
         }
     }
@@ -191,10 +228,13 @@ class ResourceViewModel : ViewModel() {
             repository.updateObat(id, obat)
                 .onSuccess { message ->
                     _uiState.value = ResourceUiState.Success(message)
+                    showAlert(message, "success")
                     loadObat() // Refresh
                 }
                 .onFailure { error ->
-                    _uiState.value = ResourceUiState.Error(error.message ?: "Gagal mengupdate obat")
+                    val message = if (error.message == "UNAUTHORIZED") "SESI_HABIS" else (error.message ?: "Gagal mengupdate obat")
+                    _uiState.value = ResourceUiState.Error(message)
+                    if (message != "SESI_HABIS") showAlert(message, "error")
                 }
         }
     }
@@ -205,10 +245,13 @@ class ResourceViewModel : ViewModel() {
             repository.restockObat(id, jumlah)
                 .onSuccess { message ->
                     _uiState.value = ResourceUiState.Success(message)
+                    showAlert(message, "success")
                     loadObat() // Refresh
                 }
                 .onFailure { error ->
-                    _uiState.value = ResourceUiState.Error(error.message ?: "Gagal restock obat")
+                    val message = if (error.message == "UNAUTHORIZED") "SESI_HABIS" else (error.message ?: "Gagal restock obat")
+                    _uiState.value = ResourceUiState.Error(message)
+                    if (message != "SESI_HABIS") showAlert(message, "error")
                 }
         }
     }
@@ -219,10 +262,13 @@ class ResourceViewModel : ViewModel() {
             repository.deleteObat(id)
                 .onSuccess { message ->
                     _uiState.value = ResourceUiState.Success(message)
+                    showAlert(message, "success")
                     loadObat() // Refresh
                 }
                 .onFailure { error ->
-                    _uiState.value = ResourceUiState.Error(error.message ?: "Gagal menghapus obat")
+                    val message = if (error.message == "UNAUTHORIZED") "SESI_HABIS" else (error.message ?: "Gagal menghapus obat")
+                    _uiState.value = ResourceUiState.Error(message)
+                    if (message != "SESI_HABIS") showAlert(message, "error")
                 }
         }
     }
@@ -230,21 +276,135 @@ class ResourceViewModel : ViewModel() {
     // ================= KELAS & JURUSAN =================
     fun loadKelas() {
         viewModelScope.launch {
+            _isLoading.value = true
             repository.getKelas()
                 .onSuccess { list ->
                     _kelasList.value = list
+                    _isLoading.value = false
                 }
-                .onFailure { }
+                .onFailure { error ->
+                    val message = if (error.message == "UNAUTHORIZED") "SESI_HABIS" else (error.message ?: "Gagal memuat kelas")
+                    _uiState.value = ResourceUiState.Error(message)
+                    _isLoading.value = false
+                }
+        }
+    }
+
+    fun createKelas(nama: String) {
+        viewModelScope.launch {
+            _uiState.value = ResourceUiState.Loading
+            repository.createKelas(nama)
+                .onSuccess { message ->
+                    _uiState.value = ResourceUiState.Success(message)
+                    showAlert(message, "success")
+                    loadKelas()
+                }
+                .onFailure { error ->
+                    val message = if (error.message == "UNAUTHORIZED") "SESI_HABIS" else (error.message ?: "Gagal menambah kelas")
+                    _uiState.value = ResourceUiState.Error(message)
+                    if (message != "SESI_HABIS") showAlert(message, "error")
+                }
+        }
+    }
+
+    fun updateKelas(id: Int, nama: String) {
+        viewModelScope.launch {
+            _uiState.value = ResourceUiState.Loading
+            repository.updateKelas(id, nama)
+                .onSuccess { message ->
+                    _uiState.value = ResourceUiState.Success(message)
+                    showAlert(message, "success")
+                    loadKelas()
+                }
+                .onFailure { error ->
+                    val message = if (error.message == "UNAUTHORIZED") "SESI_HABIS" else (error.message ?: "Gagal mengupdate kelas")
+                    _uiState.value = ResourceUiState.Error(message)
+                    if (message != "SESI_HABIS") showAlert(message, "error")
+                }
+        }
+    }
+
+    fun deleteKelas(id: Int) {
+        viewModelScope.launch {
+            _uiState.value = ResourceUiState.Loading
+            repository.deleteKelas(id)
+                .onSuccess { message ->
+                    _uiState.value = ResourceUiState.Success(message)
+                    showAlert(message, "success")
+                    loadKelas()
+                }
+                .onFailure { error ->
+                    val message = if (error.message == "UNAUTHORIZED") "SESI_HABIS" else (error.message ?: "Gagal menghapus kelas")
+                    _uiState.value = ResourceUiState.Error(message)
+                    if (message != "SESI_HABIS") showAlert(message, "error")
+                }
         }
     }
 
     fun loadJurusan() {
         viewModelScope.launch {
+            _isLoading.value = true
             repository.getJurusan()
                 .onSuccess { list ->
                     _jurusanList.value = list
+                    _isLoading.value = false
                 }
-                .onFailure { }
+                .onFailure { error ->
+                    val message = if (error.message == "UNAUTHORIZED") "SESI_HABIS" else (error.message ?: "Gagal memuat jurusan")
+                    _uiState.value = ResourceUiState.Error(message)
+                    _isLoading.value = false
+                }
+        }
+    }
+
+    fun createJurusan(nama: String) {
+        viewModelScope.launch {
+            _uiState.value = ResourceUiState.Loading
+            repository.createJurusan(nama)
+                .onSuccess { message ->
+                    _uiState.value = ResourceUiState.Success(message)
+                    showAlert(message, "success")
+                    loadJurusan()
+                }
+                .onFailure { error ->
+                    val message = if (error.message == "UNAUTHORIZED") "SESI_HABIS" else (error.message ?: "Gagal menambah jurusan")
+                    _uiState.value = ResourceUiState.Error(message)
+                    if (message != "SESI_HABIS") showAlert(message, "error")
+                }
+        }
+    }
+
+    fun updateJurusan(id: Int, nama: String) {
+        viewModelScope.launch {
+            _uiState.value = ResourceUiState.Loading
+            repository.updateJurusan(id, nama)
+                .onSuccess { message ->
+                    _uiState.value = ResourceUiState.Success(message)
+                    showAlert(message, "success")
+                    loadJurusan()
+                }
+                .onFailure { error ->
+                    val message = if (error.message == "UNAUTHORIZED") "SESI_HABIS" else (error.message ?: "Gagal mengupdate jurusan")
+                    _uiState.value = ResourceUiState.Error(message)
+                    if (message != "SESI_HABIS") showAlert(message, "error")
+                }
+        }
+    }
+
+    fun deleteJurusan(id: Int) {
+        viewModelScope.launch {
+            _uiState.value = ResourceUiState.Loading
+            repository.deleteJurusan(id)
+                .onSuccess { message ->
+                    _uiState.value = ResourceUiState.Success(message)
+                    showAlert(message, "success")
+                    loadJurusan()
+                }
+                .onFailure { error ->
+                    val message = if (error.message == "UNAUTHORIZED") "SESI_HABIS" else (error.message ?: "Gagal menghapus jurusan")
+                    _uiState.value = ResourceUiState.Error(message)
+                    if (message != "SESI_HABIS") showAlert(message, "error")
+                }
         }
     }
 

@@ -1,7 +1,9 @@
 package com.example.deisacompose.ui.screens
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -12,20 +14,26 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.deisacompose.ui.components.DeisaLogo
 import com.example.deisacompose.ui.components.LogoSize
+import com.example.deisacompose.ui.components.PremiumGradientButton
+import com.example.deisacompose.ui.components.PremiumTextField
+import com.example.deisacompose.ui.theme.*
 import com.example.deisacompose.viewmodels.AuthViewModel
-import com.example.deisacompose.viewmodels.AuthUiState
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,14 +41,15 @@ fun ForgotPasswordScreen(
     navController: NavController,
     authViewModel: AuthViewModel = viewModel()
 ) {
-    val uiState by authViewModel.uiState.collectAsState()
-    val focusManager = LocalFocusManager.current
-
     var email by remember { mutableStateOf("") }
     var showSuccess by remember { mutableStateOf(false) }
     var showError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
     var successMessage by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
+
+    val focusManager = LocalFocusManager.current
+    val scope = rememberCoroutineScope()
 
     var visible by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
@@ -48,97 +57,77 @@ fun ForgotPasswordScreen(
         visible = true
     }
 
-    LaunchedEffect(uiState) {
-        when (val state = uiState) {
-            is AuthUiState.ForgotPasswordSuccess -> {
-                successMessage = state.message
-                showSuccess = true
-                delay(3000)
-                navController.navigate("login") {
-                    popUpTo("forgot_password") { inclusive = true }
-                }
-                authViewModel.resetState()
-            }
-            is AuthUiState.Error -> {
-                errorMessage = state.message
-                showError = true
-                delay(3000)
-                showError = false
-                authViewModel.resetState()
-            }
-            else -> {}
-        }
-    }
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.background,
-                        MaterialTheme.colorScheme.surface
-                    )
-                )
-            )
-    ) {
-        Column(
+    Scaffold(
+        containerColor = DeisaNavy
+    ) { padding ->
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+                .padding(padding)
         ) {
-            // Logo
+            // Background animations (matching LoginScreen)
             AnimatedVisibility(
                 visible = visible,
-                enter = fadeIn() + scaleIn()
+                enter = fadeIn(animationSpec = tween(1000, 500)),
+                exit = fadeOut(animationSpec = tween(500))
             ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.padding(bottom = 32.dp)
-                ) {
-                    DeisaLogo(size = LogoSize.LG)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = "Lupa Password?",
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Text(
-                        text = "Masukkan email untuk reset password",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.radialGradient(
+                                colors = listOf(DeisaBlue.copy(alpha = 0.1f), Color.Transparent),
+                                radius = 800f
+                            )
+                        )
+                )
             }
 
-            // Card
-            AnimatedVisibility(
-                visible = visible,
-                enter = fadeIn() + slideInVertically { it / 2 }
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(24.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
-                    ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                // Header
+                AnimatedVisibility(
+                    visible = visible,
+                    enter = fadeIn(animationSpec = tween(1000, 500)) + scaleIn(initialScale = 0.8f)
                 ) {
                     Column(
-                        modifier = Modifier.padding(24.dp)
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(32.dp))
+                            .background(DeisaSoftNavy.copy(alpha = 0.8f))
+                            .border(1.dp, Color.White.copy(alpha = 0.05f), RoundedCornerShape(32.dp))
+                            .padding(32.dp)
                     ) {
-                        // Email Field
-                        OutlinedTextField(
+                        DeisaLogo(size = LogoSize.SM)
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            "Lupa Kata Sandi",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                        Text(
+                            "Kami akan mengirimkan tautan reset ke email Anda",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Gray,
+                            textAlign = TextAlign.Center
+                        )
+
+                        Spacer(modifier = Modifier.height(32.dp))
+
+                        PremiumTextField(
                             value = email,
                             onValueChange = { email = it },
-                            label = { Text("Email") },
-                            leadingIcon = {
-                                Icon(Icons.Default.Email, contentDescription = null)
-                            },
-                            modifier = Modifier.fillMaxWidth(),
+                            label = "Alamat Email",
+                            placeholder = "Masukkan email terdaftar",
+                            leadingIcon = Icons.Default.Email,
+                            error = if (showError) errorMessage else null,
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Email,
                                 imeAction = ImeAction.Done
@@ -147,133 +136,103 @@ fun ForgotPasswordScreen(
                                 onDone = {
                                     focusManager.clearFocus()
                                     if (email.isNotBlank()) {
-                                        authViewModel.forgotPassword(email)
+                                        isLoading = true
+                                        showError = false
+                                        showSuccess = false
+                                        authViewModel.forgotPassword(email) { result ->
+                                            isLoading = false
+                                            if (result.isSuccess) {
+                                                showSuccess = true
+                                                successMessage = result.getOrNull() ?: "Link reset dikirim"
+                                            } else {
+                                                showError = true
+                                                errorMessage = result.exceptionOrNull()?.message ?: "Gagal mengirim link"
+                                            }
+                                        }
                                     }
                                 }
-                            ),
-                            singleLine = true,
-                            shape = RoundedCornerShape(16.dp)
+                            )
                         )
 
                         Spacer(modifier = Modifier.height(24.dp))
 
-                        // Submit Button
-                        Button(
+                        PremiumGradientButton(
+                            text = "Kirim Instruksi",
                             onClick = {
                                 if (email.isNotBlank()) {
-                                    authViewModel.forgotPassword(email)
+                                    isLoading = true
+                                    showError = false
+                                    showSuccess = false
+                                    authViewModel.forgotPassword(email) { result ->
+                                        isLoading = false
+                                        if (result.isSuccess) {
+                                            showSuccess = true
+                                            successMessage = result.getOrNull() ?: "Link reset dikirim"
+                                        } else {
+                                            showError = true
+                                            errorMessage = result.exceptionOrNull()?.message ?: "Gagal mengirim link"
+                                        }
+                                    }
                                 } else {
-                                    errorMessage = "Email harus diisi"
+                                    errorMessage = "Email wajib diisi"
                                     showError = true
                                 }
                             },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(56.dp),
-                            shape = RoundedCornerShape(16.dp),
-                            enabled = uiState !is AuthUiState.Loading
-                        ) {
-                            if (uiState is AuthUiState.Loading) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(24.dp),
-                                    color = MaterialTheme.colorScheme.onPrimary
-                                )
-                            } else {
-                                Text(
-                                    text = "Kirim Link Reset",
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                        }
+                            isLoading = isLoading
+                        )
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(24.dp))
 
-                        // Back to Login
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
+                        TextButton(
+                            onClick = { navController.navigate("login") }
                         ) {
-                            TextButton(
-                                onClick = { navController.navigate("login") }
-                            ) {
-                                Icon(
-                                    Icons.Default.ArrowBack,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text("Kembali ke Login")
-                            }
+                            Icon(Icons.Default.ArrowBack, contentDescription = null, modifier = Modifier.size(16.dp), tint = DeisaBlue)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Kembali ke Masuk", color = DeisaBlue, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
             }
-        }
 
-        // Success Snackbar
-        AnimatedVisibility(
-            visible = showSuccess,
-            enter = slideInVertically { it } + fadeIn(),
-            exit = slideOutVertically { it } + fadeOut(),
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(16.dp)
-        ) {
-            Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                ),
-                shape = RoundedCornerShape(12.dp)
+            // Success Snackbar (Integrated style)
+            AnimatedVisibility(
+                visible = showSuccess,
+                enter = slideInVertically { it } + fadeIn(),
+                exit = slideOutVertically { it } + fadeOut(),
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(32.dp)
             ) {
-                Row(
-                    modifier = Modifier.padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(SuccessGreen)
+                        .padding(horizontal = 16.dp, vertical = 12.dp)
                 ) {
-                    Icon(
-                        Icons.Default.CheckCircle,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        text = successMessage,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.CheckCircle, null, tint = Color.White)
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(successMessage, color = Color.White, fontWeight = FontWeight.Bold)
+                    }
                 }
             }
-        }
 
-        // Error Snackbar
-        AnimatedVisibility(
-            visible = showError,
-            enter = slideInVertically { it } + fadeIn(),
-            exit = slideOutVertically { it } + fadeOut(),
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(16.dp)
-        ) {
-            Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.errorContainer
-                ),
-                shape = RoundedCornerShape(12.dp)
+            // Error message display
+            AnimatedVisibility(
+                visible = showError,
+                enter = fadeIn(),
+                exit = fadeOut(),
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 32.dp)
             ) {
-                Row(
-                    modifier = Modifier.padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(DangerRed)
+                        .padding(horizontal = 16.dp, vertical = 12.dp)
                 ) {
-                    Icon(
-                        Icons.Default.Error,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.error
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        text = errorMessage,
-                        color = MaterialTheme.colorScheme.onErrorContainer
-                    )
+                    Text(errorMessage, color = Color.White, fontWeight = FontWeight.Bold)
                 }
             }
         }
