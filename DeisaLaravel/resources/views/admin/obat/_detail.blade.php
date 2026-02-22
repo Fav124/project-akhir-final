@@ -69,6 +69,5 @@
     </div>
 </div>
 <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-2">
-    <x-button data-modal-close variant="outline">Tutup</x-button>
     <x-button variant="primary" onclick="openRestockModal({{ json_encode($obat) }})">Restock</x-button>
 </div>

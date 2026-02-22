@@ -122,7 +122,7 @@ class SakitApiController extends Controller
         $sakit = SantriSakit::findOrFail($id);
 
         $validated = $request->validate([
-            'santri_id' => 'required|exists:santri,id',
+            'santri_id' => 'required|exists:santris,id',
             'diagnosis_utama' => 'required|string',
             'keluhan' => 'nullable|string',
             'tindakan' => 'nullable|string',

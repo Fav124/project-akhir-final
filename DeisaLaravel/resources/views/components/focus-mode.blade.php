@@ -135,7 +135,7 @@
                                     Sudah Sembuh
                                 </button>
                                 <button @click="next()"
-                                    class="bg-white/10 hover:bg-white/20 text-white font-bold px-10 rounded-[1.8rem] transition-all border border-white/10">Masih
+                                    class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-10 rounded-[1.8rem] transition-all border border-slate-200">Masih
                                     Sakit</button>
                             </div>
                         </template>

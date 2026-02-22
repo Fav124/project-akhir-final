@@ -183,13 +183,13 @@ fun LoginScreen(
                         DeisaLogo(size = LogoSize.SM)
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            "Santri Health",
+                            "DEISA",
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold,
                             color = Color.White
                         )
                         Text(
-                            "Manajemen Kesehatan Pesantren",
+                            "Dar El-Ilmi Kesehatan",
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.Gray,
                             textAlign = TextAlign.Center
