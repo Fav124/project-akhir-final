@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ config('app.name', 'Deisa Health') }} - Solusi Kesehatan Pesantren Modern</title>
+    <title>{{ config('app.name', 'DEISA') }} - Dar El-Ilmi Kesehatan</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo-deisa-removebg-preview.png') }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,54 +15,7 @@
         rel="stylesheet">
 
     <!-- Styles & Scripts -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            scroll-behavior: smooth;
-        }
-
-        .font-outfit {
-            font-family: 'Outfit', sans-serif;
-        }
-
-        .glass-header {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .text-gradient {
-            background: linear-gradient(135deg, #0284c7 0%, #0d9488 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        /* Reveal Animations */
-        .reveal {
-            opacity: 0;
-            filter: blur(5px);
-            transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
-        }
-        .reveal-up { transform: translateY(40px); }
-        .reveal-down { transform: translateY(-40px); }
-        .reveal-left { transform: translateX(40px); }
-        .reveal-right { transform: translateX(-40px); }
-        
-        .reveal.active {
-            opacity: 1;
-            filter: blur(0);
-            transform: translate(0, 0);
-        }
-
-        /* Smooth Scroll Padding */
-        :target {
-            scroll-margin-top: 100px;
-        }
-
-        [x-cloak] { display: none !important; }
-    </style>
+    @vite(['resources/css/deisa.css', 'resources/js/app.js'])
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -124,9 +78,9 @@
         <div class="container mx-auto px-4 md:px-6">
             <div class="flex items-center justify-between">
                 <a href="{{ route('landing') }}" class="flex items-center space-x-3 group">
-                    <x-logo size="sm" variant="light" />
+                    <x-logo size="md" variant="light" />
                     <span class="text-xl font-bold tracking-tight transition-colors"
-                        :class="atTop ? 'text-white' : 'text-deisa-blue'">Deisa Health</span>
+                        :class="atTop ? 'text-white' : 'text-deisa-blue'">DEISA</span>
                 </a>
 
                 <!-- Desktop Menu -->
@@ -182,8 +136,8 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
                 <div class="col-span-1 md:col-span-1">
                     <div class="flex items-center space-x-3 mb-6">
-                        <x-logo size="sm" variant="light" />
-                        <span class="text-xl font-bold tracking-tight">Deisa Health</span>
+                        <x-logo size="md" variant="light" />
+                        <span class="text-xl font-bold tracking-tight">DEISA</span>
                     </div>
                     <p class="text-slate-400 text-sm leading-relaxed capitalize">
                         Solusi digital pengelolaan kesehatan santri di pesantren secara terpadu, cepat, dan akurat.
@@ -219,7 +173,7 @@
             </div>
             <div
                 class="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-slate-500">
-                <p>&copy; 2026 Deisa Health. All rights reserved.</p>
+                <p>&copy; 2026 DEISA (Dar El-Ilmi Kesehatan). All rights reserved.</p>
                 <p class="mt-4 md:mt-0">Didesain dengan <span class="text-red-500">❤</span> untuk Pesantren</p>
             </div>
         </div>

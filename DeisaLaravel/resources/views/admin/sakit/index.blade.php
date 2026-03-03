@@ -25,7 +25,10 @@
                     </select>
                 </form>
                 <div class="flex gap-3">
-                    <x-button class="whitespace-nowrap" data-form-url="{{ route('admin.sakit.create') }}">
+                    <x-button variant="outline" class="whitespace-nowrap" href="{{ route('admin.sakit.pulang') }}">
+                        Monitoring Pulang
+                    </x-button>
+                    <x-button class="whitespace-nowrap" href="{{ route('admin.sakit.create') }}">
                         + Tambah Laporan
                     </x-button>
                 </div>

@@ -1,7 +1,7 @@
 <table class="w-full text-left text-sm text-slate-600">
     <thead class="bg-slate-50 text-slate-900 border-b border-slate-200">
         <tr>
-            <th class="px-4 py-3 font-semibold">ID / NIS</th>
+            <th class="px-4 py-3 font-semibold">NIS</th>
             <th class="px-4 py-3 font-semibold">Nama Lengkap</th>
             <th class="px-4 py-3 font-semibold">Kelas</th>
             <th class="px-4 py-3 font-semibold">Jenis Kelamin</th>
@@ -20,17 +20,15 @@
                         {{ substr($santri->nama_lengkap, 0, 1) }}
                     </div>
                     <span class="font-medium text-slate-900">{{ $santri->nama_lengkap }}</span>
+                    @if($santri->is_repeating)
+                    <span
+                        class="ml-2 text-[9px] font-black text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200 uppercase tracking-tighter w-fit items-center flex">
+                        Tinggal Kelas
+                    </span>
+                    @endif
                 </div>
             </td>
             <td class="px-4 py-3">{{ $santri->kelas->nama_kelas ?? 'N/A' }}</td>
-            <td class="px-4 py-3">
-                @if($santri->is_repeating)
-                <span
-                    class="text-[9px] font-black text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200 uppercase tracking-tighter w-fit animate-pulse">
-                    Tinggal Kelas
-                </span>
-                @endif
-            </td>
             <td class="px-4 py-3">{{ $santri->jenis_kelamin }}</td>
             <td class="px-4 py-3">
                 @php

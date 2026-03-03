@@ -17,6 +17,8 @@ class SantriSakit extends Model
         'kode_riwayat', // New
         'tgl_masuk',
         'tgl_sembuh',
+        'tgl_pulang',
+        'tgl_kembali',
         'tanggal_mulai_sakit', // New
         'keluhan',             // New
         'diagnosis',           // New (string fallback)
@@ -27,7 +29,8 @@ class SantriSakit extends Model
         'catatan',
         'status',
         'jenis_perawatan',
-        'tujuan_rujukan'
+        'tujuan_rujukan',
+        'alasan_pulang',
     ];
 
     protected static function booted()
@@ -56,6 +59,8 @@ class SantriSakit extends Model
     protected $casts = [
         'tgl_masuk' => 'date',
         'tgl_sembuh' => 'date',
+        'tgl_pulang' => 'datetime',
+        'tgl_kembali' => 'datetime',
         'tanggal_mulai_sakit' => 'date',
     ];
 

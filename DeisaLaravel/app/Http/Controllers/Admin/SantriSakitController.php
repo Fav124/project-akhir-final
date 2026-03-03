@@ -6,9 +6,43 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\ActivityLog;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 
 class SantriSakitController extends Controller
 {
+    private function hasPulangColumns(): bool
+    {
+        return Schema::hasColumn('santri_sakits', 'tgl_pulang')
+            && Schema::hasColumn('santri_sakits', 'tgl_kembali')
+            && Schema::hasColumn('santri_sakits', 'alasan_pulang');
+    }
+
+    private function syncPulangTimeline(array $input, ?\App\Models\SantriSakit $existing = null): array
+    {
+        if (!$this->hasPulangColumns()) {
+            unset($input['tgl_pulang'], $input['tgl_kembali'], $input['alasan_pulang']);
+            return $input;
+        }
+
+        $status = $input['status'] ?? ($existing?->status);
+
+        if ($status === 'Pulang') {
+            $input['tgl_pulang'] = $existing?->tgl_pulang ?? now();
+            $input['tgl_kembali'] = null;
+        } elseif ($status === 'Sakit') {
+            if ($existing && $existing->status === 'Pulang' && !$existing->tgl_kembali) {
+                $input['tgl_kembali'] = now();
+            }
+        } elseif ($status === 'Sembuh') {
+            $input['tgl_sembuh'] = $existing?->tgl_sembuh ?? now();
+            if ($existing && $existing->status === 'Pulang' && !$existing->tgl_kembali) {
+                $input['tgl_kembali'] = now();
+            }
+        }
+
+        return $input;
+    }
+
     public function index(Request $request)
     {
         $query = \App\Models\SantriSakit::with(['santri', 'santri.kelas']);
@@ -54,6 +88,48 @@ class SantriSakitController extends Controller
         return view('admin.sakit.create', compact('santris', 'obats', 'diagnoses'));
     }
 
+    public function monitorPulang(Request $request)
+    {
+        $hasPulangColumns = $this->hasPulangColumns();
+        $query = \App\Models\SantriSakit::with(['santri', 'santri.kelas'])
+            ->where(function ($q) use ($hasPulangColumns) {
+                $q->where('status', 'Pulang');
+                if ($hasPulangColumns) {
+                    $q->orWhereNotNull('tgl_pulang');
+                }
+            });
+
+        if ($request->filled('monitor_status')) {
+            if ($request->monitor_status === 'pulang') {
+                $query->where('status', 'Pulang');
+            } elseif ($request->monitor_status === 'kembali') {
+                if ($hasPulangColumns) {
+                    $query->whereNotNull('tgl_kembali');
+                } else {
+                    $query->whereRaw('1 = 0');
+                }
+            } elseif ($request->monitor_status === 'sembuh') {
+                $query->where('status', 'Sembuh');
+            }
+        }
+
+        if ($request->filled('search')) {
+            $term = $request->search;
+            $query->whereHas('santri', function ($q) use ($term) {
+                $q->where('nama_lengkap', 'like', "%{$term}%")
+                    ->orWhere('nis', 'like', "%{$term}%");
+            });
+        }
+
+        $records = $query->latest()->paginate(10);
+
+        if ($request->ajax()) {
+            return view('admin.sakit._pulang_table', compact('records'));
+        }
+
+        return view('admin.sakit.pulang', compact('records'));
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -66,6 +142,7 @@ class SantriSakitController extends Controller
             'status' => 'required|in:Sakit,Pulang,Sembuh',
             'jenis_perawatan' => 'required|in:UKS,Rumah Sakit,Pulang',
             'tujuan_rujukan' => 'nullable|string',
+            'alasan_pulang' => 'nullable|string|max:255',
             'obat_ids' => 'nullable|array',
             'obat_ids.*' => 'exists:obats,id',
             'obat_jumlahs' => 'nullable|array',
@@ -74,6 +151,7 @@ class SantriSakitController extends Controller
         try {
             \DB::beginTransaction();
 
+            $validated = $this->syncPulangTimeline($validated);
             $record = \App\Models\SantriSakit::create($validated);
 
             // Handle Medicine Usage
@@ -149,6 +227,7 @@ class SantriSakitController extends Controller
             'status' => 'required|in:Sakit,Pulang,Sembuh',
             'jenis_perawatan' => 'required|in:UKS,Rumah Sakit,Pulang',
             'tujuan_rujukan' => 'nullable|string',
+            'alasan_pulang' => 'nullable|string|max:255',
             'obat_ids' => 'nullable|array',
             'obat_jumlahs' => 'nullable|array',
         ]);
@@ -162,6 +241,7 @@ class SantriSakitController extends Controller
             }
             $record->obats()->detach();
 
+            $validated = $this->syncPulangTimeline($validated, $record);
             $record->update($validated);
 
             // Handle New Medicine Usage
@@ -228,9 +308,15 @@ class SantriSakitController extends Controller
                 $record->santri->update(['status_kesehatan' => 'Sehat']);
             } elseif ($status == 'Pulang') {
                 $updateData['jenis_perawatan'] = 'Pulang';
+                $updateData['tgl_pulang'] = $record->tgl_pulang ?? now();
+                $updateData['alasan_pulang'] = $record->alasan_pulang ?: ($record->diagnosis_utama ?? 'Perlu observasi lanjutan di rumah');
                 $record->santri->update(['status_kesehatan' => 'Pemulihan']);
             } elseif ($status == 'Sakit') {
                 // Return from Pulang
+                if ($record->status === 'Pulang') {
+                    $updateData['tgl_kembali'] = now();
+                }
+                $updateData['jenis_perawatan'] = 'UKS';
                 $record->santri->update(['status_kesehatan' => 'Sakit']);
             }
 

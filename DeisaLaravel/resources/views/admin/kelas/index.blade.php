@@ -18,7 +18,7 @@
                     class="w-full max-w-xs px-4 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-deisa-blue">
             </form>
             <div class="flex gap-3">
-                <x-button class="whitespace-nowrap" data-form-url="{{ route('admin.kelas.create') }}">
+                <x-button class="whitespace-nowrap" href="{{ route('admin.kelas.create') }}">
                     + Tambah Kelas
                 </x-button>
             </div>

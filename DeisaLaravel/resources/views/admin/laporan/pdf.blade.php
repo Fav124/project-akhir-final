@@ -5,79 +5,162 @@
     <meta charset="utf-8">
     <title>{{ $title }}</title>
     <style>
+        @page {
+            margin: 28px 28px 90px 28px;
+        }
+
         body {
-            font-family: 'Helvetica', sans-serif;
-            line-height: 1.6;
-            color: #333;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 12px;
+            line-height: 1.35;
+            color: #111827;
         }
 
         .header {
             text-align: center;
-            border-bottom: 2px solid #0B63D6;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
+            border-bottom: 3px double #000;
+            padding-bottom: 12px;
+            margin-bottom: 14px;
         }
 
-        .header h1 {
+        .header .org {
             margin: 0;
-            color: #0B63D6;
-            font-size: 24px;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
         }
 
-        .header p {
-            margin: 5px 0;
+        .header .unit {
+            margin: 0;
+            margin-top: 2px;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+        }
+
+        .header .address {
+            margin-top: 3px;
+            font-size: 11px;
+        }
+
+        .title {
+            margin: 14px 0 8px;
+            text-align: center;
+        }
+
+        .title h1 {
+            margin: 0;
             font-size: 14px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            text-decoration: underline;
+            letter-spacing: 0.5px;
         }
 
-        .info {
-            margin-bottom: 20px;
-        }
-
-        .info table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .info td {
-            padding: 5px;
-            font-size: 12px;
-        }
-
-        .summary-box {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-
-        .summary-box h3 {
-            margin-top: 0;
-            font-size: 16px;
-            border-bottom: 1px solid #e2e8f0;
-            padding-bottom: 5px;
-        }
-
-        table.records {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-
-        table.records th {
-            background: #0B63D6;
-            color: white;
-            padding: 10px;
-            font-size: 12px;
-            text-align: left;
-        }
-
-        table.records td {
-            padding: 8px;
-            border-bottom: 1px solid #eee;
+        .title .subtitle {
+            margin-top: 3px;
             font-size: 11px;
+        }
+
+        .meta,
+        .summary,
+        .records,
+        .signature {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .meta {
+            margin-top: 8px;
+            margin-bottom: 12px;
+        }
+
+        .meta td {
+            padding: 3px 2px;
+            font-size: 12px;
+            vertical-align: top;
+        }
+
+        .meta .label {
+            width: 135px;
+        }
+
+        .meta .separator {
+            width: 10px;
+            text-align: center;
+        }
+
+        .section-title {
+            margin: 10px 0 5px;
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        .summary {
+            margin-bottom: 10px;
+            border: 1px solid #000;
+        }
+
+        .summary td {
+            border: 1px solid #000;
+            padding: 6px 8px;
+            font-size: 12px;
+        }
+
+        .summary .value {
+            width: 160px;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .records {
+            margin-top: 4px;
+            margin-bottom: 20px;
+        }
+
+        .records th,
+        .records td {
+            border: 1px solid #000;
+            padding: 5px 6px;
+            font-size: 11px;
+            vertical-align: top;
+        }
+
+        .records th {
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .records .num,
+        .records .date,
+        .records .class,
+        .records .status {
+            text-align: center;
+        }
+
+        .no-data {
+            text-align: center;
+            font-style: italic;
+        }
+
+        .signature {
+            margin-top: 20px;
+        }
+
+        .signature td {
+            font-size: 12px;
+            padding: 2px 0;
+            vertical-align: top;
+        }
+
+        .signature .right {
+            width: 42%;
+            text-align: center;
+            padding-left: 20px;
+        }
+
+        .signature-space {
+            height: 62px;
         }
 
         .footer {
@@ -86,101 +169,112 @@
             width: 100%;
             text-align: center;
             font-size: 10px;
-            color: #94a3b8;
-            border-top: 1px solid #eee;
-            padding-top: 10px;
-        }
-
-        .status-pill {
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 10px;
-        }
-
-        .badge-sakit {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .badge-sembuh {
-            background: #d1fae5;
-            color: #065f46;
+            border-top: 1px solid #000;
+            padding-top: 6px;
         }
     </style>
 </head>
 
 <body>
     <div class="header">
-        <h1>DEISA HEALTH</h1>
-        <p>Unit Kesehatan Dar El-Ilmi (UKS)</p>
-        <p style="font-size: 10px;">Laporan Ringkasan Kesehatan Santri</p>
+        <p class="org">DEISA HEALTH</p>
+        <p class="unit">UNIT KESEHATAN DAR EL-ILMI (UKS)</p>
+        <p class="address">Dokumen Internal Layanan Kesehatan Santri</p>
     </div>
 
-    <div class="info">
-        <table>
-            <tr>
-                <td width="150">Jenis Laporan:</td>
-                <td><strong>Laporan Kunjungan Berkala</strong></td>
-                <td align="right">Dicetak Pada:</td>
-                <td align="right">{{ now()->translatedFormat('d F Y H:i') }}</td>
-            </tr>
-            <tr>
-                <td>Rentang Waktu:</td>
-                <td><strong>{{ $date_range }}</strong></td>
-                <td align="right">Oleh:</td>
-                <td align="right">{{ auth()->user()->name }}</td>
-            </tr>
-        </table>
+    <div class="title">
+        <h1>Laporan Ringkasan Kesehatan Santri</h1>
+        <div class="subtitle">Periode {{ $date_range }}</div>
     </div>
 
-    <div class="summary-box">
-        <h3>Ringkasan Statistik</h3>
-        <table>
-            <tr>
-                <td>Total Kunjungan UKS:</td>
-                <td><strong>{{ $summary['total_kunjungan'] }} Kasus</strong></td>
-                <td>Total Obat Terdistribusi:</td>
-                <td><strong>{{ $summary['total_obat'] }} Unit</strong></td>
-            </tr>
-        </table>
-    </div>
+    <table class="meta">
+        <tr>
+            <td class="label">Jenis Laporan</td>
+            <td class="separator">:</td>
+            <td>Laporan Kunjungan Berkala</td>
+            <td class="label">Tanggal Cetak</td>
+            <td class="separator">:</td>
+            <td>{{ now()->translatedFormat('d F Y, H:i') }} WIB</td>
+        </tr>
+        <tr>
+            <td class="label">Rentang Waktu</td>
+            <td class="separator">:</td>
+            <td>{{ $date_range }}</td>
+            <td class="label">Petugas Pencetak</td>
+            <td class="separator">:</td>
+            <td>{{ auth()->user()->name }}</td>
+        </tr>
+        <tr>
+            <td class="label">Nomor Dokumen</td>
+            <td class="separator">:</td>
+            <td>LKS/{{ now()->format('Ymd') }}/{{ str_pad((string) $records->count(), 3, '0', STR_PAD_LEFT) }}</td>
+            <td class="label">Jumlah Data</td>
+            <td class="separator">:</td>
+            <td>{{ $records->count() }} kunjungan</td>
+        </tr>
+    </table>
 
-    <h3>Daftar Detail Kunjungan</h3>
+    <div class="section-title">I. Ringkasan Statistik</div>
+    <table class="summary">
+        <tr>
+            <td>Total Kunjungan UKS</td>
+            <td class="value">{{ $summary['total_kunjungan'] }} Kasus</td>
+            <td>Total Obat Terdistribusi</td>
+            <td class="value">{{ $summary['total_obat'] }} Unit</td>
+        </tr>
+    </table>
+
+    <div class="section-title">II. Rincian Kunjungan</div>
     <table class="records">
         <thead>
             <tr>
-                <th>No</th>
-                <th>Tanggal</th>
-                <th>Nama Santri</th>
-                <th>Kelas</th>
+                <th style="width: 34px;">No</th>
+                <th style="width: 72px;">Tanggal</th>
+                <th style="width: 170px;">Nama Santri</th>
+                <th style="width: 70px;">Kelas</th>
                 <th>Keluhan / Diagnosis</th>
-                <th>Status</th>
+                <th style="width: 70px;">Status</th>
             </tr>
         </thead>
         <tbody>
             @forelse($records as $index => $row)
                 <tr>
-                    <td>{{ $index + 1 }}</td>
-                    <td>{{ $row->created_at->format('d/m/Y') }}</td>
+                    <td class="num">{{ $index + 1 }}</td>
+                    <td class="date">{{ $row->created_at->format('d/m/Y') }}</td>
                     <td><strong>{{ $row->santri->nama_lengkap }}</strong></td>
-                    <td>{{ $row->santri->kelas->nama_kelas ?? 'N/A' }}</td>
+                    <td class="class">{{ $row->santri->kelas->nama_kelas ?? '-' }}</td>
                     <td>{{ $row->keluhan ?: ($row->gejala ?: '-') }}</td>
-                    <td>
-                        <span class="status-pill {{ $row->status == 'Sembuh' ? 'badge-sembuh' : 'badge-sakit' }}">
-                            {{ $row->status }}
-                        </span>
-                    </td>
+                    <td class="status">{{ strtoupper($row->status) }}</td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="6" align="center">Tidak ada data untuk periode ini</td>
+                    <td colspan="6" class="no-data">Tidak ada data kunjungan pada periode ini.</td>
                 </tr>
             @endforelse
         </tbody>
     </table>
 
+    <table class="signature">
+        <tr>
+            <td></td>
+            <td class="right">Dar El-Ilmi, {{ now()->translatedFormat('d F Y') }}</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td class="right">Petugas UKS,</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td class="right signature-space"></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td class="right"><strong><u>{{ auth()->user()->name }}</u></strong></td>
+        </tr>
+    </table>
+
     <div class="footer">
-        Laporan ini digenerate secara otomatis oleh Sistem Informasi Deisa Health - &copy; {{ date('Y') }} Dar El-Ilmi
+        Dokumen ini dihasilkan oleh Sistem Informasi DEISA | {{ date('Y') }} Dar El-Ilmi
     </div>
 </body>
 

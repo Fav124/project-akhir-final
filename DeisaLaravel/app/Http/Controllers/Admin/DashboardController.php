@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\SantriSakit;
 use App\Models\Obat;
-use App\Models\PenggunaanObat;
 use App\Models\Santri;
+use App\Models\User;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
@@ -57,10 +57,10 @@ class DashboardController extends Controller
             ->get();
 
         return view('admin.dashboard', compact(
-            'totalPasienHariIni',
-            'menungguPemeriksaan',
-            'obatKeluarHariIni',
-            'totalSakit',
+            'sakitSantriCount',
+            'obatCount',
+            'totalSantriCount',
+            'totalUserCount',
             'criticalObatCount',
             'expiredObatCount',
             'dates',
@@ -80,10 +80,10 @@ class DashboardController extends Controller
         $today = Carbon::today();
 
         return [
-            'totalPasienHariIni' => SantriSakit::whereDate('created_at', $today)->count(),
-            'menungguPemeriksaan' => SantriSakit::where('status', 'menunggu')->count(),
-            'obatKeluarHariIni' => PenggunaanObat::whereDate('created_at', $today)->sum('jumlah'),
-            'totalSakit' => SantriSakit::whereIn('status', ['Sakit', 'Pulang'])->count(),
+            'sakitSantriCount' => Santri::where('status_kesehatan', 'Sakit')->count(),
+            'obatCount' => Obat::count(),
+            'totalSantriCount' => Santri::count(),
+            'totalUserCount' => User::count(),
             'today' => $today,
         ];
     }

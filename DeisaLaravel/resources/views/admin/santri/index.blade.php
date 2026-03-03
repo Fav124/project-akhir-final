@@ -26,7 +26,7 @@
                 </select>
             </form>
             <div class="flex gap-3">
-                <x-button class="whitespace-nowrap" data-form-url="{{ route('admin.santri.create') }}">
+                <x-button class="whitespace-nowrap" href="{{ route('admin.santri.create') }}">
                     + Tambah Santri
                 </x-button>
             </div>

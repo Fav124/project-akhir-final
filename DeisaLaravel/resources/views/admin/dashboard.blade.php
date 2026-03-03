@@ -11,18 +11,25 @@
     <div class="space-y-6" data-realtime-stats="/admin/dashboard/stats">
         <!-- Stats Grid -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-            <x-stats-card title="Pasien" value="{{ $totalPasienHariIni ?? 0 }}" trend="0%"
-                trendType="neutral" id="stats-patient-today" data-stat="totalPasienHariIni"
-                icon='<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>' />
+            <x-stats-card title="Santri Status Sakit" value="{{ $sakitSantriCount ?? 0 }}" trend="" trendType="neutral"
+                id="stats-sick-santri" data-stat="sakitSantriCount"
+                class="bg-rose-50 border-rose-200/80"
+                icon='<svg class="w-6 h-6 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M19.428 15.341A8 8 0 018.659 4.572m10.769 10.769A8 8 0 114.572 8.659m14.856 6.682L4.572 8.659"/></svg>' />
 
-            <x-stats-card title="Menunggu Pemeriksaan" value="{{ $menungguPemeriksaan ?? 0 }}" trend="" trendType="neutral" id="stats-waiting" data-stat="menungguPemeriksaan"
-                icon='<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>' />
+            <x-stats-card title="Jumlah Obat" value="{{ $obatCount ?? 0 }}" trend="" trendType="neutral"
+                id="stats-obat-count" data-stat="obatCount"
+                class="bg-emerald-50 border-emerald-200/80"
+                icon='<svg class="w-6 h-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M10.5 21a6.5 6.5 0 009.19-9.19l-6-6a6.5 6.5 0 00-9.19 9.19l6 6z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M7.5 16.5l9-9"/></svg>' />
 
-            <x-stats-card title="Obat Keluar" value="{{ $obatKeluarHariIni ?? 0 }}" trend="" trendType="neutral" id="stats-medicine-out" data-stat="obatKeluarHariIni"
-                icon='<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>' />
+            <x-stats-card title="Total Santri" value="{{ $totalSantriCount ?? 0 }}" trend="" trendType="neutral"
+                id="stats-total-santri" data-stat="totalSantriCount"
+                class="bg-blue-50 border-blue-200/80"
+                icon='<svg class="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>' />
 
-            <x-stats-card title="Santri Sakit (Total)" value="{{ $totalSakit ?? 0 }}" trend="" trendType="neutral" id="stats-total-sick" data-stat="totalSakit"
-                icon='<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>' />
+            <x-stats-card title="Total User" value="{{ $totalUserCount ?? 0 }}" trend="" trendType="neutral"
+                id="stats-total-user" data-stat="totalUserCount"
+                class="bg-violet-50 border-violet-200/80"
+                icon='<svg class="w-6 h-6 text-violet-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5.121 17.804A11.953 11.953 0 0112 15.75c2.56 0 4.93.804 6.879 2.054M15 11a3 3 0 11-6 0 3 3 0 016 0m6 1a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>' />
         </div>
 
         @if($criticalObatCount > 0 || $expiredObatCount > 0)
@@ -134,7 +141,46 @@
                     fill: true
                 }]
             },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } } }
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                plugins: { 
+                    legend: { display: false } 
+                }, 
+                scales: { 
+                    y: { 
+                        beginAtZero: true, 
+                        grid: { 
+                            display: true,
+                            color: 'rgba(0, 0, 0, 0.03)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            precision: 0,
+                            stepSize: 1,
+                            font: {
+                                size: 10,
+                                weight: 'bold'
+                            },
+                            color: '#94a3b8'
+                        }
+                    }, 
+                    x: { 
+                        grid: { 
+                            display: true,
+                            color: 'rgba(0, 0, 0, 0.03)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 10,
+                                weight: 'bold'
+                            },
+                            color: '#94a3b8'
+                        }
+                    } 
+                } 
+            }
         });
 
         const diagCtx = document.getElementById('diagnosisChart').getContext('2d');
@@ -149,7 +195,45 @@
                     borderRadius: 6
                 }]
             },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } } }
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                plugins: { 
+                    legend: { display: false } 
+                }, 
+                scales: { 
+                    y: { 
+                        beginAtZero: true, 
+                        grid: { 
+                            display: true,
+                            color: 'rgba(0, 0, 0, 0.03)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            precision: 0,
+                            stepSize: 1,
+                            font: {
+                                size: 10,
+                                weight: 'bold'
+                            },
+                            color: '#94a3b8'
+                        }
+                    }, 
+                    x: { 
+                        grid: { 
+                            display: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 10,
+                                weight: 'bold'
+                            },
+                            color: '#94a3b8'
+                        }
+                    } 
+                } 
+            }
         });
+
     </script>
 @endpush

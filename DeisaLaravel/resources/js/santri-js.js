@@ -17,8 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 let modal = document.getElementById('global-form-modal');
                 if (!modal) {
                     const modalHtml = `
-                        <div id="global-form-modal" class="fixed inset-0 z-[60] overflow-y-auto bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden">
-                            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden transform transition-all">
+                        <div id="global-form-modal" class="fixed inset-0 z-[60] overflow-y-auto bg-slate-900/45 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+                            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden transform transition-all">
                                 <div id="form-modal-content"></div>
                             </div>
                         </div>`;

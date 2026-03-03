@@ -5,8 +5,8 @@
     <!-- Sidebar -->
     <aside class="w-64 bg-white border-r border-slate-200 hidden md:flex flex-col flex-shrink-0 z-30 ">
         <div class="h-16 flex items-center px-6 border-b border-slate-200">
-            <x-logo size="sm" />
-            <span class="font-bold text-slate-900 text-lg tracking-tight ml-3">Deisa Admin</span>
+            <x-logo size="md" />
+            <span class="font-bold text-slate-900 text-lg tracking-tight ml-2">DEISA Admin</span>
         </div>
 
         <nav class="flex-1 overflow-y-auto p-4 space-y-1">
@@ -69,13 +69,23 @@
             </a>
 
             <a href="{{ route('admin.sakit.index') }}"
-                class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-colors group {{ request()->routeIs('admin.sakit.*') ? 'bg-blue-50 text-deisa-blue' : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900' }}">
-                <svg class="w-5 h-5 mr-3 {{ request()->routeIs('admin.sakit.*') ? 'text-deisa-blue' : 'text-slate-500 group-hover:text-slate-600' }}"
+                class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-colors group {{ request()->routeIs('admin.sakit.*') && !request()->routeIs('admin.sakit.pulang') ? 'bg-blue-50 text-deisa-blue' : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900' }}">
+                <svg class="w-5 h-5 mr-3 {{ request()->routeIs('admin.sakit.*') && !request()->routeIs('admin.sakit.pulang') ? 'text-deisa-blue' : 'text-slate-500 group-hover:text-slate-600' }}"
                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
                 Riwayat Sakit
+            </a>
+
+            <a href="{{ route('admin.sakit.pulang') }}"
+                class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-colors group {{ request()->routeIs('admin.sakit.pulang') ? 'bg-blue-50 text-deisa-blue' : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900' }}">
+                <svg class="w-5 h-5 mr-3 {{ request()->routeIs('admin.sakit.pulang') ? 'text-deisa-blue' : 'text-slate-500 group-hover:text-slate-600' }}"
+                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                Santri Pulang
             </a>
 
             <a href="{{ route('admin.obat.index') }}"
@@ -120,14 +130,18 @@
                 </svg>
                 Activity Log
             </a>
+
+            <a href="{{ route('profile.index') }}"
+                class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-colors group {{ request()->routeIs('profile.*') ? 'bg-blue-50 text-deisa-blue' : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900' }}">
+                <svg class="w-5 h-5 mr-3 {{ request()->routeIs('profile.*') ? 'text-deisa-blue' : 'text-slate-500 group-hover:text-slate-600' }}"
+                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l.7 2.152a1 1 0 00.95.69h2.264c.969 0 1.371 1.24.588 1.81l-1.832 1.331a1 1 0 00-.364 1.118l.7 2.152c.3.921-.755 1.688-1.539 1.118l-1.832-1.331a1 1 0 00-1.176 0l-1.832 1.331c-.783.57-1.838-.197-1.539-1.118l.7-2.152a1 1 0 00-.364-1.118L5.847 7.579c-.783-.57-.38-1.81.588-1.81h2.264a1 1 0 00.95-.69l.7-2.152z" />
+                </svg>
+                Setting & Personalisasi
+            </a>
             @endif
         </nav>
-
-        <style>
-            [x-cloak] {
-                display: none !important;
-            }
-        </style>
 
         <div class="p-4 border-t border-slate-200">
             <form method="POST" action="{{ route('logout') }}" id="logout-form">

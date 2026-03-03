@@ -9,7 +9,7 @@
         </div>
 
         <div class="container mx-auto px-4 md:px-6 relative z-10 text-center">
-            <h1 class="text-4xl md:text-6xl font-outfit font-extrabold mb-8 capitalize">Fitur Canggih Deisa Health</h1>
+            <h1 class="text-4xl md:text-6xl font-outfit font-extrabold mb-8 capitalize">Fitur Canggih DEISA</h1>
             <p class="text-xl text-slate-400 max-w-2xl mx-auto capitalize">Eksplorasi bagaimana Deisa membantu pesantren
                 mengelola kesehatan santri dengan lebih cerdas.</p>
         </div>
@@ -121,7 +121,7 @@
     <section class="py-24 bg-slate-50">
         <div class="container mx-auto px-4 md:px-6">
             <div class="bg-deisa-blue rounded-[3rem] p-12 text-center text-white relative overflow-hidden shadow-2xl">
-                <h2 class="text-3xl md:text-5xl font-outfit font-black mb-8 capitalize">Dapatkan Deisa Health Untuk
+                <h2 class="text-3xl md:text-5xl font-outfit font-black mb-8 capitalize">Dapatkan DEISA Untuk
                     Pesantren Anda</h2>
                 <div class="flex flex-col sm:flex-row items-center justify-center gap-6">
                     <a href="{{ route('register') }}"

@@ -5,7 +5,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Deisa Health')</title>
+    <title>@yield('title', 'DEISA - Dar El-Ilmi Kesehatan')</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo-deisa-removebg-preview.png') }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,55 +17,26 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <!-- Scripts & Styles -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <style>
-        :root {
-            @php
-                $themeColor = '#0B63D6';
-                if(auth()->check() && auth()->user()->profile && isset(auth()->user()->profile->settings['theme_color'])) {
-                    $settings = auth()->user()->profile->settings;
-                    if (is_string($settings)) {
-                        $settings = json_decode($settings, true);
-                    }
-                    $pref = $settings['theme_color'] ?? 'deisa-blue';
-                    $map = [
-                        'deisa-blue' => '#0B63D6',
-                        'indigo-600' => '#4f46e5',
-                        'emerald-600' => '#059669',
-                        'rose-600' => '#e11d48',
-                        'slate-800' => '#1e293b',
-                    ];
-                    $themeColor = $map[$pref] ?? $pref;
-                }
-            @endphp
-            --color-deisa-blue: {{ $themeColor }};
+    @vite(['resources/css/deisa.css', 'resources/js/app.js'])
+    @php
+        $themeColor = '#0B63D6';
+        if(auth()->check() && auth()->user()->profile && isset(auth()->user()->profile->settings['theme_color'])) {
+            $settings = auth()->user()->profile->settings;
+            if (is_string($settings)) {
+                $settings = json_decode($settings, true);
+            }
+            $pref = $settings['theme_color'] ?? 'deisa-blue';
+            $map = [
+                'deisa-blue' => '#0B63D6',
+                'indigo-600' => '#4f46e5',
+                'emerald-600' => '#059669',
+                'rose-600' => '#e11d48',
+                'slate-800' => '#1e293b',
+            ];
+            $themeColor = $map[$pref] ?? $pref;
         }
-
-        body {
-            font-family: 'Outfit', sans-serif;
-            background-color: #ffffff;
-        }
-
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-        }
-        
-        [x-cloak] { display: none !important; }
-
-        /* SweetAlert Custom Styling */
-        .swal2-popup {
-            border-radius: 20px !important;
-            padding: 2rem !important;
-            font-family: 'Outfit', sans-serif !important;
-        }
-        .swal2-title {
-            font-weight: 700 !important;
-            color: #0f172a !important;
-        }
-    </style>
+    @endphp
+    <style>:root { --color-deisa-blue: {{ $themeColor }}; }</style>
     <script>
         document.documentElement.classList.remove('dark');
         localStorage.setItem('theme', 'light');

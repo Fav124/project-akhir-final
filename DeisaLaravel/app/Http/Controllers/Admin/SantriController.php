@@ -46,7 +46,14 @@ class SantriController extends Controller
 
     public function show($id)
     {
-        $santri = Santri::with(['kelas', 'jurusan', 'wali'])->findOrFail($id);
+        $santri = Santri::with([
+            'kelas',
+            'jurusan',
+            'wali',
+            'sakit' => function ($q) {
+                $q->latest();
+            }
+        ])->findOrFail($id);
         if (request()->ajax()) {
             return view('admin.santri._detail', compact('santri'));
         }

@@ -7,8 +7,8 @@
     <div class="w-full max-w-md">
         <!-- Brand -->
         <div class="text-center mb-8">
-            <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/10 text-white text-3xl font-bold mb-4 backdrop-blur-sm border border-white/20 shadow-lg">
-                D
+            <div class="inline-flex items-center justify-center mb-4 transition-transform hover:scale-105 duration-300">
+                <x-logo size="lg" variant="light" />
             </div>
             <h1 class="text-2xl font-bold text-white tracking-tight">Setel Ulang Password</h1>
             <p class="text-blue-100 mt-2">Gunakan email yang terdaftar</p>

@@ -1,18 +1,16 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
-import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
     plugins: [
         laravel({
-            input: ['resources/css/app.css', 'resources/css/health-theme.css', 'resources/js/app.js'],
+            input: ['resources/css/deisa.css', 'resources/js/app.js'],
             refresh: [
                 'resources/views/**',
                 'app/**',
                 'routes/**',
             ],
         }),
-        tailwindcss(),
     ],
     server: {
         host: '0.0.0.0',
@@ -30,6 +28,7 @@ export default defineConfig({
         manifest: true,
         rollupOptions: {
             input: {
+                deisa: 'resources/css/deisa.css',
                 app: 'resources/js/app.js',
             },
         },

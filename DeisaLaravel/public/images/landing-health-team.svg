@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900" fill="none">
+  <rect width="1200" height="900" rx="48" fill="#EFF7FF"/>
+  <circle cx="260" cy="260" r="150" fill="#DDEEFF"/>
+  <circle cx="940" cy="640" r="180" fill="#E1F7EE"/>
+  <rect x="150" y="180" width="900" height="560" rx="40" fill="white" stroke="#D9E7FA" stroke-width="3"/>
+  <rect x="230" y="250" width="230" height="380" rx="24" fill="#F2F8FF"/>
+  <circle cx="345" cy="330" r="58" fill="#BDD6FC"/>
+  <rect x="280" y="410" width="130" height="170" rx="20" fill="#2F6DD5"/>
+  <rect x="560" y="250" width="410" height="110" rx="18" fill="#EDF9F5"/>
+  <rect x="590" y="286" width="210" height="14" rx="7" fill="#7CCFB0"/>
+  <rect x="590" y="314" width="150" height="12" rx="6" fill="#A9E3CE"/>
+  <rect x="560" y="390" width="410" height="110" rx="18" fill="#FFF6EB"/>
+  <rect x="590" y="426" width="240" height="14" rx="7" fill="#F1BF79"/>
+  <rect x="590" y="454" width="180" height="12" rx="6" fill="#F6D8A8"/>
+  <rect x="560" y="530" width="410" height="110" rx="18" fill="#F1F1FF"/>
+  <rect x="590" y="566" width="190" height="14" rx="7" fill="#AAA2F2"/>
+  <rect x="590" y="594" width="130" height="12" rx="6" fill="#CEC9FB"/>
+  <circle cx="910" cy="304" r="26" fill="#24B47E"/>
+  <path d="M898 304L908 314L924 296" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="910" cy="444" r="26" fill="#F59E0B"/>
+  <path d="M910 432V446L922 454" stroke="white" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="910" cy="584" r="26" fill="#6D63E9"/>
+  <path d="M898 584H922M910 572V596" stroke="white" stroke-width="6" stroke-linecap="round"/>
+  <text x="150" y="120" fill="#1E3A8A" font-family="Arial, sans-serif" font-size="46" font-weight="700">Tim Kesehatan Pesantren Terhubung</text>
+</svg>

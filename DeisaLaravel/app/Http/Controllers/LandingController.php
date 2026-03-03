@@ -19,7 +19,7 @@ class LandingController extends Controller
             'total_santri' => Santri::count(),
             'total_obat' => Obat::count(),
             'total_checks' => SantriSakit::count(),
-            'active_cases' => SantriSakit::where('status', 'dalam_perawatan')->count(),
+            'active_cases' => SantriSakit::whereIn('status', ['Sakit', 'Pulang'])->count(),
         ];
 
         return view('landing.index', compact('stats'));

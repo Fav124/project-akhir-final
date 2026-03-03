@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Validation\ValidationException;
 
 class ForgotPasswordController extends Controller
 {
@@ -15,13 +17,23 @@ class ForgotPasswordController extends Controller
     public function sendResetLinkEmail(Request $request)
     {
         $request->validate(['email' => 'required|email']);
-        
-        $user = \App\Models\User::where('email', $request->email)->first();
-        
-        if ($user) {
-            return back()->with('success', 'Permintaan reset password telah dicatat. Silakan hubungi Admin untuk instruksi selanjutnya.');
+
+        try {
+            $status = Password::sendResetLink(
+                $request->only('email')
+            );
+        } catch (\Throwable $e) {
+            return back()->withErrors([
+                'email' => ['Pengiriman email reset gagal. Periksa konfigurasi SMTP aplikasi.'],
+            ]);
         }
 
-        return back()->withErrors(['email' => 'Email tidak terdaftar dalam sistem.']);
+        if ($status === Password::RESET_LINK_SENT) {
+            return back()->with('success', __($status));
+        }
+
+        throw ValidationException::withMessages([
+            'email' => [__($status)],
+        ]);
     }
 }

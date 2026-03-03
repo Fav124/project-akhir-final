@@ -29,6 +29,6 @@
 @endphp
 
 <div
-    class="{{ $classes }} rounded-2xl flex items-center justify-center font-bold transition-all duration-300 overflow-hidden">
-    <img src="{{ asset('images/logo.png') }}" alt="Deisa Health" class="w-full h-full object-cover p-1">
+    class="{{ $classes }} deisa-brand-mark rounded-2xl flex items-center justify-center font-bold transition-all duration-300 overflow-hidden">
+    <img src="{{ asset('images/logo-deisa-removebg-preview.png') }}" alt="DEISA (Dar El-Ilmi Kesehatan)" class="w-full h-full object-contain {{ $size === 'md' ? 'p-1.5' : 'p-1' }}">
 </div>

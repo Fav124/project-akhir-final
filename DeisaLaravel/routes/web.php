@@ -22,6 +22,8 @@ Route::post('/logout', [App\Http\Controllers\Auth\LoginController::class , 'logo
 // Password Reset Routes
 Route::get('/forgot-password', [App\Http\Controllers\Auth\ForgotPasswordController::class , 'showLinkRequestForm'])->name('password.request');
 Route::post('/forgot-password', [App\Http\Controllers\Auth\ForgotPasswordController::class , 'sendResetLinkEmail'])->name('password.email');
+Route::get('/reset-password/{token}', [App\Http\Controllers\Auth\ResetPasswordController::class, 'showResetForm'])->name('password.reset');
+Route::post('/reset-password', [App\Http\Controllers\Auth\ResetPasswordController::class, 'reset'])->name('password.update');
 
 // Public/Dev Route for simple access if Auth not fully scaffolded yet
 Route::get('/dev-login', function () {
@@ -49,6 +51,7 @@ Route::middleware(['web', 'admin'])->prefix('admin')->name('admin.')->group(func
         // General Admin Panel Routes (Admin & User roles can access)
         Route::resource('santri', App\Http\Controllers\Admin\SantriController::class);
         Route::resource('sakit', App\Http\Controllers\Admin\SantriSakitController::class);
+        Route::get('sakit-pulang', [App\Http\Controllers\Admin\SantriSakitController::class, 'monitorPulang'])->name('sakit.pulang');
         Route::get('sakit/{id}/status/{status}', [App\Http\Controllers\Admin\SantriSakitController::class , 'setStatus'])->name('sakit.setStatus');
         Route::resource('obat', App\Http\Controllers\Admin\ObatController::class);
         Route::post('/obat/{id}/restock', [App\Http\Controllers\Admin\ObatController::class , 'restock'])->name('obat.restock');
