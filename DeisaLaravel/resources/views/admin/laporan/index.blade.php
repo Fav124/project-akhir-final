@@ -219,7 +219,7 @@
                                     <td class="px-4 py-3 text-center font-bold text-deisa-blue">{{ $item->total }}</td>
                                     <td class="px-4 py-3 text-right">
                                         <x-button variant="outline" class="text-xs px-2 py-1"
-                                            data-detail-url="{{ route('admin.santri.show', $item->santri_id) }}">Profil</x-button>
+                                            href="{{ route('admin.santri.show', $item->santri_id) }}">Profil</x-button>
                                     </td>
                                 </tr>
                             @empty

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Jurusan;
+use App\Models\Santri;
 use App\Models\ActivityLog;
 use Illuminate\Support\Facades\Auth;
 
@@ -35,6 +36,38 @@ class JurusanController extends Controller
             return view('admin.jurusan._form_modal');
         }
         return view('admin.jurusan.create');
+    }
+
+    public function show($id)
+    {
+        $jurusan = Jurusan::with(['kelas.santri'])->findOrFail($id);
+
+        $kelasIds = $jurusan->kelas->pluck('id');
+        $santriQuery = Santri::with('kelas')
+            ->where('jurusan_id', $jurusan->id);
+
+        if ($kelasIds->isNotEmpty()) {
+            $santriQuery->orWhereIn('kelas_id', $kelasIds);
+        }
+
+        $santris = $santriQuery->get()->unique('id')->values();
+
+        $statusKesehatan = $santris
+            ->groupBy(fn ($s) => $s->status_kesehatan ?: 'Tidak Diisi')
+            ->map(fn ($items) => $items->count())
+            ->sortDesc();
+
+        $distribusiKelas = $santris
+            ->groupBy(fn ($s) => optional($s->kelas)->nama_kelas ?: 'Tanpa Kelas')
+            ->map(fn ($items) => $items->count())
+            ->sortDesc();
+
+        return view('admin.jurusan.show', compact(
+            'jurusan',
+            'santris',
+            'statusKesehatan',
+            'distribusiKelas'
+        ));
     }
 
     public function store(Request $request)

@@ -35,20 +35,35 @@
                         </select>
                     </div>
                 </form>
-
-                @php
-                $currentClass = $selectedClassId ? $academicClasses->find($selectedClassId) : null;
-                @endphp
+                @if($currentClass)
+                <div class="mt-4 rounded-xl border border-blue-100 bg-blue-50 p-3">
+                    <p class="text-[11px] font-bold uppercase tracking-wider text-blue-700">Kelas sumber aktif</p>
+                    <p class="mt-1 text-sm font-semibold text-blue-900">
+                        {{ $currentClass->nama_kelas }} - {{ $currentClass->jenjang }} {{ $currentClass->tingkat }}
+                    </p>
+                </div>
+                @endif
 
                 @if($selectedClassId && count($santris) > 0)
                 <div class="pt-6 border-t border-slate-100 mt-6">
                     <h4 class="text-sm font-bold text-slate-800 mb-3">Tindakan Kolektif</h4>
+                    <div class="grid grid-cols-1 gap-2 mb-3">
+                        <div class="rounded-xl border border-emerald-100 bg-emerald-50 px-3 py-2 text-xs text-emerald-800">
+                            <span class="font-bold">⬆ Naik Kelas:</span> pindahkan ke kelas tingkat lebih tinggi dalam jenjang yang sama.
+                        </div>
+                        <div class="rounded-xl border border-amber-100 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                            <span class="font-bold">⏸ Tetap:</span> santri tetap di kelas saat ini dan ditandai tinggal kelas.
+                        </div>
+                        <div class="rounded-xl border border-purple-100 bg-purple-50 px-3 py-2 text-xs text-purple-800">
+                            <span class="font-bold">🎓 Alumni:</span> status akademik diubah menjadi alumni.
+                        </div>
+                    </div>
                     <div class="space-y-2" x-data="{ action: 'promote' }">
                         <select id="bulk-action-type" x-model="action"
                             class="w-full px-4 py-2 rounded-lg border border-slate-200 text-sm">
-                            <option value="promote">Naik ke Kelas Baru</option>
-                            <option value="stay">Tetap di Kelas Ini</option>
-                            <option value="graduate">Lulus (Jadi Alumni)</option>
+                            <option value="promote">⬆ Naik ke Kelas Baru</option>
+                            <option value="stay">⏸ Tetap di Kelas Ini</option>
+                            <option value="graduate">🎓 Lulus (Jadi Alumni)</option>
                         </select>
 
                         <div x-show="action === 'promote'" class="pt-2">
@@ -57,20 +72,17 @@
                             <select id="bulk-target-kelas"
                                 class="w-full px-4 py-2 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-blue-500/20 outline-none">
                                 <option value="">-- Pilih Kelas Tujuan --</option>
-                                @foreach($academicClasses as $class)
-                                @php
-                                // $currentClass is already defined at the top of the card
-                                $isHigher = $currentClass && $class->tingkat > $currentClass->tingkat;
-                                $isSameGrad = $currentClass && $class->tingkat == $currentClass->tingkat && $class->id
-                                != $currentClass->id;
-                                @endphp
-                                <option value="{{ $class->id }}"
-                                    class="{{ $isHigher ? 'text-emerald-600 font-bold' : ($isSameGrad ? 'text-amber-600' : '') }}">
-                                    {{ $class->nama_kelas }} ({{ $class->jenjang ?? '-' }})
-                                    {!! $isHigher ? ' &uparrow;' : '' !!}
+                                @foreach($promotionTargets as $class)
+                                <option value="{{ $class->id }}" class="text-emerald-700 font-semibold">
+                                    {{ $class->nama_kelas }} ({{ $class->jenjang ?? '-' }} {{ $class->tingkat }})
                                 </option>
                                 @endforeach
                             </select>
+                            @if($promotionTargets->isEmpty())
+                            <p class="mt-2 text-xs text-amber-700 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2">
+                                Tidak ada kelas target yang valid untuk kenaikan dari kelas ini.
+                            </p>
+                            @endif
                         </div>
 
                         <x-button class="w-full mt-4" variant="primary" id="btn-execute-process">
@@ -120,6 +132,7 @@
                                 </th>
                                 <th class="px-4 py-3">Nama Lengkap</th>
                                 <th class="px-4 py-3">NIS</th>
+                                <th class="px-4 py-3">Status</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-50">
@@ -131,13 +144,21 @@
                                 </td>
                                 <td class="px-4 py-3">
                                     <div class="font-medium text-slate-900">{{ $s->nama_lengkap }}</div>
+                                    <div class="text-xs text-slate-500">
+                                        {{ optional($s->jurusan)->nama_jurusan ?: 'Tanpa Jurusan' }}
+                                    </div>
                                 </td>
                                 <td class="px-4 py-3 font-mono text-slate-500">{{ $s->nis }}</td>
                                 <td class="px-4 py-3">
                                     @if($s->is_repeating)
                                     <span
                                         class="text-[9px] font-black text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200">
-                                        TINGGAL KELAS
+                                        ⏸ TINGGAL KELAS
+                                    </span>
+                                    @else
+                                    <span
+                                        class="text-[9px] font-black text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                                        ✔ NORMAL
                                     </span>
                                     @endif
                                 </td>
@@ -191,6 +212,7 @@
 
                 const action = document.getElementById('bulk-action-type').value;
                 const targetKelasId = document.getElementById('bulk-target-kelas')?.value;
+                const sourceKelasId = '{{ $selectedClassId }}';
 
                 if (action === 'promote' && !targetKelasId) {
                     showAlert('error', 'Pilih kelas tujuan kenaikan.');
@@ -218,6 +240,7 @@
                         const formData = new FormData();
                         selectedIds.forEach(id => formData.append('santri_ids[]', id));
                         formData.append('action', action);
+                        formData.append('source_kelas_id', sourceKelasId);
                         formData.append('_token', '{{ csrf_token() }}');
                         if (targetKelasId) formData.append('target_kelas_id', targetKelasId);
 

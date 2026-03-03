@@ -66,15 +66,15 @@
                                 @endif
                             </div>
 
-                            <button data-detail-url="{{ route('admin.sakit.show', $record->id) }}" title="Detail"
-                                class="p-1 hover:bg-blue-50 rounded text-blue-500 transition-colors border border-transparent hover:border-blue-100">
+                            <a href="{{ route('admin.sakit.show', $record->id) }}" title="Detail"
+                                class="p-1 hover:bg-blue-50 rounded text-blue-500 transition-colors border border-transparent hover:border-blue-100 inline-flex items-center justify-center">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                 </svg>
-                            </button>
+                            </a>
                             <button data-form-url="{{ route('admin.sakit.edit', $record->id) }}" title="Edit"
                                 class="p-1 hover:bg-slate-100 rounded text-slate-500 transition-colors border border-transparent hover:border-slate-200">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

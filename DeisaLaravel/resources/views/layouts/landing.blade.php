@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
 
     <!-- Styles & Scripts -->
@@ -69,40 +69,29 @@
     </script>
 </head>
 
-<body class="bg-white text-slate-900 overflow-x-hidden">
+<body class="bg-white text-slate-900 overflow-x-hidden font-['Manrope',sans-serif]">
     <!-- Navigation -->
     <nav x-data="{ open: false, atTop: true }" x-init="window.pageYOffset > 50 ? atTop = false : atTop = true"
         @scroll.window="window.pageYOffset > 50 ? atTop = false : atTop = true"
-        :class="atTop ? 'bg-transparent py-6' : 'glass-header py-4'"
-        class="fixed w-full z-50 transition-all duration-300">
+        :class="atTop ? 'pt-4' : 'pt-2'"
+        class="fixed top-0 left-0 w-full z-50 transition-all duration-300">
         <div class="container mx-auto px-4 md:px-6">
-            <div class="flex items-center justify-between">
+            <div class="flex items-center justify-between rounded-3xl px-5 md:px-7 py-3.5 border backdrop-blur-md transition-all duration-300 shadow-lg shadow-slate-900/10"
+                :class="atTop ? 'bg-white/96 border-slate-200/70' : 'bg-white/92 border-slate-200'">
                 <a href="{{ route('landing') }}" class="flex items-center space-x-3 group">
-                    <x-logo size="md" variant="light" />
-                    <span class="text-xl font-bold tracking-tight transition-colors"
-                        :class="atTop ? 'text-white' : 'text-deisa-blue'">DEISA</span>
+                    <x-logo size="lg" variant="plain" />
+                    <span class="text-2xl font-extrabold tracking-tight text-slate-900">DEISA</span>
                 </a>
 
-                <!-- Desktop Menu -->
-                <div class="hidden md:flex items-center space-x-8">
-                    <a href="#home" class="text-sm font-medium transition-colors"
-                        :class="atTop ? 'text-white/90 hover:text-white' : 'text-slate-600 hover:text-deisa-blue'">Beranda</a>
-                    <a href="#features" class="text-sm font-medium transition-colors"
-                        :class="atTop ? 'text-white/90 hover:text-white' : 'text-slate-600 hover:text-deisa-blue'">Fitur</a>
-                    <a href="#stats" class="text-sm font-medium transition-colors"
-                        :class="atTop ? 'text-white/90 hover:text-white' : 'text-slate-600 hover:text-deisa-blue'">Statistik</a>
-                    <a href="{{ route('login') }}" class="text-sm font-medium transition-colors"
-                        :class="atTop ? 'text-white/90 hover:text-white' : 'text-slate-600 hover:text-deisa-blue'">Masuk</a>
-                    <a href="{{ route('register') }}"
-                        class="px-5 py-2.5 rounded-full text-sm font-bold transition-all shadow-lg"
-                        :class="atTop ? 'bg-white text-deisa-blue hover:bg-slate-50' : 'bg-deisa-blue text-white hover:bg-blue-600 shadow-blue-500/20'">
-                        Mulai Sekarang
-                    </a>
+                <div class="hidden md:flex items-center space-x-2 bg-slate-50 border border-slate-200 px-3 py-2 rounded-2xl mr-3">
+                    <a href="#home" class="text-sm font-semibold text-slate-700 hover:text-deisa-blue hover:bg-white px-3 py-2 rounded-lg transition">Beranda</a>
+                    <a href="#features" class="text-sm font-semibold text-slate-700 hover:text-deisa-blue hover:bg-white px-3 py-2 rounded-lg transition">Fitur</a>
+                    <a href="#stats" class="text-sm font-semibold text-slate-700 hover:text-deisa-blue hover:bg-white px-3 py-2 rounded-lg transition">Statistik</a>
+                    <a href="{{ route('login') }}" class="text-sm font-semibold text-slate-700 hover:text-deisa-blue hover:bg-white px-3 py-2 rounded-lg transition">Masuk Admin</a>
                 </div>
 
                 <!-- Mobile Toggle -->
-                <button @click="open = !open" class="md:hidden transition-colors"
-                    :class="atTop ? 'text-white' : 'text-slate-600'">
+                <button @click="open = !open" class="md:hidden transition-colors text-slate-700">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path x-show="!open" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M4 6h16M4 12h16M4 18h16" />
@@ -116,7 +105,7 @@
         <!-- Mobile Menu -->
         <div x-show="open" x-transition:enter="transition ease-out duration-200"
             x-transition:enter-start="opacity-0 -translate-y-4" x-transition:enter-end="opacity-100 translate-y-0"
-            class="md:hidden bg-white border-b border-slate-100 absolute top-full left-0 w-full p-4 space-y-4 shadow-xl text-slate-600 font-medium">
+            class="md:hidden bg-white border border-slate-100 absolute top-full left-4 right-4 mt-2 rounded-2xl p-4 space-y-4 shadow-xl text-slate-700 font-medium">
             <a href="#home" class="block">Beranda</a>
             <a href="#features" class="block">Fitur</a>
             <a href="#stats" class="block">Statistik</a>
@@ -136,11 +125,11 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
                 <div class="col-span-1 md:col-span-1">
                     <div class="flex items-center space-x-3 mb-6">
-                        <x-logo size="md" variant="light" />
+                        <x-logo size="lg" variant="plain" />
                         <span class="text-xl font-bold tracking-tight">DEISA</span>
                     </div>
-                    <p class="text-slate-400 text-sm leading-relaxed capitalize">
-                        Solusi digital pengelolaan kesehatan santri di pesantren secara terpadu, cepat, dan akurat.
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Sistem manajemen kesehatan pesantren modern. Menghubungkan pengurus, santri, dan wali santri dalam satu platform terpadu.
                     </p>
                 </div>
                 <div>

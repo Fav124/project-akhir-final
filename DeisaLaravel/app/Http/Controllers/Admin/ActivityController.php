@@ -55,9 +55,6 @@ class ActivityController extends Controller
     public function show($id)
     {
         $log = ActivityLog::with('user')->findOrFail($id);
-        if (request()->ajax()) {
-            return view('admin.activity._detail', compact('log'));
-        }
         return view('admin.activity.show', compact('log'));
     }
 }

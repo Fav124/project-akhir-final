@@ -38,8 +38,9 @@
                     </td>
                     <td class="px-6 py-4 font-mono text-xs text-slate-400">{{ $log->ip_address }}</td>
                     <td class="px-6 py-4 text-right">
-                        <x-button variant="outline" size="sm" class="rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"
-                            data-detail-url="{{ route('admin.activity.show', $log->id) }}">
+                        <x-button variant="outline" size="sm"
+                            class="rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"
+                            href="{{ route('admin.activity.show', $log->id) }}">
                             Detail
                         </x-button>
                     </td>

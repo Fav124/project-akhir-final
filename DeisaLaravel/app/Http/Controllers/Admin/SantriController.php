@@ -54,9 +54,6 @@ class SantriController extends Controller
                 $q->latest();
             }
         ])->findOrFail($id);
-        if (request()->ajax()) {
-            return view('admin.santri._detail', compact('santri'));
-        }
         return view('admin.santri.show', compact('santri'));
     }
 

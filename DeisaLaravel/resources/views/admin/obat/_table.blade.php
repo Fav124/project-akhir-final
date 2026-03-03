@@ -54,7 +54,7 @@
                 <td class="px-4 py-3 text-right">
                     <div class="flex gap-2 justify-end">
                         <x-button variant="outline" class="px-2 py-1 text-xs"
-                            data-detail-url="{{ route('admin.obat.show', $obat->id) }}">Detail</x-button>
+                            href="{{ route('admin.obat.show', $obat->id) }}">Detail</x-button>
                         <x-button variant="outline" class="px-2 py-1 text-xs"
                             data-form-url="{{ route('admin.obat.edit', $obat->id) }}">Edit</x-button>
                         <x-button variant="outline" class="px-2 py-1 text-xs"

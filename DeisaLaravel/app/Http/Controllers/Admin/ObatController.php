@@ -108,10 +108,45 @@ class ObatController extends Controller
     public function show($id)
     {
         $obat = Obat::findOrFail($id);
-        if (request()->ajax()) {
-            return view('admin.obat._detail', compact('obat'));
+
+        $penggunaanQuery = \App\Models\PenggunaanObat::with(['santri_sakit.santri'])
+            ->where('obat_id', $obat->id)
+            ->latest();
+
+        $totalPemakaian = (int) (clone $penggunaanQuery)->sum('jumlah');
+        $totalTransaksi = (int) (clone $penggunaanQuery)->count();
+        $penggunaanTerbaru = (clone $penggunaanQuery)->limit(10)->get();
+
+        $monthly = \App\Models\PenggunaanObat::selectRaw('DATE_FORMAT(created_at, "%Y-%m") as bulan, SUM(jumlah) as total')
+            ->where('obat_id', $obat->id)
+            ->where('created_at', '>=', now()->subMonths(5)->startOfMonth())
+            ->groupBy('bulan')
+            ->orderBy('bulan')
+            ->get();
+
+        $monthMap = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $key = now()->subMonths($i)->format('Y-m');
+            $monthMap[$key] = 0;
         }
-        return view('admin.obat.show', compact('obat'));
+        foreach ($monthly as $row) {
+            $monthMap[$row->bulan] = (int) $row->total;
+        }
+
+        $usageLabels = collect(array_keys($monthMap))
+            ->map(fn($k) => \Carbon\Carbon::createFromFormat('Y-m', $k)->translatedFormat('M y'))
+            ->values()
+            ->toArray();
+        $usageValues = array_values($monthMap);
+
+        return view('admin.obat.show', compact(
+            'obat',
+            'totalPemakaian',
+            'totalTransaksi',
+            'penggunaanTerbaru',
+            'usageLabels',
+            'usageValues'
+        ));
     }
 
     public function edit($id)

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Kelas;
 use App\Models\Jurusan;
+use App\Models\SantriSakit;
 use App\Models\ActivityLog;
 use Illuminate\Support\Facades\Auth;
 
@@ -40,6 +41,33 @@ class KelasController extends Controller
             return view('admin.kelas._form_modal', compact('jurusans'));
         }
         return view('admin.kelas.create', compact('jurusans'));
+    }
+
+    public function show($id)
+    {
+        $kelas = Kelas::with(['jurusans', 'santri.jurusan', 'santri.wali'])->findOrFail($id);
+
+        $santriIds = $kelas->santri->pluck('id');
+        $riwayatSakit = $santriIds->isNotEmpty()
+            ? SantriSakit::whereIn('santri_id', $santriIds)->count()
+            : 0;
+
+        $statusKesehatan = $kelas->santri
+            ->groupBy(fn ($s) => $s->status_kesehatan ?: 'Tidak Diisi')
+            ->map(fn ($items) => $items->count())
+            ->sortDesc();
+
+        $komposisiJurusan = $kelas->santri
+            ->groupBy(fn ($s) => optional($s->jurusan)->nama_jurusan ?: 'Tanpa Jurusan')
+            ->map(fn ($items) => $items->count())
+            ->sortDesc();
+
+        return view('admin.kelas.show', compact(
+            'kelas',
+            'riwayatSakit',
+            'statusKesehatan',
+            'komposisiJurusan'
+        ));
     }
 
     public function store(Request $request)

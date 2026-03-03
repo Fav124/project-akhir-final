@@ -7,7 +7,7 @@
     } elseif ($size === 'sm') {
         $sizeClass = 'w-8 h-8 text-sm';
     } elseif ($size === 'lg') {
-        $sizeClass = 'w-14 h-14 text-2xl';
+        $sizeClass = 'w-16 h-16 text-2xl';
     } elseif ($size === 'xl') {
         $sizeClass = 'w-20 h-20 text-4xl';
     } else {
@@ -15,7 +15,9 @@
     }
 
     // Define variant classes
-    if ($variant === 'light') {
+    if ($variant === 'plain') {
+        $variantClass = 'bg-transparent text-deisa-blue shadow-none ring-0 border-0';
+    } elseif ($variant === 'light') {
         $variantClass = 'bg-white text-deisa-blue shadow-sm ring-1 ring-slate-100';
     } elseif ($variant === 'outline') {
         $variantClass = 'bg-white border-2 border-slate-100 text-deisa-blue';
@@ -29,6 +31,7 @@
 @endphp
 
 <div
-    class="{{ $classes }} deisa-brand-mark rounded-2xl flex items-center justify-center font-bold transition-all duration-300 overflow-hidden">
-    <img src="{{ asset('images/logo-deisa-removebg-preview.png') }}" alt="DEISA (Dar El-Ilmi Kesehatan)" class="w-full h-full object-contain {{ $size === 'md' ? 'p-1.5' : 'p-1' }}">
+    class="{{ $classes }} {{ $variant !== 'plain' ? 'deisa-brand-mark' : '' }} rounded-2xl flex items-center justify-center font-bold transition-all duration-300 overflow-hidden">
+    <img src="{{ asset('images/logo-deisa-removebg-preview.png') }}" alt="DEISA (Dar El-Ilmi Kesehatan)"
+        class="w-full h-full object-contain {{ $variant === 'plain' ? 'p-0' : ($size === 'md' ? 'p-1.5' : 'p-1') }}">
 </div>

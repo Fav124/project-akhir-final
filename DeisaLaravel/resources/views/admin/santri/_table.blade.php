@@ -46,7 +46,7 @@
             <td class="px-4 py-3">
                 <div class="flex gap-2 justify-end">
                     <x-button variant="outline" class="px-2 py-1 text-xs h-8"
-                        data-detail-url="{{ route('admin.santri.show', $santri->id) }}">Detail</x-button>
+                        href="{{ route('admin.santri.show', $santri->id) }}">Detail</x-button>
                     <x-button variant="outline" class="px-2 py-1 text-xs h-8"
                         data-form-url="{{ route('admin.santri.edit', $santri->id) }}">Edit</x-button>
                     <form action="{{ route('admin.santri.destroy', $santri->id) }}" method="POST" data-ajax="true"

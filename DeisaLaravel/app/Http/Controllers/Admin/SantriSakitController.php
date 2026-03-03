@@ -71,9 +71,6 @@ class SantriSakitController extends Controller
     public function show($id)
     {
         $record = \App\Models\SantriSakit::with(['santri', 'santri.kelas', 'santri.wali', 'obats'])->findOrFail($id);
-        if (request()->ajax()) {
-            return view('admin.sakit._detail', compact('record'));
-        }
         return view('admin.sakit.show', compact('record'));
     }
 
