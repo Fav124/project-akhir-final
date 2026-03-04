@@ -52,19 +52,36 @@
                     {{ $obat->tanggal_kadaluarsa ? \Carbon\Carbon::parse($obat->tanggal_kadaluarsa)->format('d/m/Y') : '-' }}
                 </td>
                 <td class="px-4 py-3 text-right">
-                    <div class="flex gap-2 justify-end">
-                        <x-button variant="outline" class="px-2 py-1 text-xs"
-                            href="{{ route('admin.obat.show', $obat->id) }}">Detail</x-button>
-                        <x-button variant="outline" class="px-2 py-1 text-xs"
-                            data-form-url="{{ route('admin.obat.edit', $obat->id) }}">Edit</x-button>
-                        <x-button variant="outline" class="px-2 py-1 text-xs"
-                            onclick="openRestockModal({{ json_encode($obat) }})">Restock</x-button>
+                    <div class="flex gap-2 justify-end items-center">
+                        <button type="button" title="Restock"
+                            onclick="openRestockModal({{ json_encode($obat) }})"
+                            class="p-1 hover:bg-emerald-50 rounded text-emerald-600 transition-colors border border-transparent hover:border-emerald-100 inline-flex items-center justify-center">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 4v16m8-8H4" />
+                            </svg>
+                        </button>
+                        <div class="mr-1 pr-1 border-r border-slate-200"></div>
+                        <a href="{{ route('admin.obat.show', $obat->id) }}" title="Detail"
+                            class="p-1 hover:bg-blue-50 rounded text-blue-500 transition-colors border border-transparent hover:border-blue-100 inline-flex items-center justify-center">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                        </a>
                         <form action="{{ route('admin.obat.destroy', $obat->id) }}" method="POST" data-ajax="true"
                             data-reload="true">
                             @csrf
                             @method('DELETE')
-                            <x-button variant="danger" class="px-2 py-1 text-xs" type="submit"
-                                onclick="return confirm('Hapus data?')">Hapus</x-button>
+                            <button type="submit" title="Hapus" onclick="return confirm('Hapus data?')"
+                                class="p-1 hover:bg-red-50 rounded text-red-500 transition-colors border border-transparent hover:border-red-100">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
                         </form>
                     </div>
                 </td>

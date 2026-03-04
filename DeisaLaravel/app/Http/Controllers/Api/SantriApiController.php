@@ -9,14 +9,10 @@ use Illuminate\Http\Request;
 
 class SantriApiController extends Controller
 {
-    /**
-     * Display a listing of santri
-     */
     public function index(Request $request)
     {
-        $query = Santri::with(['kelas', 'jurusan']);
+        $query = Santri::with(['kelas', 'jurusan', 'wali', 'sakit']);
 
-        // Search
         if ($request->has('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -25,54 +21,25 @@ class SantriApiController extends Controller
             });
         }
 
-        // Filter by kelas
         if ($request->has('kelas_id')) {
             $query->where('kelas_id', $request->kelas_id);
         }
 
-        // Filter by jurusan
         if ($request->has('jurusan_id')) {
             $query->where('jurusan_id', $request->jurusan_id);
         }
 
-        $perPage = $request->get('per_page', 20);
-        $santri = $query->orderBy('nama_lengkap')->paginate($perPage);
+        $santri = $query->orderBy('nama_lengkap')->get();
 
         return response()->json([
             'success' => true,
-            'data' => $santri->map(function ($s) {
-            return [
-                    'id' => $s->id,
-                    'nis' => $s->nis,
-                    'nama_lengkap' => $s->nama_lengkap,
-                    'jenis_kelamin' => $s->jenis_kelamin,
-                    'tanggal_lahir' => $s->tanggal_lahir,
-                    'alamat' => $s->alamat,
-                    'kelas' => $s->kelas ? [
-                        'id' => $s->kelas->id,
-                        'nama' => $s->kelas->nama_kelas
-                    ] : null,
-                    'jurusan' => $s->jurusan ? [
-                        'id' => $s->jurusan->id,
-                        'nama' => $s->jurusan->nama_jurusan
-                    ] : null
-                ];
-        }),
-            'meta' => [
-                'current_page' => $santri->currentPage(),
-                'last_page' => $santri->lastPage(),
-                'per_page' => $santri->perPage(),
-                'total' => $santri->total()
-            ]
+            'message' => 'Data santri berhasil diambil',
+            'data' => $santri->map(fn (Santri $item) => $this->transformSantri($item))->values(),
         ]);
     }
 
-    /**
-     * Store a newly created santri (Admin only)
-     */
     public function store(Request $request)
     {
-        // Check if user is admin
         if ($request->user()->role !== 'admin') {
             return response()->json([
                 'success' => false,
@@ -92,54 +59,34 @@ class SantriApiController extends Controller
 
         $santri = Santri::create($validated);
 
-        // Log activity
         Activity::create([
             'user_id' => $request->user()->id,
             'action' => 'create_santri',
             'description' => "Menambah santri: {$santri->nama_lengkap}"
         ]);
 
+        $santri->load(['kelas', 'jurusan', 'wali', 'sakit']);
+
         return response()->json([
             'success' => true,
             'message' => 'Santri berhasil ditambahkan',
-            'data' => $santri->load(['kelas', 'jurusan'])
+            'data' => $this->transformSantri($santri)
         ], 201);
     }
 
-    /**
-     * Display the specified santri
-     */
     public function show($id)
     {
-        $santri = Santri::with(['kelas', 'jurusan'])->findOrFail($id);
+        $santri = Santri::with(['kelas', 'jurusan', 'wali', 'sakit'])->findOrFail($id);
 
         return response()->json([
             'success' => true,
-            'data' => [
-                'id' => $santri->id,
-                'nis' => $santri->nis,
-                'nama_lengkap' => $santri->nama_lengkap,
-                'jenis_kelamin' => $santri->jenis_kelamin,
-                'tanggal_lahir' => $santri->tanggal_lahir,
-                'alamat' => $santri->alamat,
-                'kelas' => $santri->kelas ? [
-                    'id' => $santri->kelas->id,
-                    'nama' => $santri->kelas->nama_kelas
-                ] : null,
-                'jurusan' => $santri->jurusan ? [
-                    'id' => $santri->jurusan->id,
-                    'nama' => $santri->jurusan->nama_jurusan
-                ] : null
-            ]
+            'message' => 'Detail santri berhasil diambil',
+            'data' => $this->transformSantri($santri),
         ]);
     }
 
-    /**
-     * Update the specified santri (Admin only)
-     */
     public function update(Request $request, $id)
     {
-        // Check if user is admin
         if ($request->user()->role !== 'admin') {
             return response()->json([
                 'success' => false,
@@ -161,26 +108,23 @@ class SantriApiController extends Controller
 
         $santri->update($validated);
 
-        // Log activity
         Activity::create([
             'user_id' => $request->user()->id,
             'action' => 'update_santri',
             'description' => "Mengupdate santri: {$santri->nama_lengkap}"
         ]);
 
+        $santri->load(['kelas', 'jurusan', 'wali', 'sakit']);
+
         return response()->json([
             'success' => true,
             'message' => 'Santri berhasil diupdate',
-            'data' => $santri->load(['kelas', 'jurusan'])
+            'data' => $this->transformSantri($santri)
         ]);
     }
 
-    /**
-     * Remove the specified santri (Admin only)
-     */
     public function destroy(Request $request, $id)
     {
-        // Check if user is admin
         if ($request->user()->role !== 'admin') {
             return response()->json([
                 'success' => false,
@@ -203,5 +147,41 @@ class SantriApiController extends Controller
             'success' => true,
             'message' => 'Santri berhasil dihapus'
         ]);
+    }
+
+    private function transformSantri(Santri $santri): array
+    {
+        $latestSakit = $santri->sakit->sortByDesc('created_at')->first();
+        $riwayatSakit = $latestSakit?->diagnosis ?? $latestSakit?->diagnosis_utama ?? null;
+
+        return [
+            'id' => (int) $santri->id,
+            'nama_lengkap' => (string) ($santri->nama_lengkap ?? ''),
+            'nis' => (string) ($santri->nis ?? ''),
+            'kelas' => [
+                'id' => (int) ($santri->kelas?->id ?? 0),
+                'nama_kelas' => (string) ($santri->kelas?->nama_kelas ?? ''),
+            ],
+            'jurusan_list' => $santri->jurusan
+                ? [[
+                    'id' => (int) $santri->jurusan->id,
+                    'nama_jurusan' => (string) ($santri->jurusan->nama_jurusan ?? ''),
+                ]]
+                : [],
+            'tempat_lahir' => (string) ($santri->tempat_lahir ?? ''),
+            'tanggal_lahir' => $santri->tanggal_lahir
+                ? (string) \Illuminate\Support\Carbon::parse($santri->tanggal_lahir)->toDateString()
+                : '',
+            'tahun_masuk' => (int) ($santri->tahun_masuk ?? 0),
+            'golongan_darah' => (string) ($santri->golongan_darah ?? ''),
+            'riwayat_alergi' => $santri->riwayat_alergi,
+            'riwayat_sakit' => $riwayatSakit,
+            'wali' => $santri->wali ? [
+                'id' => (int) $santri->wali->id,
+                'nama' => (string) ($santri->wali->nama_wali ?? ''),
+                'no_hp' => (string) ($santri->wali->no_hp ?? ''),
+                'hubungan' => (string) ($santri->wali->hubungan ?? ''),
+            ] : null,
+        ];
     }
 }

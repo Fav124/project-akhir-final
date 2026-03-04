@@ -162,19 +162,19 @@
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         <!-- Topbar -->
         <header
-            class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 z-20 sticky top-0">
-            <div class="flex items-center">
+            class="min-h-16 bg-white border-b border-slate-200 flex items-start md:items-center justify-between px-4 md:px-6 py-2 z-20 sticky top-0 gap-4">
+            <div class="flex items-start md:items-center min-w-0">
                 <button class="md:hidden mr-4 text-slate-600 hover:text-slate-900">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M4 6h16M4 12h16M4 18h16"></path>
                     </svg>
                 </button>
-                <div>
+                <div class="min-w-0">
                     @yield('header')
                 </div>
             </div>
-            <div class="flex items-center gap-4" x-data="{}">
+            <div class="flex items-center gap-3 md:gap-4 shrink-0" x-data="{}">
                 <!-- Daily Summary Global Trigger -->
                 <button @click="$dispatch('open-focus-mode')"
                     class="flex items-center gap-2 px-4 py-2 bg-deisa-blue hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-blue-500/10 group">

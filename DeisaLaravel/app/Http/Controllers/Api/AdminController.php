@@ -14,70 +14,32 @@ use Carbon\Carbon;
 
 class AdminController extends Controller
 {
-    /**
-     * Admin Dashboard Stats
-     */
     public function dashboard()
     {
         try {
-            $totalSantri = Santri::count();
-            $totalSakit = SantriSakit::where('status', 'Sakit')->count();
-            $totalObat = Obat::count();
-            $obatHampirHabis = Obat::where('stok', '<', 10)->count();
-            $pendingUsers = User::where('status', 'pending')->count();
-
-            // Chart data - last 7 days
-            $chartData = [];
-            for ($i = 6; $i >= 0; $i--) {
-                $date = Carbon::now()->subDays($i);
-                $count = SantriSakit::whereDate('created_at', $date)->count();
-                $chartData[] = [
-                    'date' => $date->format('Y-m-d'),
-                    'label' => $date->format('d M'),
-                    'count' => $count
-                ];
-            }
-
-            // Recent activities
-            // Gracefully handle if Activity model/table has issues
-            $recentActivities = [];
-            try {
-                $recentActivities = Activity::with('user')
-                    ->latest()
-                    ->take(10)
-                    ->get()
-                    ->map(function ($activity) {
-                        return [
-                            'id' => $activity->id,
-                            'user_name' => $activity->user->name ?? 'System',
-                            'action' => $activity->action,
-                            'description' => $activity->description,
-                            'created_at' => $activity->created_at->diffForHumans()
-                        ];
-                    });
-            } catch (\Exception $e) {
-                // Log the error but don't fail the whole dashboard
-                \Log::error("Dashboard Activity Error: " . $e->getMessage());
-            }
-
             return response()->json([
                 'success' => true,
-                'data' => [
-                    'stats' => [
-                        'total_santri' => $totalSantri,
-                        'total_sakit' => $totalSakit,
-                        'total_obat' => $totalObat,
-                        'obat_hampir_habis' => $obatHampirHabis,
-                        'pending_users' => $pendingUsers
-                    ],
-                    'chart_data' => $chartData,
-                    'recent_activities' => $recentActivities
-                ]
+                'data' => $this->buildDashboardPayload(true),
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal memuat dashboard: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function mobileDashboard()
+    {
+        try {
+            return response()->json([
+                'success' => true,
+                'data' => $this->buildDashboardPayload(false),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memuat dashboard petugas: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -231,5 +193,56 @@ class AdminController extends Controller
             'success' => true,
             'data' => $notifications
         ]);
+    }
+
+    private function buildDashboardPayload(bool $includePendingUsers): array
+    {
+        $totalSantri = Santri::count();
+        $totalSakit = SantriSakit::where('status', 'Sakit')->count();
+        $totalObat = Obat::count();
+        $obatHampirHabis = Obat::whereColumn('stok', '<=', 'stok_minimum')->count();
+        $pendingUsers = $includePendingUsers ? User::where('status', 'pending')->count() : 0;
+
+        $chartData = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = Carbon::now()->subDays($i);
+            $count = SantriSakit::whereDate('created_at', $date)->count();
+            $chartData[] = [
+                'date' => $date->format('Y-m-d'),
+                'label' => $date->format('d M'),
+                'count' => $count
+            ];
+        }
+
+        $recentActivities = [];
+        try {
+            $recentActivities = Activity::with('user')
+                ->latest()
+                ->take(10)
+                ->get()
+                ->map(function ($activity) {
+                    return [
+                        'id' => $activity->id,
+                        'user_name' => $activity->user->name ?? 'System',
+                        'action' => $activity->action,
+                        'description' => $activity->description,
+                        'created_at' => $activity->created_at->diffForHumans()
+                    ];
+                });
+        } catch (\Exception $e) {
+            \Log::error("Dashboard Activity Error: " . $e->getMessage());
+        }
+
+        return [
+            'stats' => [
+                'total_santri' => $totalSantri,
+                'total_sakit' => $totalSakit,
+                'total_obat' => $totalObat,
+                'obat_hampir_habis' => $obatHampirHabis,
+                'pending_users' => $pendingUsers
+            ],
+            'chart_data' => $chartData,
+            'recent_activities' => $recentActivities
+        ];
     }
 }

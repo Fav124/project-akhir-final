@@ -174,6 +174,5 @@
 </div>
 
 <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-2 text-sm">
-    <x-button variant="primary" data-form-url="{{ route('admin.santri.edit', $santri->id) }}"
-        onclick="document.getElementById('global-detail-modal').classList.add('hidden')">Edit Data</x-button>
+    <x-button variant="primary" href="{{ route('admin.santri.edit', $santri->id) }}">Edit Data</x-button>
 </div>

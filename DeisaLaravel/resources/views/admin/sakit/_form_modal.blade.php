@@ -1,10 +1,18 @@
-<div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-white">
-    <h3 class="font-bold text-slate-900" id="modal-title">{{ isset($record) ? 'Edit Laporan Sakit' : 'Tambah Laporan Sakit' }}</h3>
-    <button data-modal-close class="text-slate-400 hover:text-slate-600">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-        </svg>
-    </button>
+<div class="px-6 py-5 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white">
+    <div class="flex items-start justify-between gap-4">
+        <div>
+            <p class="text-[11px] font-black uppercase tracking-widest text-deisa-blue/80">Layanan Kesehatan</p>
+            <h3 class="mt-1 text-lg font-bold text-slate-900" id="modal-title">
+                {{ isset($record) ? 'Edit Laporan Sakit' : 'Tambah Laporan Sakit' }}
+            </h3>
+            <p class="text-xs text-slate-500 mt-1">Perbarui pemeriksaan, pemakaian obat, dan status perawatan.</p>
+        </div>
+        <button data-modal-close class="text-slate-400 hover:text-slate-600 transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </button>
+    </div>
 </div>
 
 <form id="sakit-form"
@@ -12,7 +20,7 @@
     data-ajax="true" class="bg-white">
     @csrf
     @if(isset($record))
-        @method('PUT')
+    @method('PUT')
     @endif
 
     <div class="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
@@ -33,9 +41,9 @@
                         class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500/20 focus:border-deisa-blue outline-none transition-all bg-white">
                         <option value="">Pilih Santri</option>
                         @foreach($santris as $s)
-                            <option value="{{ $s->id }}" {{ (isset($record) && $record->santri_id == $s->id) ? 'selected' : '' }}>
-                                {{ $s->nis }} - {{ $s->nama_lengkap }} ({{ $s->kelas->nama_kelas ?? 'Tanpa Kelas' }})
-                            </option>
+                        <option value="{{ $s->id }}" {{ (isset($record) && $record->santri_id == $s->id) ? 'selected' : '' }}>
+                            {{ $s->nis }} - {{ $s->nama_lengkap }} ({{ $s->kelas->nama_kelas ?? 'Tanpa Kelas' }})
+                        </option>
                         @endforeach
                     </select>
                 </div>
@@ -50,13 +58,12 @@
 
             <div>
                 <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Diagnosis Utama</label>
-                <input type="text" name="diagnosis_utama" value="{{ $record->diagnosis_utama ?? '' }}" list="diagnosis-list"
-                    required
+                <input type="text" name="diagnosis_utama" value="{{ $record->diagnosis_utama ?? '' }}" list="diagnosis-list" required
                     class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500/20 focus:border-deisa-blue outline-none transition-all"
                     placeholder="Pilih atau ketik diagnosa...">
                 <datalist id="diagnosis-list">
                     @foreach($diagnoses as $diag)
-                        <option value="{{ $diag->nama_diagnosis }}">
+                    <option value="{{ $diag->nama_diagnosis }}">
                     @endforeach
                 </datalist>
             </div>
@@ -181,12 +188,19 @@
                         placeholder="Contoh: Observasi lanjutan di rumah">
                 </div>
             </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Catatan</label>
+                <textarea name="catatan" rows="2"
+                    class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500/20 focus:border-deisa-blue outline-none transition-all"
+                    placeholder="Catatan tambahan...">{{ $record->catatan ?? '' }}</textarea>
+            </div>
         </div>
     </div>
 
-    <div class="px-6 py-4 bg-white border-t border-slate-100 flex justify-end gap-2">
+    <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-2">
         <button type="button" data-modal-close
             class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">Batal</button>
-        <x-button type="submit" class="shadow-lg shadow-blue-500/20">Simpan Laporan</x-button>
+        <x-button type="submit" class="shadow-lg shadow-blue-500/20">Simpan Perubahan</x-button>
     </div>
 </form>

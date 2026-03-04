@@ -1,12 +1,18 @@
-<div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-    <h3 class="font-bold text-slate-900" id="modal-title">
-        {{ isset($santri) ? 'Edit Data Santri' : 'Tambah Santri Baru' }}
-    </h3>
-    <button data-modal-close class="text-slate-400 hover:text-slate-600">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-        </svg>
-    </button>
+<div class="px-6 py-5 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white">
+    <div class="flex items-start justify-between gap-4">
+        <div>
+            <p class="text-[11px] font-black uppercase tracking-widest text-deisa-blue/80">Manajemen Santri</p>
+            <h3 class="mt-1 text-lg font-bold text-slate-900" id="modal-title">
+                {{ isset($santri) ? 'Edit Data Santri' : 'Tambah Santri Baru' }}
+            </h3>
+            <p class="text-xs text-slate-500 mt-1">Lengkapi identitas utama dan detail wali dalam 2 langkah.</p>
+        </div>
+        <button data-modal-close class="text-slate-400 hover:text-slate-600 transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </button>
+    </div>
 </div>
 
 <form id="santri-stepper-form"
@@ -18,7 +24,6 @@
     @endif
 
     <div class="p-6">
-        <!-- Stepper Indicator -->
         <div class="flex items-center justify-center mb-8">
             <div class="flex items-center w-full max-w-xs">
                 <div id="step-1-indicator"
@@ -33,16 +38,26 @@
             </div>
         </div>
 
-        <!-- Step 1: Identitas Dasar -->
-        <div id="step-1" class="space-y-4" x-data="{ 
-            selectedKelas: '{{ $santri->kelas_id ?? '' }}',
-            classes: {{ $classes->toJson() }},
+        <div id="step-1" class="space-y-5" x-data='{
+            selectedKelas: @json((string)($santri->kelas_id ?? "")),
+            selectedJurusan: @json((string)($santri->jurusan_id ?? "")),
+            classes: @json($classes),
             get availableJurusans() {
                 if (!this.selectedKelas) return [];
-                const kelas = this.classes.find(k => k.id == this.selectedKelas);
-                return kelas ? kelas.jurusans : [];
+                const kelas = this.classes.find(k => String(k.id) === String(this.selectedKelas));
+                return kelas ? (kelas.jurusans || []) : [];
             }
-        }">
+        }' x-init="$nextTick(() => { selectedKelas = String(selectedKelas || ''); selectedJurusan = String(selectedJurusan || ''); })">
+            <div class="flex items-center gap-3 pb-2 border-b border-slate-100">
+                <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-deisa-blue">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                </div>
+                <h4 class="font-bold text-slate-800 text-sm uppercase tracking-wider">Identitas Dasar</h4>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Foto Santri</label>
@@ -67,10 +82,8 @@
                     <select name="jenis_kelamin" required
                         class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500/20 focus:border-deisa-blue outline-none transition-all bg-white">
                         <option value="">Pilih Jenis Kelamin</option>
-                        <option value="L" {{ (isset($santri) && $santri->jenis_kelamin == 'L') ? 'selected' : '' }}>
-                            Laki-laki</option>
-                        <option value="P" {{ (isset($santri) && $santri->jenis_kelamin == 'P') ? 'selected' : '' }}>
-                            Perempuan</option>
+                        <option value="L" {{ (isset($santri) && $santri->jenis_kelamin == 'L') ? 'selected' : '' }}>Laki-laki</option>
+                        <option value="P" {{ (isset($santri) && $santri->jenis_kelamin == 'P') ? 'selected' : '' }}>Perempuan</option>
                     </select>
                 </div>
                 <div>
@@ -79,7 +92,7 @@
                         class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500/20 focus:border-deisa-blue outline-none transition-all bg-white">
                         <option value="">Pilih Kelas</option>
                         @foreach($classes as $class)
-                        <option value="{{ $class->id }}">
+                        <option value="{{ $class->id }}" {{ (string)($santri->kelas_id ?? '') === (string)$class->id ? 'selected' : '' }}>
                             {{ $class->nama_kelas }}
                         </option>
                         @endforeach
@@ -94,13 +107,15 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Jurusan</label>
-                    <select name="jurusan_id" required
+                    <select name="jurusan_id" required x-model="selectedJurusan"
                         class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500/20 focus:border-deisa-blue outline-none transition-all bg-white disabled:opacity-50 disabled:bg-slate-50"
                         :disabled="!selectedKelas">
                         <option value="">Pilih Jurusan</option>
+                        @if(isset($santri) && $santri->jurusan)
+                        <option value="{{ $santri->jurusan->id }}">{{ $santri->jurusan->nama_jurusan }}</option>
+                        @endif
                         <template x-for="jurusan in availableJurusans" :key="jurusan.id">
-                            <option :value="jurusan.id" :selected="jurusan.id == '{{ $santri->jurusan_id ?? '' }}'"
-                                x-text="jurusan.nama_jurusan"></option>
+                            <option :value="String(jurusan.id)" x-text="jurusan.nama_jurusan"></option>
                         </template>
                     </select>
                 </div>
@@ -108,21 +123,27 @@
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Status Kesehatan Awal</label>
                     <select name="status_kesehatan" required
                         class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500/20 focus:border-deisa-blue outline-none transition-all bg-white">
-                        <option value="Sehat" {{ (isset($santri) && $santri->status_kesehatan == 'Sehat') ? 'selected' :
-                            '' }}>Sehat</option>
-                        <option value="Sakit" {{ (isset($santri) && $santri->status_kesehatan == 'Sakit') ? 'selected' :
-                            '' }}>Sakit</option>
-                        <option value="Rawat Inap" {{ (isset($santri) && $santri->status_kesehatan == 'Rawat Inap') ?
-                            'selected' : '' }}>Rawat Inap</option>
-                        <option value="Pulang" {{ (isset($santri) && $santri->status_kesehatan == 'Pulang') ? 'selected'
-                            : '' }}>Pulang</option>
+                        @foreach(['Sehat', 'Sakit', 'Rawat Inap', 'Pulang', 'Pemulihan'] as $status)
+                        <option value="{{ $status }}" {{ (isset($santri) && $santri->status_kesehatan == $status) ? 'selected' : '' }}>
+                            {{ $status }}
+                        </option>
+                        @endforeach
                     </select>
                 </div>
             </div>
         </div>
 
-        <!-- Step 2: Detail & Wali -->
-        <div id="step-2" class="hidden space-y-4">
+        <div id="step-2" class="hidden space-y-5">
+            <div class="flex items-center gap-3 pb-2 border-b border-slate-100">
+                <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586" />
+                    </svg>
+                </div>
+                <h4 class="font-bold text-slate-800 text-sm uppercase tracking-wider">Detail & Data Wali</h4>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Tempat Lahir</label>
@@ -139,16 +160,18 @@
                     <select name="golongan_darah"
                         class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500/20 focus:border-deisa-blue outline-none transition-all bg-white">
                         <option value="">Pilih Golongan Darah</option>
-                        <option value="A" {{ (isset($santri) && $santri->golongan_darah == 'A') ? 'selected' : '' }}>A
-                        </option>
-                        <option value="B" {{ (isset($santri) && $santri->golongan_darah == 'B') ? 'selected' : '' }}>B
-                        </option>
-                        <option value="AB" {{ (isset($santri) && $santri->golongan_darah == 'AB') ? 'selected' : ''
-                            }}>AB
-                        </option>
-                        <option value="O" {{ (isset($santri) && $santri->golongan_darah == 'O') ? 'selected' : '' }}>O
-                        </option>
+                        @foreach(['A', 'B', 'AB', 'O'] as $darah)
+                        <option value="{{ $darah }}" {{ (isset($santri) && $santri->golongan_darah == $darah) ? 'selected' : '' }}>{{ $darah }}</option>
+                        @endforeach
                     </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Pernah Tinggal Kelas</label>
+                    <label class="inline-flex items-center gap-2 mt-2">
+                        <input type="checkbox" name="is_repeating" value="1" {{ (isset($santri) && $santri->is_repeating) ? 'checked' : '' }}
+                            class="rounded border-slate-300 text-deisa-blue focus:ring-deisa-blue">
+                        <span class="text-sm text-slate-700">Ya, santri pernah mengulang kelas</span>
+                    </label>
                 </div>
                 <div class="md:col-span-2">
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Alamat Lengkap</label>
@@ -175,12 +198,9 @@
                     <select name="hubungan"
                         class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500/20 focus:border-deisa-blue outline-none transition-all bg-white">
                         <option value="">Pilih Hubungan</option>
-                        <option value="Ayah" {{ (isset($santri) && optional($santri->wali)->hubungan == 'Ayah') ?
-                            'selected' : '' }}>Ayah</option>
-                        <option value="Ibu" {{ (isset($santri) && optional($santri->wali)->hubungan == 'Ibu') ?
-                            'selected' : '' }}>Ibu</option>
-                        <option value="Wali" {{ (isset($santri) && optional($santri->wali)->hubungan == 'Wali') ?
-                            'selected' : '' }}>Wali / Saudara</option>
+                        <option value="Ayah" {{ (isset($santri) && optional($santri->wali)->hubungan == 'Ayah') ? 'selected' : '' }}>Ayah</option>
+                        <option value="Ibu" {{ (isset($santri) && optional($santri->wali)->hubungan == 'Ibu') ? 'selected' : '' }}>Ibu</option>
+                        <option value="Wali" {{ (isset($santri) && optional($santri->wali)->hubungan == 'Wali') ? 'selected' : '' }}>Wali / Saudara</option>
                     </select>
                 </div>
                 <div>
@@ -208,7 +228,7 @@
                 class="px-4 py-2 text-sm font-medium text-white bg-deisa-blue hover:bg-blue-600 rounded-lg shadow-lg shadow-blue-500/20 transition-all">Lanjut</button>
             <button type="submit" id="submit-form"
                 class="hidden px-4 py-2 text-sm font-medium text-white bg-emerald-500 hover:bg-emerald-600 rounded-lg shadow-lg shadow-emerald-500/20 transition-all">Simpan
-                Data</button>
+                Perubahan</button>
         </div>
     </div>
 </form>

@@ -6,22 +6,20 @@ use App\Http\Controllers\Controller;
 use App\Models\SantriSakit;
 use App\Models\Activity;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Validator;
 
 class SakitApiController extends Controller
 {
-    /**
-     * Display a listing of sakit records
-     */
     public function index(Request $request)
     {
-        $query = SantriSakit::with(['santri.kelas']);
+        $query = SantriSakit::with(['santri.kelas', 'santri.jurusan', 'santri.wali']);
 
-        // Filter by status
         if ($request->has('status')) {
-            $query->where('status', $request->status);
+            $status = $this->normalizeStatus($request->status);
+            $query->where('status', $status);
         }
 
-        // Search by santri name
         if ($request->has('search')) {
             $search = $request->search;
             $query->whereHas('santri', function ($q) use ($search) {
@@ -29,128 +27,94 @@ class SakitApiController extends Controller
             });
         }
 
-        $perPage = $request->get('per_page', 20);
-        $sakit = $query->orderBy('created_at', 'desc')->paginate($perPage);
+        $sakit = $query->orderByDesc('tgl_masuk')->orderByDesc('id')->get();
 
         return response()->json([
             'success' => true,
-            'data' => $sakit->map(function ($s) {
-            return [
-                    'id' => $s->id,
-                    'santri' => [
-                        'id' => $s->santri->id,
-                        'nama' => $s->santri->nama_lengkap,
-                        'kelas' => $s->santri->kelas->nama_kelas ?? '-'
-                    ],
-                    'diagnosis_utama' => $s->diagnosis_utama,
-                    'keluhan' => $s->keluhan,
-                    'tindakan' => $s->tindakan,
-                    'status' => $s->status,
-                    'tanggal_masuk' => $s->created_at->format('Y-m-d H:i'),
-                    'tanggal_masuk_human' => $s->created_at->diffForHumans()
-                ];
-        }),
-            'meta' => [
-                'current_page' => $sakit->currentPage(),
-                'last_page' => $sakit->lastPage(),
-                'per_page' => $sakit->perPage(),
-                'total' => $sakit->total()
-            ]
+            'message' => 'Data santri sakit berhasil diambil',
+            'data' => $sakit->map(fn (SantriSakit $item) => $this->transformSakit($item))->values(),
         ]);
     }
 
-    /**
-     * Store a newly created sakit record (Admin & Staff)
-     */
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $payload = $this->normalizePayload($request);
+        $validator = Validator::make($payload, [
             'santri_id' => 'required|exists:santris,id',
-            'diagnosis_utama' => 'required|string',
-            'keluhan' => 'nullable|string',
-            'tindakan' => 'nullable|string',
-            'status' => 'required|in:Sakit,Sembuh'
+            'tgl_masuk' => 'nullable|date',
+            'gejala' => 'required|string',
+            'diagnosis' => 'required|string',
+            'tindakan' => 'required|string',
+            'jenis_perawatan' => 'required|in:UKS,Rumah Sakit,Pulang',
+            'status' => 'required|in:Sakit,Pulang,Sembuh',
+            'catatan' => 'nullable|string',
         ]);
+        $validated = $validator->validate();
 
         $sakit = SantriSakit::create($validated);
 
-        // Log activity
         Activity::create([
             'user_id' => $request->user()->id,
             'action' => 'create_sakit',
             'description' => "Menambah data sakit: {$sakit->santri->nama_lengkap}"
         ]);
 
+        $sakit->load(['santri.kelas', 'santri.jurusan', 'santri.wali']);
+
         return response()->json([
             'success' => true,
             'message' => 'Data sakit berhasil ditambahkan',
-            'data' => $sakit->load('santri.kelas')
+            'data' => $this->transformSakit($sakit),
         ], 201);
     }
 
-    /**
-     * Display the specified sakit record
-     */
     public function show($id)
     {
-        $sakit = SantriSakit::with(['santri.kelas'])->findOrFail($id);
+        $sakit = SantriSakit::with(['santri.kelas', 'santri.jurusan', 'santri.wali'])->findOrFail($id);
 
         return response()->json([
             'success' => true,
-            'data' => [
-                'id' => $sakit->id,
-                'santri' => [
-                    'id' => $sakit->santri->id,
-                    'nama' => $sakit->santri->nama_lengkap,
-                    'kelas' => $sakit->santri->kelas->nama_kelas ?? '-'
-                ],
-                'diagnosis_utama' => $sakit->diagnosis_utama,
-                'keluhan' => $sakit->keluhan,
-                'tindakan' => $sakit->tindakan,
-                'status' => $sakit->status,
-                'created_at' => $sakit->created_at->format('Y-m-d H:i'),
-                'updated_at' => $sakit->updated_at->format('Y-m-d H:i')
-            ]
+            'message' => 'Detail data sakit berhasil diambil',
+            'data' => $this->transformSakit($sakit),
         ]);
     }
 
-    /**
-     * Update the specified sakit record (Admin & Staff)
-     */
     public function update(Request $request, $id)
     {
         $sakit = SantriSakit::findOrFail($id);
 
-        $validated = $request->validate([
+        $payload = $this->normalizePayload($request);
+        $validator = Validator::make($payload, [
             'santri_id' => 'required|exists:santris,id',
-            'diagnosis_utama' => 'required|string',
-            'keluhan' => 'nullable|string',
-            'tindakan' => 'nullable|string',
-            'status' => 'required|in:Sakit,Sembuh'
+            'tgl_masuk' => 'nullable|date',
+            'gejala' => 'required|string',
+            'diagnosis' => 'required|string',
+            'tindakan' => 'required|string',
+            'jenis_perawatan' => 'required|in:UKS,Rumah Sakit,Pulang',
+            'status' => 'required|in:Sakit,Pulang,Sembuh',
+            'catatan' => 'nullable|string',
         ]);
+        $validated = $validator->validate();
 
         $sakit->update($validated);
 
-        // Log activity
         Activity::create([
             'user_id' => $request->user()->id,
             'action' => 'update_sakit',
             'description' => "Mengupdate data sakit: {$sakit->santri->nama_lengkap}"
         ]);
 
+        $sakit->load(['santri.kelas', 'santri.jurusan', 'santri.wali']);
+
         return response()->json([
             'success' => true,
             'message' => 'Data sakit berhasil diupdate',
-            'data' => $sakit->load('santri.kelas')
+            'data' => $this->transformSakit($sakit),
         ]);
     }
 
-    /**
-     * Remove the specified sakit record (Admin only)
-     */
     public function destroy(Request $request, $id)
     {
-        // Check if user is admin
         if ($request->user()->role !== 'admin') {
             return response()->json([
                 'success' => false,
@@ -173,5 +137,88 @@ class SakitApiController extends Controller
             'success' => true,
             'message' => 'Data sakit berhasil dihapus'
         ]);
+    }
+
+    private function normalizePayload(Request $request): array
+    {
+        $tanggalMasuk = $request->input('tanggal_masuk', $request->input('tgl_masuk'));
+
+        return [
+            'santri_id' => (int) $request->input('santri_id', $request->input('santriId')),
+            'tgl_masuk' => $tanggalMasuk ?: now()->toDateString(),
+            'gejala' => (string) $request->input('keluhan_gejala', $request->input('gejala', $request->input('keluhan', ''))),
+            'keluhan' => (string) $request->input('keluhan_gejala', $request->input('keluhan', '')),
+            'diagnosis' => (string) $request->input('diagnosis', $request->input('diagnosis_utama', '')),
+            'diagnosis_utama' => (string) $request->input('diagnosis', $request->input('diagnosis_utama', '')),
+            'tindakan' => (string) $request->input('tindakan', ''),
+            'jenis_perawatan' => (string) $request->input('lokasi_perawatan', $request->input('jenis_perawatan', 'UKS')),
+            'status' => $this->normalizeStatus($request->input('status', 'Sakit')),
+            'catatan' => $request->input('pemakaian_obat', $request->input('catatan')),
+        ];
+    }
+
+    private function normalizeStatus(?string $status): string
+    {
+        $status = trim((string) $status);
+        if ($status === 'Sehat') {
+            return 'Sembuh';
+        }
+
+        return in_array($status, ['Sakit', 'Pulang', 'Sembuh'], true) ? $status : 'Sakit';
+    }
+
+    private function presentStatus(string $status): string
+    {
+        return $status === 'Sembuh' ? 'Sehat' : $status;
+    }
+
+    private function transformSantri(\App\Models\Santri $santri): array
+    {
+        return [
+            'id' => (int) $santri->id,
+            'nama_lengkap' => (string) ($santri->nama_lengkap ?? ''),
+            'nis' => (string) ($santri->nis ?? ''),
+            'kelas' => [
+                'id' => (int) ($santri->kelas?->id ?? 0),
+                'nama_kelas' => (string) ($santri->kelas?->nama_kelas ?? ''),
+            ],
+            'jurusan_list' => $santri->jurusan
+                ? [[
+                    'id' => (int) $santri->jurusan->id,
+                    'nama_jurusan' => (string) ($santri->jurusan->nama_jurusan ?? ''),
+                ]]
+                : [],
+            'tempat_lahir' => (string) ($santri->tempat_lahir ?? ''),
+            'tanggal_lahir' => $santri->tanggal_lahir
+                ? (string) Carbon::parse($santri->tanggal_lahir)->toDateString()
+                : '',
+            'tahun_masuk' => (int) ($santri->tahun_masuk ?? 0),
+            'golongan_darah' => (string) ($santri->golongan_darah ?? ''),
+            'riwayat_alergi' => $santri->riwayat_alergi,
+            'riwayat_sakit' => null,
+            'wali' => $santri->wali ? [
+                'id' => (int) $santri->wali->id,
+                'nama' => (string) ($santri->wali->nama_wali ?? ''),
+                'no_hp' => (string) ($santri->wali->no_hp ?? ''),
+                'hubungan' => (string) ($santri->wali->hubungan ?? ''),
+            ] : null,
+        ];
+    }
+
+    private function transformSakit(SantriSakit $sakit): array
+    {
+        return [
+            'id' => (int) $sakit->id,
+            'santri' => $this->transformSantri($sakit->santri),
+            'tanggal_masuk' => $sakit->tgl_masuk
+                ? Carbon::parse($sakit->tgl_masuk)->toDateString()
+                : now()->toDateString(),
+            'keluhan_gejala' => (string) ($sakit->gejala ?? $sakit->keluhan ?? ''),
+            'diagnosis' => (string) ($sakit->diagnosis ?? $sakit->diagnosis_utama ?? ''),
+            'tindakan' => (string) ($sakit->tindakan ?? ''),
+            'pemakaian_obat' => $sakit->catatan,
+            'lokasi_perawatan' => (string) ($sakit->jenis_perawatan ?? 'UKS'),
+            'status' => $this->presentStatus((string) $sakit->status),
+        ];
     }
 }

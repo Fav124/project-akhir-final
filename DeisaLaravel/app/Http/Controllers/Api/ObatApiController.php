@@ -6,68 +6,50 @@ use App\Http\Controllers\Controller;
 use App\Models\Obat;
 use App\Models\Activity;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Validator;
 
 class ObatApiController extends Controller
 {
-    /**
-     * Display a listing of obat
-     */
     public function index(Request $request)
     {
         $query = Obat::query();
 
-        // Search
         if ($request->has('search')) {
             $search = $request->search;
             $query->where('nama_obat', 'like', "%{$search}%");
         }
 
-        // Filter by low stock
         if ($request->boolean('low_stock')) {
-            $query->where('stok', '<', 10);
+            $query->whereColumn('stok', '<=', 'stok_minimum');
         }
 
-        $perPage = $request->get('per_page', 20);
-        $obat = $query->orderBy('nama_obat')->paginate($perPage);
+        $obat = $query->orderBy('nama_obat')->get();
 
         return response()->json([
             'success' => true,
-            'data' => $obat->map(function ($o) {
-                return [
-                    'id' => $o->id,
-                    'nama_obat' => $o->nama_obat,
-                    'jenis' => $o->jenis,
-                    'stok' => $o->stok,
-                    'satuan' => $o->satuan,
-                    'keterangan' => $o->keterangan,
-                    'is_low_stock' => $o->stok < 10
-                ];
-            }),
-            'meta' => [
-                'current_page' => $obat->currentPage(),
-                'last_page' => $obat->lastPage(),
-                'per_page' => $obat->perPage(),
-                'total' => $obat->total()
-            ]
+            'message' => 'Data obat berhasil diambil',
+            'data' => $obat->map(fn (Obat $item) => $this->transformObat($item))->values(),
         ]);
     }
 
-    /**
-     * Store a newly created obat (Admin & Staff)
-     */
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $payload = $this->normalizePayload($request);
+        $validator = Validator::make($payload, [
             'nama_obat' => 'required|string|max:255',
-            'jenis' => 'required|string|max:100',
+            'kategori' => 'required|string|max:100',
             'stok' => 'required|integer|min:0',
+            'stok_awal' => 'required|integer|min:0',
+            'stok_minimum' => 'required|integer|min:0',
+            'tanggal_kadaluarsa' => 'nullable|date',
             'satuan' => 'required|string|max:50',
-            'keterangan' => 'nullable|string'
+            'deskripsi' => 'nullable|string'
         ]);
+        $validated = $validator->validate();
 
         $obat = Obat::create($validated);
 
-        // Log activity
         Activity::create([
             'user_id' => $request->user()->id,
             'action' => 'create_obat',
@@ -77,49 +59,40 @@ class ObatApiController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Obat berhasil ditambahkan',
-            'data' => $obat
+            'data' => $this->transformObat($obat),
         ], 201);
     }
 
-    /**
-     * Display the specified obat
-     */
     public function show($id)
     {
         $obat = Obat::findOrFail($id);
 
         return response()->json([
             'success' => true,
-            'data' => [
-                'id' => $obat->id,
-                'nama_obat' => $obat->nama_obat,
-                'jenis' => $obat->jenis,
-                'stok' => $obat->stok,
-                'satuan' => $obat->satuan,
-                'keterangan' => $obat->keterangan,
-                'is_low_stock' => $obat->stok < 10
-            ]
+            'message' => 'Detail obat berhasil diambil',
+            'data' => $this->transformObat($obat),
         ]);
     }
 
-    /**
-     * Update the specified obat (Admin & Staff)
-     */
     public function update(Request $request, $id)
     {
         $obat = Obat::findOrFail($id);
 
-        $validated = $request->validate([
+        $payload = $this->normalizePayload($request);
+        $validator = Validator::make($payload, [
             'nama_obat' => 'required|string|max:255',
-            'jenis' => 'required|string|max:100',
+            'kategori' => 'required|string|max:100',
             'stok' => 'required|integer|min:0',
+            'stok_awal' => 'required|integer|min:0',
+            'stok_minimum' => 'required|integer|min:0',
+            'tanggal_kadaluarsa' => 'nullable|date',
             'satuan' => 'required|string|max:50',
-            'keterangan' => 'nullable|string'
+            'deskripsi' => 'nullable|string'
         ]);
+        $validated = $validator->validate();
 
         $obat->update($validated);
 
-        // Log activity
         Activity::create([
             'user_id' => $request->user()->id,
             'action' => 'update_obat',
@@ -129,13 +102,10 @@ class ObatApiController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Obat berhasil diupdate',
-            'data' => $obat
+            'data' => $this->transformObat($obat),
         ]);
     }
 
-    /**
-     * Restock obat (Admin & Staff)
-     */
     public function restock(Request $request, $id)
     {
         $obat = Obat::findOrFail($id);
@@ -148,7 +118,6 @@ class ObatApiController extends Controller
         $obat->stok += $validated['jumlah'];
         $obat->save();
 
-        // Log activity
         Activity::create([
             'user_id' => $request->user()->id,
             'action' => 'restock_obat',
@@ -158,16 +127,12 @@ class ObatApiController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Obat berhasil direstock',
-            'data' => $obat
+            'data' => $this->transformObat($obat),
         ]);
     }
 
-    /**
-     * Remove the specified obat (Admin only)
-     */
     public function destroy(Request $request, $id)
     {
-        // Check if user is admin
         if ($request->user()->role !== 'admin') {
             return response()->json([
                 'success' => false,
@@ -190,5 +155,36 @@ class ObatApiController extends Controller
             'success' => true,
             'message' => 'Obat berhasil dihapus'
         ]);
+    }
+
+    private function normalizePayload(Request $request): array
+    {
+        $stok = (int) $request->input('stok', 0);
+
+        return [
+            'nama_obat' => (string) $request->input('nama_obat', ''),
+            'kategori' => (string) $request->input('jenis_obat', $request->input('kategori', 'Lainnya')),
+            'stok' => $stok,
+            'stok_awal' => (int) $request->input('stok_awal', $stok),
+            'stok_minimum' => (int) $request->input('stok_minimal', $request->input('stok_minimum', 10)),
+            'tanggal_kadaluarsa' => $request->input('tanggal_kadaluarsa'),
+            'satuan' => (string) $request->input('satuan', 'Strip'),
+            'deskripsi' => $request->input('keterangan', $request->input('deskripsi')),
+        ];
+    }
+
+    private function transformObat(Obat $obat): array
+    {
+        return [
+            'id' => (int) $obat->id,
+            'nama_obat' => (string) ($obat->nama_obat ?? ''),
+            'jenis_obat' => (string) ($obat->kategori ?? ''),
+            'stok' => (int) ($obat->stok ?? 0),
+            'stok_minimal' => (int) ($obat->stok_minimum ?? 0),
+            'tanggal_kadaluarsa' => $obat->tanggal_kadaluarsa
+                ? Carbon::parse($obat->tanggal_kadaluarsa)->toDateString()
+                : '',
+            'keterangan' => $obat->deskripsi,
+        ];
     }
 }
